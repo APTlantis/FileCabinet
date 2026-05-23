@@ -739,7 +739,7 @@
                     <Grid Margin="12,14">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="76" />
+                            <RowDefinition Height="230" />
                         </Grid.RowDefinitions>
                         <Border Style="{StaticResource PanelBorder}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -970,26 +970,65 @@
                         </Border>
 
                         <Border Grid.Row="1" Style="{StaticResource PanelBorder}" Margin="0,10,0,0">
-                            <Grid Margin="14,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="42" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Border Width="34" Height="34" CornerRadius="17" Background="#536275">
-                                    <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="SETTINGS / VAULT STATUS" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
-                                    <Border Height="32" Background="#101C2B" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Margin="0,6,0,0">
-                                        <TextBlock Text="{Binding SettingsText}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" Margin="10,0" TextTrimming="CharacterEllipsis" />
-                                    </Border>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,20,0,0">
-                                    <Button Content="&#xE713;" Command="{Binding ShowSettingsCommand}" ToolTip="Refresh settings summary" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Width="34" Height="32" />
-                                    <Button Content="&#xE74E;" Command="{Binding BackupCatalogCommand}" ToolTip="Back up catalog" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Width="34" Height="32" Margin="6,0,0,0" />
-                                    <Button Content="&#xE90F;" Command="{Binding RepairCatalogCommand}" ToolTip="Repair check" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Width="34" Height="32" Margin="6,0,0,0" />
-                                </StackPanel>
+                            <Grid Margin="14,12">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="SETTINGS" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="SemiBold" />
+                                        <TextBlock Text="Vault, intake, backup, repair" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="&#xE713;" Command="{Binding ShowSettingsCommand}" ToolTip="Refresh settings summary" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Width="34" Height="30" />
+                                </Grid>
+
+                                <Grid Grid.Row="1" Margin="0,12,0,10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="72" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="Vault" Style="{StaticResource SmallLabel}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding VaultRootPath}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" />
+
+                                    <TextBlock Grid.Row="1" Text="Catalog" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CatalogPath}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
+
+                                    <TextBlock Grid.Row="2" Text="Intake" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IngestModeText}" Style="{StaticResource DataCell}" FontSize="12" Margin="0,7,0,0" />
+
+                                    <TextBlock Grid.Row="3" Text="Backup" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupDisplay}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
+
+                                    <TextBlock Grid.Row="4" Text="Repair" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding RepairStatus}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
+
+                                    <TextBlock Grid.Row="5" Text="AI / OCR" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding AiStatusText}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
+                                </Grid>
+
+                                <WrapPanel Grid.Row="2">
+                                    <Button Content="Vault..." Click="ChooseVaultButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="{Binding IngestModeText}" Command="{Binding ToggleIngestModeCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Backup" Command="{Binding BackupCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Repair" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Rescan" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" />
+                                </WrapPanel>
                             </Grid>
                         </Border>
                     </Grid>

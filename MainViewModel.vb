@@ -124,6 +124,7 @@ Public Class MainViewModel
                 OnPropertyChanged(NameOf(CurrentVaultSummary))
                 OnPropertyChanged(NameOf(StorageUsedText))
                 OnPropertyChanged(NameOf(StorageTotalText))
+                OnPropertyChanged(NameOf(LastBackupDisplay))
                 If _catalog IsNot Nothing AndAlso value IsNot Nothing Then
                     _catalog.CurrentVaultId = value.Id
                     _catalog.VaultRootPath = value.Path
@@ -378,6 +379,7 @@ Public Class MainViewModel
                 OnPropertyChanged()
                 OnPropertyChanged(NameOf(IngestModeText))
                 OnPropertyChanged(NameOf(IngestModeDetail))
+                OnPropertyChanged(NameOf(SettingsText))
             End If
         End Set
     End Property
@@ -526,6 +528,28 @@ Public Class MainViewModel
     Public ReadOnly Property SettingsText As String
         Get
             Return _settingsText
+        End Get
+    End Property
+
+    Public ReadOnly Property LastBackupDisplay As String
+        Get
+            If _catalog Is Nothing OrElse String.IsNullOrWhiteSpace(_catalog.LastBackupPath) Then
+                Return "No catalog backup yet"
+            End If
+
+            Return _catalog.LastBackupPath
+        End Get
+    End Property
+
+    Public ReadOnly Property AiStatusText As String
+        Get
+            Return "Deferred until core vault workflows are stable"
+        End Get
+    End Property
+
+    Public ReadOnly Property OcrStatusText As String
+        Get
+            Return "Deferred; text-like files are indexed locally"
         End Get
     End Property
 
@@ -1049,6 +1073,9 @@ Public Class MainViewModel
         Dim backupText = If(String.IsNullOrWhiteSpace(_catalog.LastBackupPath), "No catalog backup yet", _catalog.LastBackupPath)
         _settingsText = $"Vault: {VaultRootPath}{vbCrLf}Catalog: {CatalogPath}{vbCrLf}Last backup: {backupText}{vbCrLf}Intake: {IngestModeText}{vbCrLf}{DuplicatePolicyText}{vbCrLf}Repair: {RepairStatus}{vbCrLf}AI: deferred until core vault workflows are stable"
         OnPropertyChanged(NameOf(SettingsText))
+        OnPropertyChanged(NameOf(LastBackupDisplay))
+        OnPropertyChanged(NameOf(AiStatusText))
+        OnPropertyChanged(NameOf(OcrStatusText))
         ActionStatus = "Settings summarized"
     End Sub
 
@@ -1057,6 +1084,7 @@ Public Class MainViewModel
             Dim exportsRoot = Path.Combine(VaultRootPath, "exports")
             Dim backupPath = _catalogService.ExportSnapshot(_catalog, exportsRoot)
             ActionStatus = $"Catalog backup created: {backupPath}"
+            OnPropertyChanged(NameOf(LastBackupDisplay))
             ShowSettings()
         Catch ex As Exception
             ActionStatus = $"Backup failed: {ex.Message}"
@@ -1370,6 +1398,9 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(IngestModeText))
         OnPropertyChanged(NameOf(IngestModeDetail))
         OnPropertyChanged(NameOf(ActiveScopeText))
+        OnPropertyChanged(NameOf(LastBackupDisplay))
+        OnPropertyChanged(NameOf(AiStatusText))
+        OnPropertyChanged(NameOf(OcrStatusText))
         RebuildStats()
         RebuildRelatedArtifacts()
     End Sub
