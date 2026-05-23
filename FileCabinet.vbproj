@@ -19,4 +19,8 @@
     <Import Include="System.Windows.Shapes" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Blake3" Version="2.2.1" />
+  </ItemGroup>
+
 </Project>

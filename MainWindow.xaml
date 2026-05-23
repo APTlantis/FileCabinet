@@ -1,9 +1,6 @@
 <Window x:Class="MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
         Title="FileCabinet - Personal Vault &amp; Artifact Manager"
         Width="1680"
         Height="1040"
@@ -15,41 +12,16 @@
         Background="#07111C"
         Foreground="#E7EEF8">
     <Window.Resources>
-        <Color x:Key="WindowBg">#07111C</Color>
-        <Color x:Key="PanelBg">#0B1724</Color>
-        <Color x:Key="PanelAltBg">#0F1C2A</Color>
-        <Color x:Key="CardBg">#101D2B</Color>
-        <Color x:Key="CardHiBg">#142337</Color>
-        <Color x:Key="BorderDim">#223246</Color>
-        <Color x:Key="BorderStrong">#334860</Color>
-        <Color x:Key="Accent">#4DA3FF</Color>
-        <Color x:Key="AccentDeep">#1E63B6</Color>
-        <Color x:Key="AccentSoft">#173A61</Color>
-        <Color x:Key="Green">#55D680</Color>
-        <Color x:Key="Amber">#F5A623</Color>
-        <Color x:Key="Red">#F24F5F</Color>
-        <Color x:Key="Purple">#9566FF</Color>
-        <Color x:Key="PrimaryText">#E7EEF8</Color>
-        <Color x:Key="SecondaryText">#AEBBCD</Color>
-        <Color x:Key="MutedText">#728198</Color>
-
-        <SolidColorBrush x:Key="WindowBgBrush" Color="{StaticResource WindowBg}" />
-        <SolidColorBrush x:Key="PanelBgBrush" Color="{StaticResource PanelBg}" />
-        <SolidColorBrush x:Key="PanelAltBgBrush" Color="{StaticResource PanelAltBg}" />
-        <SolidColorBrush x:Key="CardBgBrush" Color="{StaticResource CardBg}" />
-        <SolidColorBrush x:Key="CardHiBgBrush" Color="{StaticResource CardHiBg}" />
-        <SolidColorBrush x:Key="BorderDimBrush" Color="{StaticResource BorderDim}" />
-        <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrong}" />
-        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
-        <SolidColorBrush x:Key="AccentDeepBrush" Color="{StaticResource AccentDeep}" />
-        <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoft}" />
-        <SolidColorBrush x:Key="GreenBrush" Color="{StaticResource Green}" />
-        <SolidColorBrush x:Key="AmberBrush" Color="{StaticResource Amber}" />
-        <SolidColorBrush x:Key="RedBrush" Color="{StaticResource Red}" />
-        <SolidColorBrush x:Key="PurpleBrush" Color="{StaticResource Purple}" />
-        <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryText}" />
-        <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryText}" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="{StaticResource MutedText}" />
+        <SolidColorBrush x:Key="WindowBgBrush" Color="#07111C" />
+        <SolidColorBrush x:Key="PanelBgBrush" Color="#091522" />
+        <SolidColorBrush x:Key="CardBgBrush" Color="#101D2B" />
+        <SolidColorBrush x:Key="CardAltBrush" Color="#0D1825" />
+        <SolidColorBrush x:Key="BorderDimBrush" Color="#223246" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#4DA3FF" />
+        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#E7EEF8" />
+        <SolidColorBrush x:Key="SecondaryTextBrush" Color="#AEBBCD" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#728198" />
+        <SolidColorBrush x:Key="GreenBrush" Color="#55D680" />
 
         <LinearGradientBrush x:Key="ShellGradientBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#0A1521" Offset="0" />
@@ -62,6 +34,25 @@
             <Setter Property="FontSize" Value="14" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+        </Style>
+
+        <Style x:Key="SmallLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="DataCell" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         </Style>
 
         <Style x:Key="PanelBorder" TargetType="Border">
@@ -89,9 +80,6 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#18283A" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#22364D" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -128,29 +116,81 @@
             </Setter>
         </Style>
 
-        <Style x:Key="NavRow" TargetType="Border">
+        <Style x:Key="NavCommandButton" TargetType="Button">
             <Setter Property="Height" Value="30" />
-            <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Padding" Value="9,0" />
             <Setter Property="Margin" Value="0,2" />
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-
-        <Style x:Key="NavRowSelected" TargetType="Border" BasedOn="{StaticResource NavRow}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Background" Value="#1B4778" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style x:Key="SmallLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
-        </Style>
-
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
+        <Style x:Key="NavListBox" TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        </Style>
+
+        <Style x:Key="NavListBoxItem" TargetType="ListBoxItem">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Margin" Value="0,2" />
+            <Setter Property="Padding" Value="9,0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Root"
+                                Background="Transparent"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#1B4778" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#142A42" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FilterListBoxItem" TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Root" Background="Transparent" CornerRadius="5" Padding="4,3">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#173A61" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#142A42" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="Chip" TargetType="Border">
@@ -160,17 +200,78 @@
             <Setter Property="Margin" Value="0,0,6,6" />
         </Style>
 
-        <Style x:Key="DataCell" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Style x:Key="EditorTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#0D1825" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="FontSize" Value="12" />
         </Style>
 
-        <Style x:Key="DataHeader" TargetType="TextBlock" BasedOn="{StaticResource DataCell}">
+        <Style x:Key="EditorComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="#0D1825" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="6,3" />
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="#0B1520" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="GridLinesVisibility" Value="None" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+            <Setter Property="RowHeight" Value="34" />
+            <Setter Property="ColumnHeaderHeight" Value="34" />
+            <Setter Property="AutoGenerateColumns" Value="False" />
+            <Setter Property="CanUserAddRows" Value="False" />
+            <Setter Property="CanUserDeleteRows" Value="False" />
+            <Setter Property="CanUserResizeRows" Value="False" />
+            <Setter Property="SelectionMode" Value="Single" />
+            <Setter Property="SelectionUnit" Value="FullRow" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#0B1520" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="#0B1520" />
+            <Style.Triggers>
+                <Trigger Property="AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="#0D1825" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#1B4778" />
+                    <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
@@ -195,13 +296,9 @@
                                VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource ChromeButton}" Click="MinimizeButton_Click" />
-                    <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource ChromeButton}" Click="MaximizeButton_Click" />
-                    <Button x:Name="CloseButton" Content="&#xE8BB;" Style="{StaticResource ChromeButton}" Click="CloseButton_Click">
-                        <Button.Resources>
-                            <Style TargetType="Border" />
-                        </Button.Resources>
-                    </Button>
+                    <Button Content="&#xE921;" Style="{StaticResource ChromeButton}" Click="MinimizeButton_Click" />
+                    <Button Content="&#xE922;" Style="{StaticResource ChromeButton}" Click="MaximizeButton_Click" />
+                    <Button Content="&#xE8BB;" Style="{StaticResource ChromeButton}" Click="CloseButton_Click" />
                 </StackPanel>
             </Grid>
 
@@ -212,7 +309,7 @@
                     <ColumnDefinition Width="330" MinWidth="300" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Background="#091522" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="0,0,1,0">
+                <Border Grid.Column="0" Background="{StaticResource PanelBgBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="0,0,1,0">
                     <Grid Margin="14">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -222,193 +319,117 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid Grid.Row="0" Margin="0,0,0,12">
                             <TextBlock Text="VAULTS" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" />
                             <TextBlock Text="+" Foreground="{StaticResource SecondaryTextBrush}" FontSize="20" HorizontalAlignment="Right" />
                         </Grid>
 
-                        <StackPanel Grid.Row="1" Margin="0,0,0,18">
-                            <Border Style="{StaticResource NavRowSelected}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="24" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="&#xE8B7;" Style="{StaticResource IconText}" Foreground="{StaticResource AccentBrush}" />
-                                    <TextBlock Grid.Column="1" Text="MainVault (H:)" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                </Grid>
-                            </Border>
-                            <Border Style="{StaticResource NavRow}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="24" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="&#xE8B7;" Style="{StaticResource IconText}" />
-                                    <TextBlock Grid.Column="1" Text="ArchiveVault (D:)" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                </Grid>
-                            </Border>
-                            <Border Style="{StaticResource NavRow}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="24" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="&#xE8B7;" Style="{StaticResource IconText}" />
-                                    <TextBlock Grid.Column="1" Text="ColdStorage (E:)" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                </Grid>
-                            </Border>
-                            <Border Style="{StaticResource NavRow}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="24" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="+" Foreground="{StaticResource SecondaryTextBrush}" FontSize="18" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Text="Add Vault" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                </Grid>
-                            </Border>
-                        </StackPanel>
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding Vaults}"
+                                 SelectedItem="{Binding CurrentVault}"
+                                 Style="{StaticResource NavListBox}"
+                                 ItemContainerStyle="{StaticResource NavListBoxItem}"
+                                 Margin="0,0,0,14">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="24" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="&#xE8B7;" Style="{StaticResource IconText}" Foreground="{StaticResource AccentBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding DisplayName}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
 
                         <Border Grid.Row="2" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="0,1,0,1" Padding="0,13">
                             <StackPanel>
                                 <TextBlock Text="NAVIGATION" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
-                                <Border Style="{StaticResource NavRowSelected}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="24" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
+                                <Button Command="{Binding ClearFiltersCommand}" Style="{StaticResource NavCommandButton}">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="&#xE80F;" Style="{StaticResource IconText}" Foreground="{StaticResource AccentBrush}" />
-                                        <TextBlock Grid.Column="1" Text="Dashboard" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                    </Grid>
-                                </Border>
-                                <Border Style="{StaticResource NavRow}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="24" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="&#xE8A5;" Style="{StaticResource IconText}" />
-                                        <TextBlock Grid.Column="1" Text="All Items" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                    </Grid>
-                                </Border>
-                                <Border Style="{StaticResource NavRow}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="24" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="&#xE823;" Style="{StaticResource IconText}" />
-                                        <TextBlock Grid.Column="1" Text="Recent" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                    </Grid>
-                                </Border>
-                                <Border Style="{StaticResource NavRow}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="24" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="&#xE715;" Style="{StaticResource IconText}" />
-                                        <TextBlock Grid.Column="1" Text="Inbox" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                        <Border Grid.Column="2" Background="{StaticResource AccentBrush}" CornerRadius="9" Padding="8,2">
-                                            <TextBlock Text="12" FontSize="11" Foreground="White" />
-                                        </Border>
-                                    </Grid>
-                                </Border>
-                                <Border Style="{StaticResource NavRow}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="24" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="&#xE734;" Style="{StaticResource IconText}" />
-                                        <TextBlock Grid.Column="1" Text="Starred" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                    </Grid>
-                                </Border>
-                                <Border Style="{StaticResource NavRow}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="24" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="&#xE783;" Style="{StaticResource IconText}" Foreground="{StaticResource RedBrush}" />
-                                        <TextBlock Grid.Column="1" Text="Quarantine" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" VerticalAlignment="Center" />
-                                        <Border Grid.Column="2" Background="{StaticResource RedBrush}" CornerRadius="9" Padding="8,2">
-                                            <TextBlock Text="2" FontSize="11" Foreground="White" />
-                                        </Border>
-                                    </Grid>
-                                </Border>
+                                        <TextBlock Text="Dashboard" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" Margin="10,0,0,0" />
+                                    </StackPanel>
+                                </Button>
+                                <TextBlock Text="  All Items" Style="{StaticResource DataCell}" Margin="0,7,0,0" />
+                                <TextBlock Text="  Recent" Style="{StaticResource DataCell}" Margin="0,10,0,0" />
+                                <Grid Margin="0,10,0,0">
+                                    <TextBlock Text="  Inbox" Style="{StaticResource DataCell}" />
+                                    <Border HorizontalAlignment="Right" Background="{StaticResource AccentBrush}" CornerRadius="9" Padding="8,2">
+                                        <TextBlock Text="12" FontSize="11" Foreground="White" />
+                                    </Border>
+                                </Grid>
+                                <TextBlock Text="  Starred" Style="{StaticResource DataCell}" Margin="0,10,0,0" />
+                                <Grid Margin="0,10,0,0">
+                                    <TextBlock Text="  Quarantine" Style="{StaticResource DataCell}" />
+                                    <Border HorizontalAlignment="Right" Background="#F24F5F" CornerRadius="9" Padding="8,2">
+                                        <TextBlock Text="2" FontSize="11" Foreground="White" />
+                                    </Border>
+                                </Grid>
                             </StackPanel>
                         </Border>
 
                         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,13,0,13">
                             <StackPanel>
                                 <TextBlock Text="CATEGORIES" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
-                                <Grid Margin="0,0,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Documents" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="1,245" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Images" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="1,102" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Audio" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="152" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Video" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="98" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Software / Installers" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="374" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="ISOs / Disk Images" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="41" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Archives" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="268" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Keys / Security" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="33" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,2">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Manifests / Config" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="213" Style="{StaticResource DataCell}" />
-                                </Grid>
-                                <Grid Margin="0,7,0,20">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="Other" Style="{StaticResource DataCell}" />
-                                    <TextBlock Grid.Column="1" Text="1,108" Style="{StaticResource DataCell}" />
-                                </Grid>
+                                <ListBox ItemsSource="{Binding Categories}"
+                                         SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                         Style="{StaticResource NavListBox}"
+                                         ItemContainerStyle="{StaticResource FilterListBoxItem}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource DataCell}" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Count}" Style="{StaticResource DataCell}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
 
-                                <TextBlock Text="TAGS (cloud)" Style="{StaticResource SmallLabel}" Margin="0,0,0,10" />
-                                <WrapPanel>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="ubuntu" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="iso" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="pgp" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="installer" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="toml" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="backup" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="security" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                    <Border Style="{StaticResource Chip}"><TextBlock Text="archive" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                </WrapPanel>
+                                <TextBlock Text="TAGS (cloud)" Style="{StaticResource SmallLabel}" Margin="0,12,0,10" />
+                                <ListBox ItemsSource="{Binding Tags}"
+                                         SelectedItem="{Binding SelectedTag, Mode=TwoWay}"
+                                         Style="{StaticResource NavListBox}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <Border x:Name="Root" Background="Transparent" CornerRadius="5">
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsSelected" Value="True">
+                                                                <Setter TargetName="Root" Property="Background" Value="#173A61" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource Chip}">
+                                                <TextBlock Text="{Binding}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
                                 <Border Background="#101C2B" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Height="32" Margin="0,8,0,0">
                                     <StackPanel Orientation="Horizontal" Margin="9,0" VerticalAlignment="Center">
                                         <TextBlock Text="&#xE721;" Style="{StaticResource IconText}" FontSize="12" Foreground="{StaticResource MutedTextBrush}" />
@@ -418,9 +439,9 @@
                             </StackPanel>
                         </ScrollViewer>
 
-                        <StackPanel Grid.Row="4" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,12,0,0">
+                        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,12,0,0">
                             <TextBlock Text="&#xE713;" Style="{StaticResource IconText}" />
-                            <TextBlock Text="Settings" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" Margin="9,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock Text="Settings" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" Margin="9,0,0,0" />
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -439,18 +460,28 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="MainVault (H:)" Foreground="{StaticResource PrimaryTextBrush}" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding CurrentVaultTitle}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="16" FontWeight="SemiBold" />
                             <TextBlock Text="  •  " Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
-                            <TextBlock Text="4,921 items" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" />
-                            <TextBlock Text="  •  " Foreground="{StaticResource MutedTextBrush}" FontSize="13" />
-                            <TextBlock Text="247.8 GB used of 1.81 TB" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" />
+                            <TextBlock Text="{Binding CurrentVaultSummary}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Border Width="300" Height="34" Background="#101C2B" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,8,0">
-                                <StackPanel Orientation="Horizontal" Margin="11,0" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE721;" Style="{StaticResource IconText}" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" />
-                                    <TextBlock Text="Search vault..." Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="9,0,0,0" />
-                                </StackPanel>
+                                <Grid Margin="11,0" VerticalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="18" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="&#xE721;" Style="{StaticResource IconText}" FontSize="12" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             Foreground="{StaticResource PrimaryTextBrush}"
+                                             FontSize="12"
+                                             Padding="0"
+                                             VerticalContentAlignment="Center"
+                                             ToolTip="Search vault by name, type, category, path, notes, hash, or tag" />
+                                </Grid>
                             </Border>
                             <Button Content="&#xE71C;" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" />
                             <Button Content="&#xE80A;" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Margin="8,0,0,0" />
@@ -459,63 +490,31 @@
                         </StackPanel>
                     </Grid>
 
-                    <UniformGrid Grid.Row="1" Rows="1" Columns="5" Margin="0,0,0,14">
-                        <Border Style="{StaticResource PanelBorder}" Height="88" Margin="0,0,10,0">
-                            <Grid Margin="18,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="56" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Ellipse Width="44" Height="44" Fill="#153C67" VerticalAlignment="Center" />
-                                <TextBlock Text="&#xE8B7;" Style="{StaticResource IconText}" Foreground="{StaticResource AccentBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="4,921" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold" />
-                                    <TextBlock Text="Total Items" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource PanelBorder}" Height="88" Margin="0,0,10,0">
-                            <Grid Margin="18,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="56" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Ellipse Width="44" Height="44" Fill="#2C2356" VerticalAlignment="Center" />
-                                <TextBlock Text="&#xE74E;" Style="{StaticResource IconText}" Foreground="{StaticResource PurpleBrush}" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="247.8 GB" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold" />
-                                    <TextBlock Text="Vault Size" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource PanelBorder}" Height="88" Margin="0,0,10,0">
-                            <Grid Margin="18,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="56" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Ellipse Width="44" Height="44" Fill="#183C2B" VerticalAlignment="Center" />
-                                <TextBlock Text="&#xE930;" Style="{StaticResource IconText}" Foreground="{StaticResource GreenBrush}" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="4,712" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold" />
-                                    <TextBlock Text="Indexed" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource PanelBorder}" Height="88" Margin="0,0,10,0">
-                            <Grid Margin="18,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="56" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Ellipse Width="44" Height="44" Fill="#4A3315" VerticalAlignment="Center" />
-                                <TextBlock Text="&#xE7C3;" Style="{StaticResource IconText}" Foreground="{StaticResource AmberBrush}" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="38" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold" />
-                                    <TextBlock Text="Large Objects" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource PanelBorder}" Height="88">
-                            <Grid Margin="18,0">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="56" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Ellipse Width="44" Height="44" Fill="#4A1F29" VerticalAlignment="Center" />
-                                <TextBlock Text="&#xE783;" Style="{StaticResource IconText}" Foreground="{StaticResource RedBrush}" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="2" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold" />
-                                    <TextBlock Text="In Quarantine" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </UniformGrid>
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Stats}" Margin="0,0,0,14">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" Columns="5" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource PanelBorder}" Height="88" Margin="0,0,10,0">
+                                    <Grid Margin="18,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="56" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Ellipse Width="44" Height="44" Fill="{Binding IconBackground}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Icon}" Style="{StaticResource IconText}" Foreground="{Binding IconBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Value}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Label}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
                     <Grid Grid.Row="2">
                         <Grid.RowDefinitions>
@@ -535,25 +534,22 @@
                                     <RowDefinition Height="230" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
-                                <Border Margin="12" BorderThickness="1.5" CornerRadius="6">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#0E1B2D" Offset="0" />
-                                            <GradientStop Color="#102640" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Border.BorderBrush>
-                                        <VisualBrush>
-                                            <VisualBrush.Visual>
-                                                <Rectangle StrokeDashArray="7 5" Stroke="{StaticResource AccentBrush}" StrokeThickness="1.5" Width="100" Height="100" />
-                                            </VisualBrush.Visual>
-                                        </VisualBrush>
-                                    </Border.BorderBrush>
+                                <Border Margin="12"
+                                        BorderBrush="{StaticResource AccentBrush}"
+                                        BorderThickness="1.5"
+                                        CornerRadius="6"
+                                        Background="#0F2136"
+                                        AllowDrop="True"
+                                        Drop="DropZone_Drop"
+                                        MouseLeftButtonUp="DropZone_MouseLeftButtonUp">
                                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <TextBlock Text="DROP ZONE - INGEST FILES" Foreground="{StaticResource AccentBrush}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,18" />
                                         <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" Foreground="#AAC8EF" FontSize="62" HorizontalAlignment="Center" />
                                         <TextBlock Text="Drag &amp; drop files or folders here" Foreground="{StaticResource PrimaryTextBrush}" FontSize="15" HorizontalAlignment="Center" Margin="0,14,0,0" />
                                         <TextBlock Text="or click to browse" Foreground="{StaticResource AccentBrush}" FontSize="13" HorizontalAlignment="Center" Margin="0,10,0,0" />
+                                        <TextBlock Text="{Binding IngestStatus}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                        <ProgressBar Width="360" Height="8" Minimum="0" Maximum="100" Value="{Binding IngestProgress}" Margin="0,8,0,0" />
+                                        <TextBlock Text="{Binding IngestDetail}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="460" Margin="0,6,0,0" />
                                     </StackPanel>
                                 </Border>
                                 <Grid Grid.Row="1" Margin="18,2,18,18">
@@ -566,31 +562,13 @@
                                         <TextBlock Text="Ingest Options" Style="{StaticResource SectionTitle}" Margin="0,0,0,9" />
                                         <WrapPanel>
                                             <Border Background="#173A61" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" CornerRadius="5" Padding="12,8" Margin="0,0,8,8">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="&#xE8B7;" Style="{StaticResource IconText}" Foreground="{StaticResource AccentBrush}" />
-                                                    <StackPanel Margin="10,0,0,0">
-                                                        <TextBlock Text="Copy into vault" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" />
-                                                        <TextBlock Text="Keep original" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
-                                                    </StackPanel>
-                                                </StackPanel>
+                                                <TextBlock Text="Copy into vault&#x0a;Keep original" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" />
                                             </Border>
                                             <Border Background="#131F2D" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Padding="12,8" Margin="0,0,8,8">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="&#xE8DE;" Style="{StaticResource IconText}" Foreground="#D7C078" />
-                                                    <StackPanel Margin="10,0,0,0">
-                                                        <TextBlock Text="Move into vault" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" />
-                                                        <TextBlock Text="Remove original" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
-                                                    </StackPanel>
-                                                </StackPanel>
+                                                <TextBlock Text="Move into vault&#x0a;Remove original" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" />
                                             </Border>
                                             <Border Background="#131F2D" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Padding="12,8">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="&#xE8DE;" Style="{StaticResource IconText}" Foreground="#D7C078" />
-                                                    <StackPanel Margin="10,0,0,0">
-                                                        <TextBlock Text="Index in place only" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" />
-                                                        <TextBlock Text="Leave file where it is" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
-                                                    </StackPanel>
-                                                </StackPanel>
+                                                <TextBlock Text="Index in place only&#x0a;Leave file where it is" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" />
                                             </Border>
                                         </WrapPanel>
                                     </StackPanel>
@@ -610,48 +588,25 @@
                         <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource PanelBorder}">
                             <StackPanel Margin="16">
                                 <TextBlock Text="RECENT ACTIVITY" Style="{StaticResource SectionTitle}" Margin="0,0,0,18" />
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <Border Width="22" Height="22" CornerRadius="11" Background="#BAC8EF"><TextBlock Text="&#xEA86;" FontFamily="Segoe MDL2 Assets" Foreground="#40557A" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" /></Border>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="Ingested  ubuntu-22.04.4-desktop-amd64.iso" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
-                                            <TextBlock Text="4.67 GB  •  Just now" Style="{StaticResource SmallLabel}" />
-                                        </StackPanel>
-                                    </Grid>
-                                    <Grid Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <Border Width="22" Height="22" CornerRadius="11" Background="#BAC8EF"><TextBlock Text="&#xEA86;" FontFamily="Segoe MDL2 Assets" Foreground="#40557A" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" /></Border>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="Indexed  neon-ink-architecture.png" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
-                                            <TextBlock Text="1.2 MB  •  1 min ago" Style="{StaticResource SmallLabel}" />
-                                        </StackPanel>
-                                    </Grid>
-                                    <Grid Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <Border Width="22" Height="22" CornerRadius="4" Background="#61D181"><TextBlock Text="&#xE8D7;" FontFamily="Segoe MDL2 Assets" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" /></Border>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="Added  ghostscript-signing-key.asc" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
-                                            <TextBlock Text="3.2 KB  •  2 min ago" Style="{StaticResource SmallLabel}" />
-                                        </StackPanel>
-                                    </Grid>
-                                    <Grid Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <Border Width="22" Height="22" CornerRadius="4" Background="#DBD7FF"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="#746AC2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" /></Border>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="Extracted text from Crates-Archive-Manifest.toml" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
-                                            <TextBlock Text="18.7 KB  •  3 min ago" Style="{StaticResource SmallLabel}" />
-                                        </StackPanel>
-                                    </Grid>
-                                    <Grid Margin="0,0,0,20">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="36" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <Border Width="22" Height="22" CornerRadius="4" Background="#E8ECF4"><TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" Foreground="#69788D" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" /></Border>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="Generated thumbnails for 14 images" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
-                                            <TextBlock Text="4 min ago" Style="{StaticResource SmallLabel}" />
-                                        </StackPanel>
-                                    </Grid>
-                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding Activities}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,16">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="36" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="22" Height="22" CornerRadius="11" Background="{Binding IconBackground}">
+                                                    <TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" Foreground="{Binding IconBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" />
+                                                </Border>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding ActionText}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
+                                                    <TextBlock Text="{Binding DetailText}" Style="{StaticResource SmallLabel}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 <TextBlock Text="View all activity..." Foreground="{StaticResource AccentBrush}" FontSize="12" />
                             </StackPanel>
                         </Border>
@@ -660,58 +615,52 @@
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="40" />
-                                    <RowDefinition Height="34" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0" Margin="16,0">
-                                    <TextBlock Text="ALL ITEMS" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding FilterTitle}" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                                        <Button Content="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource ToolButton}" Height="26" Margin="12,0,0,0" Padding="10,0" />
+                                    </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                         <Button Content="&#xE8FD;" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" />
                                         <Button Content="&#xE9D2;" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Margin="8,0,0,0" />
                                         <Button Content="Columns  &#xE70D;" Style="{StaticResource ToolButton}" Margin="8,0,0,0" />
                                     </StackPanel>
                                 </Grid>
-                                <Grid Grid.Row="1" Background="#0B1520">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2.2*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1.45*" />
-                                        <ColumnDefinition Width="0.9*" />
-                                        <ColumnDefinition Width="1.15*" />
-                                        <ColumnDefinition Width="1.9*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Name" Style="{StaticResource DataHeader}" Margin="18,0" />
-                                    <TextBlock Grid.Column="1" Text="Type" Style="{StaticResource DataHeader}" Margin="16,0" />
-                                    <TextBlock Grid.Column="2" Text="Category" Style="{StaticResource DataHeader}" Margin="16,0" />
-                                    <TextBlock Grid.Column="3" Text="Size" Style="{StaticResource DataHeader}" Margin="16,0" />
-                                    <TextBlock Grid.Column="4" Text="Date Modified" Style="{StaticResource DataHeader}" Margin="16,0" />
-                                    <TextBlock Grid.Column="5" Text="Tags" Style="{StaticResource DataHeader}" Margin="16,0" />
-                                </Grid>
-                                <StackPanel Grid.Row="2">
-                                    <Grid Height="34" Background="#1B4778">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Orientation="Horizontal" Margin="18,0" VerticalAlignment="Center">
-                                            <Border Width="20" Height="20" CornerRadius="10" Background="#BAC8EF" Margin="0,0,12,0"><TextBlock Text="&#xEA86;" FontFamily="Segoe MDL2 Assets" Foreground="#40557A" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" /></Border>
-                                            <TextBlock Text="ubuntu-22.04.4-desktop-amd64.iso" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="ISO Image" Style="{StaticResource DataCell}" Margin="16,0" />
-                                        <TextBlock Grid.Column="2" Text="ISOs / Disk Images" Style="{StaticResource DataCell}" Margin="16,0" />
-                                        <TextBlock Grid.Column="3" Text="4.67 GB" Style="{StaticResource DataCell}" Margin="16,0" />
-                                        <TextBlock Grid.Column="4" Text="2024-11-18 10:42" Style="{StaticResource DataCell}" Margin="16,0" />
-                                        <TextBlock Grid.Column="5" Text="ubuntu, linux, desktop, os, iso     ★" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="16,0" />
-                                    </Grid>
-                                    <Grid Height="34" Background="#0D1825"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  MongoDB-Compass-1.43.4.exe" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="Installer" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Software / Installers" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="148.3 MB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-17 15:21" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="mongodb, compass, nosql" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0B1520"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  ghostscript-signing-key.asc" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="PGP Key" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Keys / Security" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="3.2 KB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-16 09:11" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="pgp, signing, ghostscript" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0D1825"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  Crates-Archive-Manifest.toml" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="TOML Document" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Manifests / Config" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="18.7 KB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-16 21:04" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="manifest, crates, archive" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0B1520"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  neon-ink-panel-system.zip" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="Archive" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Archives" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="85.1 MB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-15 18:33" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="neon-ink, ui, panels" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0D1825"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  IA-Upload-Snapshot-2024-11-15.torrent" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="Torrent" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Torrents" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="28.6 KB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-15 12:07" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="archive, internet-archive" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0B1520"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  vault-schema-v1.2.json" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="JSON Document" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Manifests / Config" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="6.1 KB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-14 22:19" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="schema, vault, json" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0D1825"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  neon-ink-architecture.png" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="Image (PNG)" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Images" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="1.2 MB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-14 17:02" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="architecture, diagram, ui" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0B1520"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  setup.msix" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="MSIX Installer" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Software / Installers" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="63.4 MB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-14 11:33" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="msix, installer" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                    <Grid Height="34" Background="#0D1825"><Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1*" /><ColumnDefinition Width="1.45*" /><ColumnDefinition Width="0.9*" /><ColumnDefinition Width="1.15*" /><ColumnDefinition Width="1.9*" /></Grid.ColumnDefinitions><TextBlock Text="  private-key-backup.gpg" Style="{StaticResource DataCell}" Margin="18,0" /><TextBlock Grid.Column="1" Text="GPG Encrypted File" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="2" Text="Keys / Security" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="3" Text="12.4 KB" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="4" Text="2024-11-13 16:44" Style="{StaticResource DataCell}" Margin="16,0" /><TextBlock Grid.Column="5" Text="pgp, backup, private" Style="{StaticResource DataCell}" Margin="16,0" /></Grid>
-                                </StackPanel>
+                                <DataGrid Grid.Row="1"
+                                          ItemsSource="{Binding FilteredArtifacts}"
+                                          SelectedItem="{Binding SelectedArtifact, Mode=TwoWay}"
+                                          AlternationCount="2">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="Name" Width="2.2*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Border Width="20" Height="20" CornerRadius="10" Background="#BAC8EF" Margin="0,0,12,0">
+                                                            <TextBlock Text="&#xEA86;" FontFamily="Segoe MDL2 Assets" Foreground="#40557A" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" />
+                                                        </Border>
+                                                        <TextBlock Text="{Binding Name}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="1*" />
+                                        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="1.45*" />
+                                        <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="0.9*" />
+                                        <DataGridTextColumn Header="Date Modified" Binding="{Binding DateModified}" Width="1.15*" />
+                                        <DataGridTemplateColumn Header="Tags" Width="1.9*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding TagsText}" Style="{StaticResource DataCell}" Margin="0,0,22,0" />
+                                                        <TextBlock Text="{Binding StarText}" Foreground="#FFC234" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
                             </Grid>
                         </Border>
                     </Grid>
@@ -722,18 +671,20 @@
                                 <ColumnDefinition Width="90" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Vault Storage" Style="{StaticResource DataCell}" VerticalAlignment="Center" />
                             <Grid Grid.Column="1" Height="10" VerticalAlignment="Center">
                                 <Border Background="#1D2B3B" CornerRadius="5" />
                                 <Border Background="{StaticResource GreenBrush}" CornerRadius="5" Width="220" HorizontalAlignment="Left" />
                             </Grid>
-                            <TextBlock Grid.Column="2" Text="247.8 GB used                                 1.81 TB total" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="16,0,0,0" />
+                            <TextBlock Grid.Column="2" Text="{Binding StorageUsedText}" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="16,0,42,0" />
+                            <TextBlock Grid.Column="3" Text="{Binding StorageTotalText}" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" />
                         </Grid>
                     </Border>
                 </Grid>
 
-                <Border Grid.Column="2" Background="#091522" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1,0,0,0">
+                <Border Grid.Column="2" Background="{StaticResource PanelBgBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1,0,0,0">
                     <Grid Margin="12,14">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -747,7 +698,6 @@
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
                                             <TextBlock Text="PREVIEW" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="SemiBold" />
@@ -756,83 +706,168 @@
                                         <TextBlock Grid.Column="1" Text="DETAILS" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="28,0,0,0" />
                                         <TextBlock Grid.Column="2" Text="RELATIONS" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="28,0,0,0" />
                                     </Grid>
-                                    <Grid Width="116" Height="116" HorizontalAlignment="Center" Margin="0,8,0,28">
-                                        <Ellipse Fill="#203044" />
-                                        <Ellipse Width="78" Height="78" Fill="#E8EDF4" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        <Ellipse Width="28" Height="28" Fill="#1D2B3B" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        <Ellipse Width="12" Height="12" Fill="#A8BCD5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Grid>
+
+                                    <Border Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" MinHeight="136" Margin="0,8,0,24" Padding="10">
+                                        <Grid>
+                                            <Image Source="{Binding SelectedPreview.Image}"
+                                                   Stretch="Uniform"
+                                                   MaxHeight="220"
+                                                   Visibility="{Binding IsImagePreview, Converter={StaticResource BoolToVisibility}}" />
+
+                                            <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" Visibility="{Binding IsTextPreview, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Text="{Binding SelectedPreview.Text}"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                                           FontFamily="Consolas"
+                                                           FontSize="11"
+                                                           TextWrapping="Wrap" />
+                                            </ScrollViewer>
+
+                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsGenericPreview, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="#A8BCD5" FontSize="48" HorizontalAlignment="Center" />
+                                                <TextBlock Text="{Binding SelectedPreview.Message}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                            </StackPanel>
+
+                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsMissingPreview, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" Foreground="#F24F5F" FontSize="42" HorizontalAlignment="Center" />
+                                                <TextBlock Text="{Binding SelectedPreview.Message}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
                                     <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                        <TextBlock Text="ubuntu-22.04.4-desktop-amd64.iso" Foreground="{StaticResource PrimaryTextBrush}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                        <TextBlock Grid.Column="1" Text="★" Foreground="#FFC234" FontSize="17" Margin="8,0,0,0" />
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding EditName}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.StarText}" Foreground="#FFC234" FontSize="17" Margin="8,0,0,0" />
                                     </Grid>
-                                    <TextBlock Text="ISO Image  •  4.67 GB" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,22" />
+                                    <TextBlock Text="{Binding SelectedArtifact.SummaryText}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,22" />
+
+                                    <TextBlock Text="Editable Metadata" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
+                                    <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" />
+                                    <ComboBox Text="{Binding EditCategory, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemsSource="{Binding CategoryNames}"
+                                              IsEditable="True"
+                                              Style="{StaticResource EditorComboBox}"
+                                              Margin="0,0,0,8" />
+                                    <TextBox Text="{Binding EditTagsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Comma-separated tags" />
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="62" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Rating" Style="{StaticResource SmallLabel}" />
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="5" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding EditRating, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </Grid>
 
                                     <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Path" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="H:\ISOs\ubuntu-22.04.4-desktop-amd64.iso" Style="{StaticResource DataCell}" FontSize="12" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.Path}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
                                     <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Type" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="ISO Image" Style="{StaticResource DataCell}" FontSize="12" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.Type}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
                                     <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Created" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="2024-11-18 10:42" Style="{StaticResource DataCell}" FontSize="12" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.Created}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
                                     <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Modified" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="2024-11-18 10:42" Style="{StaticResource DataCell}" FontSize="12" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.DateModified}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <TextBlock Text="SHA256" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="3f2c...9a7b   &#xE8C8;" Style="{StaticResource DataCell}" FontSize="12" />
+                                        <TextBlock Text="BLAKE3" Style="{StaticResource SmallLabel}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedBlake3Display}" Style="{StaticResource DataCell}" FontSize="12" />
+                                    </Grid>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="SHA-256" Style="{StaticResource SmallLabel}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedSha256Display}" Style="{StaticResource DataCell}" FontSize="12" />
+                                    </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="File" Style="{StaticResource SmallLabel}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding StoredFileStatus}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
 
                                     <TextBlock Text="Tags" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
-                                    <WrapPanel Margin="0,0,0,14">
-                                        <Border Style="{StaticResource Chip}"><TextBlock Text="ubuntu" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                        <Border Style="{StaticResource Chip}"><TextBlock Text="linux" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                        <Border Style="{StaticResource Chip}"><TextBlock Text="desktop" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                        <Border Style="{StaticResource Chip}"><TextBlock Text="os" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                        <Border Style="{StaticResource Chip}"><TextBlock Text="iso" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" /></Border>
-                                        <TextBlock Text="+" Foreground="{StaticResource SecondaryTextBrush}" FontSize="18" VerticalAlignment="Center" Margin="5,0" />
-                                    </WrapPanel>
+                                    <ItemsControl ItemsSource="{Binding SelectedArtifact.Tags}" Margin="0,0,0,14">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource Chip}">
+                                                    <TextBlock Text="{Binding}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
                                     <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Category" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="ISOs / Disk Images" Style="{StaticResource DataCell}" FontSize="12" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.Category}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Rating" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="★ ★ ★ ★ ☆" Foreground="#FFC234" FontSize="14" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.RatingText}" Foreground="#FFC234" FontSize="14" />
                                     </Grid>
+
                                     <TextBlock Text="Notes" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
-                                    <Border Background="#0D1825" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,28">
-                                        <TextBlock Text="Ubuntu 22.04.4 LTS Desktop (Jammy Jellyfish)&#x0a;Official release from ubuntu.com.&#x0a;Used for WSL testing environment."
-                                                   Foreground="{StaticResource SecondaryTextBrush}"
-                                                   FontSize="12"
-                                                   LineHeight="22" />
-                                    </Border>
+                                    <TextBox Text="{Binding EditNotes, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource EditorTextBox}"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             MinHeight="88"
+                                             Margin="0,0,0,12" />
+                                    <Grid Margin="0,0,0,24">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding EditStatus}" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" />
+                                        <Button Grid.Column="1" Content="Revert" Command="{Binding RevertArtifactCommand}" Style="{StaticResource ToolButton}" Margin="0,0,8,0" />
+                                        <Button Grid.Column="2" Content="Save" Command="{Binding SaveArtifactCommand}" Style="{StaticResource ToolButton}" />
+                                    </Grid>
+
                                     <TextBlock Text="ACTIONS" Style="{StaticResource SmallLabel}" Margin="0,0,0,14" />
-                                    <UniformGrid Columns="6" Rows="1" Margin="0,0,0,4">
-                                        <StackPanel><TextBlock Text="&#xE838;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Open&#x0a;Location" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
-                                        <StackPanel><TextBlock Text="&#xE8A7;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Open&#x0a;With" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
-                                        <StackPanel><TextBlock Text="&#xE8EC;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Add&#x0a;Tags" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
-                                        <StackPanel><TextBlock Text="&#xE8DE;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Move /&#x0a;Copy" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
-                                        <StackPanel><TextBlock Text="&#xE72E;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Hash&#x0a;Check" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
-                                        <StackPanel><TextBlock Text="&#xE712;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="More" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                    <UniformGrid Columns="6" Rows="1" Margin="0,0,0,8">
+                                        <Button Command="{Binding OpenLocationCommand}" Style="{StaticResource ToolButton}" Height="54" Padding="0">
+                                            <StackPanel><TextBlock Text="&#xE838;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Open&#x0a;Location" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                        </Button>
+                                        <Button Command="{Binding OpenFileCommand}" Style="{StaticResource ToolButton}" Height="54" Padding="0">
+                                            <StackPanel><TextBlock Text="&#xE8A7;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Open&#x0a;File" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource ToolButton}" Height="54" Padding="0">
+                                            <StackPanel><TextBlock Text="&#xE8EC;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Add&#x0a;Tags" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource ToolButton}" Height="54" Padding="0">
+                                            <StackPanel><TextBlock Text="&#xE8DE;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Move /&#x0a;Copy" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                        </Button>
+                                        <Button Command="{Binding HashCheckCommand}" Style="{StaticResource ToolButton}" Height="54" Padding="0">
+                                            <StackPanel><TextBlock Text="&#xE72E;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Hash&#x0a;Check" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource ToolButton}" Height="54" Padding="0">
+                                            <StackPanel><TextBlock Text="&#xE712;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="More" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                        </Button>
                                     </UniformGrid>
+                                    <TextBlock Text="{Binding ActionStatus}" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
                                 </StackPanel>
                             </ScrollViewer>
                         </Border>
+
                         <Border Grid.Row="1" Style="{StaticResource PanelBorder}" Margin="0,10,0,0">
                             <Grid Margin="14,10">
                                 <Grid.ColumnDefinitions>

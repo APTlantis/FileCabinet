@@ -1,7 +1,13 @@
 Imports System.Windows
 Imports System.Windows.Input
+Imports Microsoft.Win32
 
 Class MainWindow
+    Public Sub New()
+        InitializeComponent()
+        DataContext = New MainViewModel()
+    End Sub
+
     Private Sub TitleBar_MouseLeftButtonDown(sender As Object, e As MouseButtonEventArgs)
         If e.ClickCount = 2 Then
             ToggleWindowState()
@@ -23,11 +29,41 @@ Class MainWindow
         Close()
     End Sub
 
+    Private Sub DropZone_Drop(sender As Object, e As DragEventArgs)
+        If Not e.Data.GetDataPresent(DataFormats.FileDrop) Then
+            Return
+        End If
+
+        Dim paths = TryCast(e.Data.GetData(DataFormats.FileDrop), String())
+        IngestPathsAsync(paths)
+    End Sub
+
+    Private Sub DropZone_MouseLeftButtonUp(sender As Object, e As MouseButtonEventArgs)
+        Dim dialog As New OpenFileDialog With {
+            .Multiselect = True,
+            .Title = "Select files to ingest into FileCabinet"
+        }
+
+        If dialog.ShowDialog(Me) = True Then
+            IngestPathsAsync(dialog.FileNames)
+        End If
+    End Sub
+
     Private Sub ToggleWindowState()
         If WindowState = WindowState.Maximized Then
             WindowState = WindowState.Normal
         Else
             WindowState = WindowState.Maximized
         End If
+    End Sub
+
+    Private Async Sub IngestPathsAsync(paths As IEnumerable(Of String))
+        Dim viewModel = TryCast(DataContext, MainViewModel)
+
+        If viewModel Is Nothing Then
+            Return
+        End If
+
+        Await viewModel.IngestPathsAsync(paths)
     End Sub
 End Class
