@@ -1,5 +1,7 @@
 Imports System.IO
+Imports System.IO.Compression
 Imports System.Text
+Imports System.Xml.Linq
 
 Public Enum IngestMode
     Copy
@@ -9,7 +11,7 @@ End Enum
 Public Class IngestionService
     Private Shared ReadOnly HashServiceInstance As New HashService()
     Private Shared ReadOnly ExtractableTextExtensions As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
-        ".txt", ".md", ".json", ".toml", ".yaml", ".yml", ".xml", ".ini", ".log", ".csv", ".ps1", ".bat", ".cmd", ".vb", ".cs", ".xaml", ".config", ".rtf", ".asc", ".pem", ".pub"
+        ".txt", ".md", ".json", ".toml", ".yaml", ".yml", ".xml", ".ini", ".log", ".csv", ".ps1", ".bat", ".cmd", ".vb", ".cs", ".xaml", ".config", ".rtf", ".asc", ".pem", ".pub", ".docx"
     }
 
     Public Function Ingest(paths As IEnumerable(Of String), vaultRootPath As String, Optional progress As IProgress(Of IngestionProgress) = Nothing, Optional mode As IngestMode = IngestMode.Move) As List(Of ArtifactModel)
@@ -207,41 +209,74 @@ Public Class IngestionService
 
         Try
             Const maxChars = 1024 * 1024
-            Dim builder As New StringBuilder()
-
-            Using reader As New StreamReader(stored.FullName, detectEncodingFromByteOrderMarks:=True)
-                Dim buffer(4095) As Char
-
-                While builder.Length < maxChars
-                    Dim remaining = Math.Min(buffer.Length, maxChars - builder.Length)
-                    Dim read = reader.Read(buffer, 0, remaining)
-
-                    If read <= 0 Then
-                        Exit While
-                    End If
-
-                    builder.Append(buffer, 0, read)
-                End While
-            End Using
+            Dim extractedText = If(String.Equals(stored.Extension, ".docx", StringComparison.OrdinalIgnoreCase),
+                ExtractDocxText(stored.FullName),
+                ReadTextFile(stored.FullName, maxChars))
 
             Dim extractedRoot = Path.Combine(vaultRootPath, "extracted-text", DateTime.Now.ToString("yyyy"), DateTime.Now.ToString("MM"))
             Directory.CreateDirectory(extractedRoot)
             Dim extractedName = $"{Path.GetFileNameWithoutExtension(stored.Name)}-{Guid.NewGuid():N}.txt"
             Dim extractedPath = Path.Combine(extractedRoot, extractedName)
-            File.WriteAllText(extractedPath, builder.ToString())
+            File.WriteAllText(extractedPath, extractedText)
 
-            Dim status = If(builder.Length >= maxChars, "Extracted (truncated)", "Extracted")
+            Dim status = If(extractedText.Length >= maxChars, "Extracted (truncated)", "Extracted")
             Return (Path.GetRelativePath(vaultRootPath, extractedPath), status)
         Catch
             Return ("", "Extraction failed")
         End Try
     End Function
 
+    Private Shared Function ReadTextFile(path As String, maxChars As Integer) As String
+        Dim builder As New StringBuilder()
+
+        Using reader As New StreamReader(path, detectEncodingFromByteOrderMarks:=True)
+            Dim buffer(4095) As Char
+
+            While builder.Length < maxChars
+                Dim remaining = Math.Min(buffer.Length, maxChars - builder.Length)
+                Dim read = reader.Read(buffer, 0, remaining)
+
+                If read <= 0 Then
+                    Exit While
+                End If
+
+                builder.Append(buffer, 0, read)
+            End While
+        End Using
+
+        Return builder.ToString()
+    End Function
+
+    Private Shared Function ExtractDocxText(path As String) As String
+        Using archive = ZipFile.OpenRead(path)
+            Dim documentEntry = archive.GetEntry("word/document.xml")
+            If documentEntry Is Nothing Then
+                Return ""
+            End If
+
+            Using stream = documentEntry.Open()
+                Dim document = XDocument.Load(stream)
+                Dim wordNamespace = XNamespace.Get("http://schemas.openxmlformats.org/wordprocessingml/2006/main")
+                Dim paragraphs = document.Descendants(wordNamespace + "p").
+                    Select(Function(paragraph) String.Concat(paragraph.Descendants(wordNamespace + "t").Select(Function(textNode) textNode.Value)).Trim()).
+                    Where(Function(text) Not String.IsNullOrWhiteSpace(text))
+
+                Return String.Join(vbCrLf & vbCrLf, paragraphs)
+            End Using
+        End Using
+    End Function
+
     Private Shared Function InferTypeFamily(extension As String) As String
         Select Case InferCategory(extension)
             Case "Images"
                 Return "Image"
-            Case "Documents", "Manifests / Config"
+            Case "Documents"
+                Return "Document"
+            Case "Spreadsheets"
+                Return "Spreadsheet"
+            Case "Presentations"
+                Return "Presentation"
+            Case "Manifests / Config"
                 Return "Text"
             Case "Audio"
                 Return "Audio"
@@ -278,8 +313,12 @@ Public Class IngestionService
                 Return "Video"
             Case ".torrent"
                 Return "Torrents"
-            Case ".pdf", ".doc", ".docx", ".txt", ".md", ".rtf"
+            Case ".pdf", ".doc", ".docx", ".odt", ".txt", ".md", ".rtf"
                 Return "Documents"
+            Case ".xls", ".xlsx", ".ods"
+                Return "Spreadsheets"
+            Case ".ppt", ".pptx", ".odp"
+                Return "Presentations"
             Case Else
                 Return "Other"
         End Select
@@ -305,6 +344,22 @@ Public Class IngestionService
                 Return "TOML Document"
             Case ".json"
                 Return "JSON Document"
+            Case ".pdf"
+                Return "PDF Document"
+            Case ".doc"
+                Return "Word Document"
+            Case ".docx"
+                Return "Word Document"
+            Case ".txt"
+                Return "Text Document"
+            Case ".md"
+                Return "Markdown Document"
+            Case ".rtf"
+                Return "Rich Text Document"
+            Case ".xls", ".xlsx"
+                Return "Spreadsheet"
+            Case ".ppt", ".pptx"
+                Return "Presentation"
             Case ".png"
                 Return "Image (PNG)"
             Case ".torrent"

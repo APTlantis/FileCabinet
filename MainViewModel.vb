@@ -42,6 +42,7 @@ Public Class MainViewModel
     Private _settingsText As String = ""
     Private _repairStatus As String = "Repair checks not run"
     Private _artifactRowHeight As Integer = 34
+    Private _columnPresetIndex As Integer
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -78,6 +79,7 @@ Public Class MainViewModel
     Public Property SortByNameCommand As ICommand
     Public Property SortByDateCommand As ICommand
     Public Property ToggleDensityCommand As ICommand
+    Public Property CycleColumnPresetCommand As ICommand
 
     Public Sub New()
         _catalogService = New CatalogService()
@@ -109,6 +111,7 @@ Public Class MainViewModel
         SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
+        CycleColumnPresetCommand = New RelayCommand(Sub(parameter) CycleColumnPreset())
         LoadCatalog()
     End Sub
 
@@ -574,6 +577,42 @@ Public Class MainViewModel
             End If
 
             Return "Compact rows"
+        End Get
+    End Property
+
+    Public ReadOnly Property ColumnPresetText As String
+        Get
+            Return $"Columns: {ColumnPresetName}"
+        End Get
+    End Property
+
+    Public ReadOnly Property ShowTypeColumn As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public ReadOnly Property ShowCategoryColumn As Boolean
+        Get
+            Return _columnPresetIndex = 0
+        End Get
+    End Property
+
+    Public ReadOnly Property ShowSizeColumn As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public ReadOnly Property ShowDateColumn As Boolean
+        Get
+            Return _columnPresetIndex <= 1
+        End Get
+    End Property
+
+    Public ReadOnly Property ShowTagsColumn As Boolean
+        Get
+            Return _columnPresetIndex = 0
         End Get
     End Property
 
@@ -1093,7 +1132,7 @@ Public Class MainViewModel
 
     Private Sub RepairCatalog()
         Dim report = BuildRepairReport(adoptOrphans:=False)
-        _repairStatus = report.Summary
+        _repairStatus = BuildRepairStatus(report)
         OnPropertyChanged(NameOf(RepairStatus))
         ActionStatus = _repairStatus
         ShowSettings()
@@ -1101,7 +1140,7 @@ Public Class MainViewModel
 
     Private Sub RescanVault()
         Dim report = BuildRepairReport(adoptOrphans:=True)
-        _repairStatus = report.Summary
+        _repairStatus = BuildRepairStatus(report)
         RebuildDerivedLists()
         PersistDerivedCatalogLists()
         _catalog.Artifacts = Artifacts.ToList()
@@ -1147,6 +1186,28 @@ Public Class MainViewModel
         ArtifactRowHeight = If(ArtifactRowHeight <= 30, 34, 28)
         ActionStatus = If(ArtifactRowHeight <= 30, "Compact table rows", "Comfortable table rows")
     End Sub
+
+    Private Sub CycleColumnPreset()
+        _columnPresetIndex = (_columnPresetIndex + 1) Mod 3
+        OnPropertyChanged(NameOf(ColumnPresetText))
+        OnPropertyChanged(NameOf(ShowCategoryColumn))
+        OnPropertyChanged(NameOf(ShowDateColumn))
+        OnPropertyChanged(NameOf(ShowTagsColumn))
+        ActionStatus = $"Table columns set to {ColumnPresetName}"
+    End Sub
+
+    Private ReadOnly Property ColumnPresetName As String
+        Get
+            Select Case _columnPresetIndex
+                Case 1
+                    Return "Compact"
+                Case 2
+                    Return "Minimal"
+                Case Else
+                    Return "Full"
+            End Select
+        End Get
+    End Property
 
     Private Function StoredFileExists() As Boolean
         Return SelectedArtifact IsNot Nothing AndAlso
@@ -1537,16 +1598,22 @@ Public Class MainViewModel
     End Sub
 
     Private Function BuildRepairReport(adoptOrphans As Boolean) As VaultRepairReport
+        Dim missingArtifacts = Artifacts.Where(Function(a) String.IsNullOrWhiteSpace(a.Path) OrElse Not File.Exists(a.Path)).ToList()
+        Dim duplicateGroups = Artifacts.
+            Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256)).
+            GroupBy(Function(a) a.Sha256, StringComparer.OrdinalIgnoreCase).
+            Where(Function(g) g.Count() > 1).
+            ToList()
         Dim report As New VaultRepairReport With {
-            .MissingFiles = Artifacts.Where(Function(a) String.IsNullOrWhiteSpace(a.Path) OrElse Not File.Exists(a.Path)).Count(),
-            .DuplicateHashGroups = Artifacts.
-                Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256)).
-                GroupBy(Function(a) a.Sha256, StringComparer.OrdinalIgnoreCase).
-                Count(Function(g) g.Count() > 1)
+            .MissingFiles = missingArtifacts.Count,
+            .DuplicateHashGroups = duplicateGroups.Count,
+            .MissingSamples = missingArtifacts.Select(Function(a) a.Name).Take(3).ToList(),
+            .DuplicateSamples = duplicateGroups.Select(Function(g) g.First().Name).Take(3).ToList()
         }
 
         Dim orphanFiles = FindOrphanStoredFiles().ToList()
         report.OrphanFiles = orphanFiles.Count
+        report.OrphanSamples = orphanFiles.Select(Function(orphanPath) Path.GetFileName(orphanPath)).Take(3).ToList()
 
         If adoptOrphans Then
             For Each orphan In orphanFiles
@@ -1572,6 +1639,17 @@ Public Class MainViewModel
         End If
 
         Return report
+    End Function
+
+    Private Shared Function BuildRepairStatus(report As VaultRepairReport) As String
+        Dim status = report.Summary
+        Dim detail = report.Detail
+
+        If Not String.IsNullOrWhiteSpace(detail) Then
+            status &= $"  |  {detail}"
+        End If
+
+        Return status
     End Function
 
     Private Function FindOrphanStoredFiles() As IEnumerable(Of String)

@@ -22,10 +22,33 @@ Public Class VaultRepairReport
     Public Property DuplicateHashGroups As Integer
     Public Property OrphanFiles As Integer
     Public Property AdoptedFiles As Integer
+    Public Property MissingSamples As New List(Of String)
+    Public Property OrphanSamples As New List(Of String)
+    Public Property DuplicateSamples As New List(Of String)
 
     Public ReadOnly Property Summary As String
         Get
             Return $"{MissingFiles:N0} missing file(s), {DuplicateHashGroups:N0} duplicate hash group(s), {OrphanFiles:N0} orphan file(s), {AdoptedFiles:N0} adopted"
+        End Get
+    End Property
+
+    Public ReadOnly Property Detail As String
+        Get
+            Dim parts As New List(Of String)
+
+            If MissingSamples.Count > 0 Then
+                parts.Add("Missing: " & String.Join(", ", MissingSamples))
+            End If
+
+            If OrphanSamples.Count > 0 Then
+                parts.Add("Orphans: " & String.Join(", ", OrphanSamples))
+            End If
+
+            If DuplicateSamples.Count > 0 Then
+                parts.Add("Duplicates: " & String.Join(", ", DuplicateSamples))
+            End If
+
+            Return String.Join("  |  ", parts)
         End Get
     End Property
 End Class

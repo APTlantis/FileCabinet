@@ -1,6 +1,7 @@
 <Window x:Class="MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:FileCabinet"
         Title="FileCabinet - Personal Vault &amp; Artifact Manager"
         Width="1680"
         Height="1040"
@@ -12,6 +13,8 @@
         Background="#07111C"
         Foreground="#E7EEF8">
     <Window.Resources>
+        <local:BindingProxy x:Key="VmProxy" Data="{Binding}" />
+
         <SolidColorBrush x:Key="WindowBgBrush" Color="#07111C" />
         <SolidColorBrush x:Key="PanelBgBrush" Color="#091522" />
         <SolidColorBrush x:Key="CardBgBrush" Color="#101D2B" />
@@ -669,6 +672,7 @@
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                         <Button Content="&#xE8FD;" Command="{Binding SortByNameCommand}" ToolTip="Sort by name" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" />
                                         <Button Content="&#xE787;" Command="{Binding SortByDateCommand}" ToolTip="Sort by modified date" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Margin="8,0,0,0" />
+                                        <Button Content="{Binding ColumnPresetText}" Command="{Binding CycleColumnPresetCommand}" ToolTip="Cycle visible columns" Style="{StaticResource ToolButton}" Margin="8,0,0,0" />
                                         <Button Content="{Binding DensityText}" Command="{Binding ToggleDensityCommand}" Style="{StaticResource ToolButton}" Margin="8,0,0,0" />
                                         <Button Content="Repair  &#xE90F;" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Margin="8,0,0,0" />
                                         <Button Content="Rescan  &#xE117;" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Margin="8,0,0,0" />
@@ -692,11 +696,11 @@
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
-                                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="1*" />
-                                        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="1.45*" />
-                                        <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="0.9*" />
-                                        <DataGridTextColumn Header="Date Modified" Binding="{Binding DateModified}" Width="1.15*" />
-                                        <DataGridTemplateColumn Header="Tags" Width="1.9*">
+                                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="1*" Visibility="{Binding Data.ShowTypeColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
+                                        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="1.45*" Visibility="{Binding Data.ShowCategoryColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
+                                        <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="0.9*" Visibility="{Binding Data.ShowSizeColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
+                                        <DataGridTextColumn Header="Date Modified" Binding="{Binding DateModified}" Width="1.15*" Visibility="{Binding Data.ShowDateColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
+                                        <DataGridTemplateColumn Header="Tags" Width="1.9*" Visibility="{Binding Data.ShowTagsColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Grid>

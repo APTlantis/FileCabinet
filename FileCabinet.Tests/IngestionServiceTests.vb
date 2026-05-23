@@ -1,5 +1,6 @@
 Imports Microsoft.VisualStudio.TestTools.UnitTesting
 Imports System.IO
+Imports System.IO.Compression
 
 Namespace FileCabinet.Tests
     <TestClass>
@@ -113,6 +114,43 @@ Namespace FileCabinet.Tests
                     Directory.Delete(workspace, recursive:=True)
                 End If
             End Try
+        End Sub
+
+        <TestMethod>
+        Sub DocxIngestExtractsReadableText()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim sourceRoot = Path.Combine(workspace, "source")
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Directory.CreateDirectory(sourceRoot)
+            Dim sourcePath = Path.Combine(sourceRoot, "notes.docx")
+            CreateMinimalDocx(sourcePath, "Quarterly archive notes")
+
+            Try
+                Dim service As New Global.FileCabinet.IngestionService()
+                Dim artifacts = service.Ingest({sourcePath}, vaultRoot, Nothing, Global.FileCabinet.IngestMode.Copy)
+                Dim artifact = artifacts(0)
+                Dim extractedPath = Path.Combine(vaultRoot, artifact.ExtractedTextRelativePath)
+
+                Assert.AreEqual("Documents", artifact.Category)
+                Assert.AreEqual("Document", artifact.TypeFamily)
+                Assert.AreEqual("Word Document", artifact.Type)
+                Assert.AreEqual("Extracted", artifact.ExtractedTextStatus)
+                Assert.IsTrue(File.Exists(extractedPath))
+                StringAssert.Contains(File.ReadAllText(extractedPath), "Quarterly archive notes")
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        Private Shared Sub CreateMinimalDocx(path As String, text As String)
+            Using archive = ZipFile.Open(path, ZipArchiveMode.Create)
+                Dim documentEntry = archive.CreateEntry("word/document.xml")
+                Using writer As New StreamWriter(documentEntry.Open())
+                    writer.Write($"<?xml version=""1.0"" encoding=""UTF-8""?><w:document xmlns:w=""http://schemas.openxmlformats.org/wordprocessingml/2006/main""><w:body><w:p><w:r><w:t>{text}</w:t></w:r></w:p></w:body></w:document>")
+                End Using
+            End Using
         End Sub
     End Class
 End Namespace
