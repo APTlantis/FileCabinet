@@ -36,6 +36,9 @@ Public Class MainViewModel
     Private _ingestDetail As String = ""
     Private _isIngesting As Boolean
     Private _isLoadingEditor As Boolean
+    Private _ingestMode As IngestMode = IngestMode.Move
+    Private _settingsText As String = ""
+    Private _repairStatus As String = "Repair checks not run"
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -51,6 +54,17 @@ Public Class MainViewModel
     Public Property OpenLocationCommand As ICommand
     Public Property OpenFileCommand As ICommand
     Public Property HashCheckCommand As ICommand
+    Public Property RefreshCommand As ICommand
+    Public Property ToggleStarCommand As ICommand
+    Public Property AddTagsCommand As ICommand
+    Public Property ToggleIngestModeCommand As ICommand
+    Public Property QuarantineCommand As ICommand
+    Public Property ShowSettingsCommand As ICommand
+    Public Property BackupCatalogCommand As ICommand
+    Public Property RepairCatalogCommand As ICommand
+    Public Property RescanVaultCommand As ICommand
+    Public Property SortByNameCommand As ICommand
+    Public Property SortByDateCommand As ICommand
 
     Public Sub New()
         _catalogService = New CatalogService()
@@ -63,6 +77,17 @@ Public Class MainViewModel
         OpenLocationCommand = New RelayCommand(Sub(parameter) OpenSelectedLocation(), Function(parameter) SelectedArtifact IsNot Nothing)
         OpenFileCommand = New RelayCommand(Sub(parameter) OpenSelectedFile(), Function(parameter) SelectedArtifact IsNot Nothing)
         HashCheckCommand = New RelayCommand(Sub(parameter) CheckSelectedHash(), Function(parameter) SelectedArtifact IsNot Nothing)
+        RefreshCommand = New RelayCommand(Sub(parameter) RefreshVaultState())
+        ToggleStarCommand = New RelayCommand(Sub(parameter) ToggleSelectedStar(), Function(parameter) SelectedArtifact IsNot Nothing)
+        AddTagsCommand = New RelayCommand(Sub(parameter) FocusTagEditing(), Function(parameter) SelectedArtifact IsNot Nothing)
+        ToggleIngestModeCommand = New RelayCommand(Sub(parameter) ToggleIngestMode())
+        QuarantineCommand = New RelayCommand(Sub(parameter) QuarantineSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
+        ShowSettingsCommand = New RelayCommand(Sub(parameter) ShowSettings())
+        BackupCatalogCommand = New RelayCommand(Sub(parameter) BackupCatalog())
+        RepairCatalogCommand = New RelayCommand(Sub(parameter) RepairCatalog())
+        RescanVaultCommand = New RelayCommand(Sub(parameter) RescanVault())
+        SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
+        SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         LoadCatalog()
     End Sub
 
@@ -78,6 +103,11 @@ Public Class MainViewModel
                 OnPropertyChanged(NameOf(CurrentVaultSummary))
                 OnPropertyChanged(NameOf(StorageUsedText))
                 OnPropertyChanged(NameOf(StorageTotalText))
+                If _catalog IsNot Nothing AndAlso value IsNot Nothing Then
+                    _catalog.CurrentVaultId = value.Id
+                    _catalog.VaultRootPath = value.Path
+                    _catalogService.Save(_catalog)
+                End If
             End If
         End Set
     End Property
@@ -270,6 +300,24 @@ Public Class MainViewModel
         End Set
     End Property
 
+    Public Property CurrentIngestMode As IngestMode
+        Get
+            Return _ingestMode
+        End Get
+        Set(value As IngestMode)
+            If _ingestMode <> value Then
+                _ingestMode = value
+                If _catalog IsNot Nothing Then
+                    _catalog.DefaultIngestMode = value.ToString()
+                    _catalogService.Save(_catalog)
+                End If
+                OnPropertyChanged()
+                OnPropertyChanged(NameOf(IngestModeText))
+                OnPropertyChanged(NameOf(IngestModeDetail))
+            End If
+        End Set
+    End Property
+
     Public Property SelectedPreview As ArtifactPreview
         Get
             Return _selectedPreview
@@ -302,7 +350,7 @@ Public Class MainViewModel
 
     Public ReadOnly Property CurrentVaultSummary As String
         Get
-            Return $"{Artifacts.Count:N0} items  •  247.8 GB used of 1.81 TB"
+            Return $"{Artifacts.Count:N0} items  •  {FormatSize(Artifacts.Sum(Function(a) a.SizeBytes))} retained"
         End Get
     End Property
 
@@ -332,13 +380,84 @@ Public Class MainViewModel
 
     Public ReadOnly Property StorageUsedText As String
         Get
-            Return "247.8 GB used"
+            Return $"{FormatSize(Artifacts.Sum(Function(a) a.SizeBytes))} cataloged"
         End Get
     End Property
 
     Public ReadOnly Property StorageTotalText As String
         Get
-            Return "1.81 TB total"
+            If Not Directory.Exists(VaultRootPath) Then
+                Return "vault unavailable"
+            End If
+
+            Dim root = Path.GetPathRoot(Path.GetFullPath(VaultRootPath))
+            If String.IsNullOrWhiteSpace(root) Then
+                Return "storage unknown"
+            End If
+
+            Dim drive = New DriveInfo(root)
+            Return $"{FormatSize(drive.AvailableFreeSpace)} free"
+        End Get
+    End Property
+
+    Public ReadOnly Property IngestModeText As String
+        Get
+            If CurrentIngestMode = IngestMode.Move Then
+                Return "Move into vault"
+            End If
+
+            Return "Copy into vault"
+        End Get
+    End Property
+
+    Public ReadOnly Property IngestModeDetail As String
+        Get
+            If CurrentIngestMode = IngestMode.Move Then
+                Return "Default intake removes the original after a verified transfer."
+            End If
+
+            Return "Default intake keeps the original file in place."
+        End Get
+    End Property
+
+    Public ReadOnly Property DuplicatePolicyText As String
+        Get
+            Return "Duplicates: rename safely"
+        End Get
+    End Property
+
+    Public ReadOnly Property InboxCountText As String
+        Get
+            Return Artifacts.Where(Function(a) Not String.IsNullOrWhiteSpace(a.IngestedAt)).Count().ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property StarredCountText As String
+        Get
+            Return Artifacts.Where(Function(a) a.IsStarred).Count().ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property QuarantineCountText As String
+        Get
+            Dim quarantineRoot = Path.Combine(VaultRootPath, "quarantine")
+            If Not Directory.Exists(quarantineRoot) Then
+                Return "0"
+            End If
+
+            Return Directory.EnumerateFiles(quarantineRoot, "*", SearchOption.AllDirectories).Count().ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property SettingsText As String
+        Get
+            Return _settingsText
+        End Get
+    End Property
+
+    Public ReadOnly Property RepairStatus As String
+        Get
+            Return _repairStatus
         End Get
     End Property
 
@@ -424,12 +543,18 @@ Public Class MainViewModel
 
     Private Sub LoadCatalog()
         _catalog = _catalogService.LoadOrCreate()
+        If String.Equals(_catalog.DefaultIngestMode, "Copy", StringComparison.OrdinalIgnoreCase) Then
+            _ingestMode = IngestMode.Copy
+        Else
+            _ingestMode = IngestMode.Move
+        End If
 
         ReplaceCollection(Vaults, _catalog.Vaults)
         ReplaceCollection(Stats, _catalog.Stats)
         ReplaceCollection(Categories, _catalog.Categories)
         ReplaceCollection(Tags, _catalog.Tags)
         ReplaceCollection(Activities, _catalog.Activities)
+        HydrateArtifacts(_catalog.Artifacts)
         ReplaceCollection(Artifacts, _catalog.Artifacts)
         RebuildDerivedLists()
         FilteredArtifacts = CollectionViewSource.GetDefaultView(Artifacts)
@@ -442,6 +567,8 @@ Public Class MainViewModel
         End If
 
         SelectFirstFilteredArtifact()
+        _settingsText = "Open settings for vault paths, backups, and repair status"
+        RefreshDerivedUiState()
     End Sub
 
     Public Async Function IngestPathsAsync(paths As IEnumerable(Of String)) As Task
@@ -464,7 +591,7 @@ Public Class MainViewModel
         Dim ingested As List(Of ArtifactModel)
 
         Try
-            ingested = Await Task.Run(Function() _ingestionService.Ingest(paths, VaultRootPath, progress))
+            ingested = Await Task.Run(Function() _ingestionService.Ingest(paths, VaultRootPath, progress, CurrentIngestMode))
         Finally
             IsIngesting = False
         End Try
@@ -499,9 +626,9 @@ Public Class MainViewModel
         RefreshFilters()
         SelectedArtifact = ingested.First()
         IngestStatus = $"Ingested {ingested.Count:N0} file(s) into {VaultRootPath}"
-        IngestDetail = "Catalog updated"
+        IngestDetail = $"{IngestModeText}; catalog updated"
         IngestProgress = 100
-        OnPropertyChanged(NameOf(CurrentVaultSummary))
+        RefreshDerivedUiState()
     End Sub
 
     Private Sub LoadEditorFromSelected()
@@ -623,12 +750,144 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(StoredFileStatus))
 
         If blakeMatches AndAlso shaMatches Then
+            SelectedArtifact.HashStatus = "Verified"
             ActionStatus = "Hash verified"
         ElseIf Not blakeMatches Then
+            SelectedArtifact.HashStatus = "BLAKE3 mismatch"
             ActionStatus = "BLAKE3 mismatch"
         Else
+            SelectedArtifact.HashStatus = "SHA-256 mismatch"
             ActionStatus = "SHA-256 mismatch"
         End If
+    End Sub
+
+    Private Sub ToggleSelectedStar()
+        If SelectedArtifact Is Nothing Then
+            Return
+        End If
+
+        SelectedArtifact.IsStarred = Not SelectedArtifact.IsStarred
+        _catalog.Artifacts = Artifacts.ToList()
+        _catalogService.Save(_catalog)
+        ActionStatus = If(SelectedArtifact.IsStarred, "Marked starred", "Removed star")
+        RefreshDerivedUiState()
+    End Sub
+
+    Private Sub FocusTagEditing()
+        If SelectedArtifact Is Nothing Then
+            Return
+        End If
+
+        If String.IsNullOrWhiteSpace(EditTagsText) Then
+            EditTagsText = "review"
+        ElseIf Not EditTagsText.Split({","c, ";"c}, StringSplitOptions.RemoveEmptyEntries).Any(Function(t) String.Equals(t.Trim(), "review", StringComparison.OrdinalIgnoreCase)) Then
+            EditTagsText &= ", review"
+        End If
+
+        EditStatus = "Added review tag; save to persist"
+    End Sub
+
+    Private Sub ToggleIngestMode()
+        CurrentIngestMode = If(CurrentIngestMode = IngestMode.Move, IngestMode.Copy, IngestMode.Move)
+        IngestStatus = $"{IngestModeText} selected"
+        IngestDetail = IngestModeDetail
+    End Sub
+
+    Private Sub QuarantineSelectedArtifact()
+        If SelectedArtifact Is Nothing Then
+            Return
+        End If
+
+        If Not StoredFileExists() Then
+            ActionStatus = "Stored file missing"
+            Return
+        End If
+
+        Dim artifact = SelectedArtifact
+        Dim quarantineRoot = Path.Combine(VaultRootPath, "quarantine", DateTime.Now.ToString("yyyy"), DateTime.Now.ToString("MM"))
+        Directory.CreateDirectory(quarantineRoot)
+        Dim destination = BuildUniquePath(quarantineRoot, Path.GetFileName(artifact.Path))
+
+        Try
+            File.Move(artifact.Path, destination)
+            artifact.Path = destination
+            artifact.RelativePath = Path.GetRelativePath(VaultRootPath, destination)
+            artifact.Category = "Quarantine"
+            artifact.Notes = $"{artifact.Notes}{vbCrLf}Quarantined at {DateTime.Now:yyyy-MM-dd HH:mm}".Trim()
+            _catalog.Artifacts = Artifacts.ToList()
+            _catalogService.Save(_catalog)
+            RebuildDerivedLists()
+            RefreshFilters(preserveSelection:=True)
+            ActionStatus = "Moved to quarantine"
+            RefreshDerivedUiState()
+        Catch ex As Exception
+            ActionStatus = $"Quarantine failed: {ex.Message}"
+        End Try
+    End Sub
+
+    Private Sub ShowSettings()
+        Dim backupText = If(String.IsNullOrWhiteSpace(_catalog.LastBackupPath), "No catalog backup yet", _catalog.LastBackupPath)
+        _settingsText = $"Vault: {VaultRootPath}{vbCrLf}Catalog: {CatalogPath}{vbCrLf}Last backup: {backupText}{vbCrLf}Intake: {IngestModeText}{vbCrLf}{DuplicatePolicyText}{vbCrLf}Repair: {RepairStatus}{vbCrLf}AI: deferred until core vault workflows are stable"
+        OnPropertyChanged(NameOf(SettingsText))
+        ActionStatus = "Settings summarized"
+    End Sub
+
+    Private Sub BackupCatalog()
+        Try
+            Dim exportsRoot = Path.Combine(VaultRootPath, "exports")
+            Dim backupPath = _catalogService.ExportSnapshot(_catalog, exportsRoot)
+            ActionStatus = $"Catalog backup created: {backupPath}"
+            ShowSettings()
+        Catch ex As Exception
+            ActionStatus = $"Backup failed: {ex.Message}"
+        End Try
+    End Sub
+
+    Private Sub RepairCatalog()
+        Dim report = BuildRepairReport(adoptOrphans:=False)
+        _repairStatus = report.Summary
+        OnPropertyChanged(NameOf(RepairStatus))
+        ActionStatus = _repairStatus
+        ShowSettings()
+    End Sub
+
+    Private Sub RescanVault()
+        Dim report = BuildRepairReport(adoptOrphans:=True)
+        _repairStatus = report.Summary
+        RebuildDerivedLists()
+        PersistDerivedCatalogLists()
+        _catalog.Artifacts = Artifacts.ToList()
+        _catalogService.Save(_catalog)
+        RefreshFilters(preserveSelection:=True)
+        RefreshDerivedUiState()
+        OnPropertyChanged(NameOf(RepairStatus))
+        ActionStatus = $"Rescan complete: {_repairStatus}"
+        ShowSettings()
+    End Sub
+
+    Private Sub RefreshVaultState()
+        CatalogService.EnsureVaultFolders(VaultRootPath)
+        RepairCatalog()
+        RebuildDerivedLists()
+        PersistDerivedCatalogLists()
+        _catalog.Artifacts = Artifacts.ToList()
+        _catalogService.Save(_catalog)
+        RefreshFilters(preserveSelection:=True)
+        RefreshDerivedUiState()
+        IngestStatus = "Vault refreshed"
+        IngestDetail = RepairStatus
+    End Sub
+
+    Private Sub ApplySort(propertyName As String)
+        If FilteredArtifacts Is Nothing Then
+            Return
+        End If
+
+        FilteredArtifacts.SortDescriptions.Clear()
+        Dim direction = If(propertyName = NameOf(ArtifactModel.DateModified), ListSortDirection.Descending, ListSortDirection.Ascending)
+        FilteredArtifacts.SortDescriptions.Add(New SortDescription(propertyName, direction))
+        FilteredArtifacts.Refresh()
+        ActionStatus = $"Sorted by {propertyName}"
     End Sub
 
     Private Function StoredFileExists() As Boolean
@@ -636,6 +895,23 @@ Public Class MainViewModel
             Not String.IsNullOrWhiteSpace(SelectedArtifact.Path) AndAlso
             File.Exists(SelectedArtifact.Path)
     End Function
+
+    Public Sub SetVaultRoot(path As String)
+        If String.IsNullOrWhiteSpace(path) Then
+            Return
+        End If
+
+        CatalogService.EnsureVaultFolders(path)
+        _catalog.VaultRootPath = path
+        If CurrentVault IsNot Nothing Then
+            CurrentVault.Path = path
+        End If
+        _catalog.Vaults = Vaults.ToList()
+        _catalogService.Save(_catalog)
+        OnPropertyChanged(NameOf(VaultRootPath))
+        OnPropertyChanged(NameOf(CurrentVaultTitle))
+        RefreshVaultState()
+    End Sub
 
     Private Shared Function ParseTags(tagsText As String) As List(Of String)
         If String.IsNullOrWhiteSpace(tagsText) Then
@@ -712,11 +988,14 @@ Public Class MainViewModel
         Dim needle = SearchText.Trim()
         Return ContainsText(artifact.Name, needle) OrElse
             ContainsText(artifact.Type, needle) OrElse
+            ContainsText(artifact.TypeFamily, needle) OrElse
             ContainsText(artifact.Category, needle) OrElse
             ContainsText(artifact.Path, needle) OrElse
+            ContainsText(artifact.OriginalPath, needle) OrElse
             ContainsText(artifact.Notes, needle) OrElse
             ContainsText(artifact.TagsText, needle) OrElse
-            ContainsText(artifact.Sha256, needle)
+            ContainsText(artifact.Sha256, needle) OrElse
+            ContainsText(artifact.Blake3, needle)
     End Function
 
     Private Shared Function ContainsText(value As String, needle As String) As Boolean
@@ -724,14 +1003,20 @@ Public Class MainViewModel
             value.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0
     End Function
 
-    Private Sub RefreshFilters()
+    Private Sub RefreshFilters(Optional preserveSelection As Boolean = False)
         If FilteredArtifacts Is Nothing Then
             Return
         End If
 
+        Dim previous = If(preserveSelection, SelectedArtifact, Nothing)
         FilteredArtifacts.Refresh()
         OnPropertyChanged(NameOf(FilterTitle))
-        SelectFirstFilteredArtifact()
+
+        If previous IsNot Nothing AndAlso FilteredArtifacts.Cast(Of ArtifactModel)().Contains(previous) Then
+            SelectedArtifact = previous
+        Else
+            SelectFirstFilteredArtifact()
+        End If
     End Sub
 
     Private Sub SelectFirstFilteredArtifact()
@@ -747,8 +1032,171 @@ Public Class MainViewModel
         SelectedCategory = Nothing
         SelectedTag = Nothing
         SearchText = ""
-        RefreshFilters()
+        RefreshFilters(preserveSelection:=True)
     End Sub
+
+    Private Sub RefreshDerivedUiState()
+        OnPropertyChanged(NameOf(CurrentVaultSummary))
+        OnPropertyChanged(NameOf(StorageUsedText))
+        OnPropertyChanged(NameOf(StorageTotalText))
+        OnPropertyChanged(NameOf(InboxCountText))
+        OnPropertyChanged(NameOf(StarredCountText))
+        OnPropertyChanged(NameOf(QuarantineCountText))
+        OnPropertyChanged(NameOf(IngestModeText))
+        OnPropertyChanged(NameOf(IngestModeDetail))
+        RebuildStats()
+    End Sub
+
+    Private Sub HydrateArtifacts(artifacts As List(Of ArtifactModel))
+        If artifacts Is Nothing Then
+            Return
+        End If
+
+        For Each artifact In artifacts
+            If String.IsNullOrWhiteSpace(artifact.Id) Then
+                artifact.Id = Guid.NewGuid().ToString("N")
+            End If
+
+            If String.IsNullOrWhiteSpace(artifact.TypeFamily) Then
+                artifact.TypeFamily = InferTypeFamilyFromCategory(artifact.Category)
+            End If
+
+            If artifact.SizeBytes = 0 AndAlso Not String.IsNullOrWhiteSpace(artifact.Path) AndAlso File.Exists(artifact.Path) Then
+                artifact.SizeBytes = New FileInfo(artifact.Path).Length
+            End If
+
+            If String.IsNullOrWhiteSpace(artifact.RelativePath) AndAlso Not String.IsNullOrWhiteSpace(artifact.Path) Then
+                Try
+                    artifact.RelativePath = Path.GetRelativePath(VaultRootPath, artifact.Path)
+                Catch
+                End Try
+            End If
+        Next
+    End Sub
+
+    Private Shared Function InferTypeFamilyFromCategory(category As String) As String
+        Select Case category
+            Case "Images"
+                Return "Image"
+            Case "Documents", "Manifests / Config"
+                Return "Text"
+            Case "Audio"
+                Return "Audio"
+            Case "Video"
+                Return "Video"
+            Case "Archives"
+                Return "Archive"
+            Case "Software / Installers"
+                Return "Installer"
+            Case "ISOs / Disk Images"
+                Return "Disk Image"
+            Case Else
+                Return "File"
+        End Select
+    End Function
+
+    Private Sub RebuildStats()
+        Dim largeObjects = Artifacts.Where(Function(a) a.SizeBytes >= 1024L * 1024L * 1024L).Count()
+        Dim indexed = Artifacts.Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256) OrElse Not String.IsNullOrWhiteSpace(a.Blake3)).Count()
+        Dim rebuilt = New List(Of StatCardModel) From {
+            New StatCardModel With {.Label = "Total Items", .Value = Artifacts.Count.ToString("N0"), .Icon = "", .IconBrush = "#4DA3FF", .IconBackground = "#153C67"},
+            New StatCardModel With {.Label = "Vault Size", .Value = FormatSize(Artifacts.Sum(Function(a) a.SizeBytes)), .Icon = "", .IconBrush = "#9566FF", .IconBackground = "#2C2356"},
+            New StatCardModel With {.Label = "Indexed", .Value = indexed.ToString("N0"), .Icon = "", .IconBrush = "#55D680", .IconBackground = "#183C2B"},
+            New StatCardModel With {.Label = "Large Objects", .Value = largeObjects.ToString("N0"), .Icon = "", .IconBrush = "#F5A623", .IconBackground = "#4A3315"},
+            New StatCardModel With {.Label = "In Quarantine", .Value = QuarantineCountText, .Icon = "", .IconBrush = "#F24F5F", .IconBackground = "#4A1F29"}
+        }
+        ReplaceCollection(Stats, rebuilt)
+        If _catalog IsNot Nothing Then
+            _catalog.Stats = rebuilt
+        End If
+    End Sub
+
+    Private Function BuildRepairReport(adoptOrphans As Boolean) As VaultRepairReport
+        Dim report As New VaultRepairReport With {
+            .MissingFiles = Artifacts.Where(Function(a) String.IsNullOrWhiteSpace(a.Path) OrElse Not File.Exists(a.Path)).Count(),
+            .DuplicateHashGroups = Artifacts.
+                Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256)).
+                GroupBy(Function(a) a.Sha256, StringComparer.OrdinalIgnoreCase).
+                Count(Function(g) g.Count() > 1)
+        }
+
+        Dim orphanFiles = FindOrphanStoredFiles().ToList()
+        report.OrphanFiles = orphanFiles.Count
+
+        If adoptOrphans Then
+            For Each orphan In orphanFiles
+                Try
+                    Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, VaultRootPath)
+                    adopted.Notes = $"Adopted during vault rescan at {DateTime.Now:yyyy-MM-dd HH:mm}"
+                    Artifacts.Insert(0, adopted)
+                    _catalog.Artifacts.Insert(0, adopted)
+                    report.AdoptedFiles += 1
+                Catch
+                End Try
+            Next
+
+            If report.AdoptedFiles > 0 Then
+                Dim activity = New ActivityEntryModel With {
+                    .ActionText = $"Adopted {report.AdoptedFiles:N0} orphan file(s)",
+                    .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  vault rescan",
+                    .Icon = ""
+                }
+                Activities.Insert(0, activity)
+                _catalog.Activities.Insert(0, activity)
+            End If
+        End If
+
+        Return report
+    End Function
+
+    Private Function FindOrphanStoredFiles() As IEnumerable(Of String)
+        Dim itemsRoot = Path.Combine(VaultRootPath, "items")
+        If Not Directory.Exists(itemsRoot) Then
+            Return Enumerable.Empty(Of String)()
+        End If
+
+        Dim knownPaths = New HashSet(Of String)(
+            Artifacts.
+                Where(Function(a) Not String.IsNullOrWhiteSpace(a.Path)).
+                Select(Function(a) Path.GetFullPath(a.Path)),
+            StringComparer.OrdinalIgnoreCase)
+
+        Return Directory.
+            EnumerateFiles(itemsRoot, "*", SearchOption.AllDirectories).
+            Where(Function(path) Not knownPaths.Contains(Path.GetFullPath(path))).
+            ToList()
+    End Function
+
+    Private Shared Function BuildUniquePath(directoryPath As String, fileName As String) As String
+        Dim baseName = Path.GetFileNameWithoutExtension(fileName)
+        Dim extension = Path.GetExtension(fileName)
+        Dim candidate = Path.Combine(directoryPath, fileName)
+        Dim index = 1
+
+        While File.Exists(candidate)
+            candidate = Path.Combine(directoryPath, $"{baseName}-{index}{extension}")
+            index += 1
+        End While
+
+        Return candidate
+    End Function
+
+    Private Shared Function FormatSize(bytes As Long) As String
+        Dim units = {"B", "KB", "MB", "GB", "TB"}
+        Dim value = CDbl(Math.Max(0, bytes))
+        Dim unitIndex = 0
+
+        While value >= 1024 AndAlso unitIndex < units.Length - 1
+            value /= 1024
+            unitIndex += 1
+        End While
+
+        If unitIndex = 0 Then
+            Return $"{bytes} B"
+        End If
+
+        Return $"{value:0.##} {units(unitIndex)}"
+    End Function
 
     Private Shared Sub RunOnUiThread(action As Action)
         Dim dispatcher = Application.Current?.Dispatcher

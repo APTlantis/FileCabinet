@@ -49,6 +49,24 @@ Class MainWindow
         End If
     End Sub
 
+    Private Sub ChooseVaultButton_Click(sender As Object, e As RoutedEventArgs)
+        Dim viewModel = TryCast(DataContext, MainViewModel)
+
+        If viewModel Is Nothing Then
+            Return
+        End If
+
+        Dim dialog As New OpenFolderDialog With {
+            .Title = "Choose FileCabinet vault folder",
+            .Multiselect = False,
+            .InitialDirectory = viewModel.VaultRootPath
+        }
+
+        If dialog.ShowDialog(Me) = True Then
+            viewModel.SetVaultRoot(dialog.FolderName)
+        End If
+    End Sub
+
     Private Sub ToggleWindowState()
         If WindowState = WindowState.Maximized Then
             WindowState = WindowState.Normal

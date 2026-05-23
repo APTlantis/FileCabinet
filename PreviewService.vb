@@ -43,9 +43,16 @@ Public Class PreviewService
             Return LoadTextPreview(artifact.Path)
         End If
 
+        If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
+            Return New ArtifactPreview With {
+                .Kind = ArtifactPreviewKind.GenericFile,
+                .Message = "PDF retained; open file to inspect full document"
+            }
+        End If
+
         Return New ArtifactPreview With {
             .Kind = ArtifactPreviewKind.GenericFile,
-            .Message = $"{artifact.Type} preview is not available yet"
+            .Message = $"{artifact.Type} retained in vault; preview is not available yet"
         }
     End Function
 

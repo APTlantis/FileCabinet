@@ -1,9 +1,14 @@
 Imports System.IO
 
+Public Enum IngestMode
+    Copy
+    Move
+End Enum
+
 Public Class IngestionService
     Private Shared ReadOnly HashServiceInstance As New HashService()
 
-    Public Function Ingest(paths As IEnumerable(Of String), vaultRootPath As String, Optional progress As IProgress(Of IngestionProgress) = Nothing) As List(Of ArtifactModel)
+    Public Function Ingest(paths As IEnumerable(Of String), vaultRootPath As String, Optional progress As IProgress(Of IngestionProgress) = Nothing, Optional mode As IngestMode = IngestMode.Move) As List(Of ArtifactModel)
         Dim artifacts As New List(Of ArtifactModel)
 
         If paths Is Nothing Then
@@ -13,31 +18,65 @@ Public Class IngestionService
         Report(progress, "Scanning files", "", "Scanning", 0, 0, 0, 0)
         Dim files = ExpandFiles(paths).Select(Function(path) New FileInfo(path)).Where(Function(file) file.Exists).ToList()
         Dim itemsRoot = Path.Combine(vaultRootPath, "items")
-        Directory.CreateDirectory(itemsRoot)
+        CatalogService.EnsureVaultFolders(vaultRootPath)
 
         Dim totalBytes = files.Sum(Function(file) file.Length)
         Dim completedBytes As Long = 0
         Dim completedFiles = 0
+        Dim failedFiles = 0
 
         For Each source In files
             Try
                 Dim destination = BuildDestinationPath(itemsRoot, source.Name)
-                Report(progress, "Copying", source.Name, "Copy", completedFiles, files.Count, completedBytes, totalBytes)
+                Dim transferLabel = If(mode = IngestMode.Move, "Move", "Copy")
+                Report(progress, If(mode = IngestMode.Move, "Moving", "Copying"), source.Name, transferLabel, completedFiles, files.Count, completedBytes, totalBytes)
                 CopyWithProgress(source.FullName, destination, completedBytes, totalBytes, completedFiles, files.Count, progress)
 
                 Dim stored = New FileInfo(destination)
                 Report(progress, "Hashing", source.Name, "Hash", completedFiles, files.Count, completedBytes + stored.Length, totalBytes)
-                artifacts.Add(CreateArtifact(source, stored))
+                artifacts.Add(CreateArtifact(source, stored, vaultRootPath))
+
+                If mode = IngestMode.Move Then
+                    Try
+                        source.Delete()
+                    Catch
+                        Report(progress, "Moved into vault; original could not be removed", source.Name, "Original delete failed", completedFiles, files.Count, completedBytes + stored.Length, totalBytes)
+                    End Try
+                End If
+
                 completedBytes += stored.Length
                 completedFiles += 1
                 Report(progress, "Ingested", source.Name, "Complete", completedFiles, files.Count, completedBytes, totalBytes)
             Catch
-                ' Keep ingestion resilient: one bad file should not prevent the rest of the batch.
+                failedFiles += 1
+                Report(progress, "Skipped unreadable file", source.Name, "Failed", completedFiles, files.Count, completedBytes, totalBytes)
             End Try
         Next
 
-        Report(progress, $"Finished ingesting {artifacts.Count:N0} file(s)", "", "Finished", completedFiles, files.Count, completedBytes, totalBytes)
+        Dim summary = $"Finished ingesting {artifacts.Count:N0} file(s)"
+        If failedFiles > 0 Then
+            summary &= $" with {failedFiles:N0} failure(s)"
+        End If
+
+        Report(progress, summary, "", "Finished", completedFiles, files.Count, completedBytes, totalBytes)
         Return artifacts
+    End Function
+
+    Public Function CreateArtifactFromStoredFile(path As String, vaultRootPath As String, Optional originalPath As String = "") As ArtifactModel
+        If String.IsNullOrWhiteSpace(path) Then
+            Throw New ArgumentException("Path is required.", NameOf(path))
+        End If
+
+        Dim stored = New FileInfo(path)
+        If Not stored.Exists Then
+            Throw New FileNotFoundException("Stored file was not found.", path)
+        End If
+
+        If String.IsNullOrWhiteSpace(originalPath) Then
+            originalPath = stored.FullName
+        End If
+
+        Return CreateArtifact(New FileInfo(originalPath), stored, vaultRootPath)
     End Function
 
     Private Shared Function ExpandFiles(paths As IEnumerable(Of String)) As IEnumerable(Of String)
@@ -99,7 +138,7 @@ Public Class IngestionService
                     copiedForFile += read
 
                     If (DateTime.Now - lastReport).TotalMilliseconds >= 120 Then
-                        Report(progress, "Copying", fileName, "Copy", completedFiles, totalFiles, baseCompletedBytes + copiedForFile, totalBytes)
+                        Report(progress, "Transferring", fileName, "Transfer", completedFiles, totalFiles, baseCompletedBytes + copiedForFile, totalBytes)
                         lastReport = DateTime.Now
                     End If
                 End While
@@ -123,29 +162,56 @@ Public Class IngestionService
         })
     End Sub
 
-    Private Shared Function CreateArtifact(source As FileInfo, stored As FileInfo) As ArtifactModel
+    Private Shared Function CreateArtifact(source As FileInfo, stored As FileInfo, vaultRootPath As String) As ArtifactModel
         Dim category = InferCategory(source.Extension)
         Dim typeName = InferType(source.Extension)
+        Dim typeFamily = InferTypeFamily(source.Extension)
         Dim tags = InferTags(source, category)
         Dim nowText = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
         Dim computedHashes = HashServiceInstance.ComputeHashes(stored.FullName)
 
         Return New ArtifactModel With {
+            .Id = Guid.NewGuid().ToString("N"),
             .Name = stored.Name,
             .Type = typeName,
+            .TypeFamily = typeFamily,
             .Category = category,
             .Size = FormatSize(stored.Length),
+            .SizeBytes = stored.Length,
             .DateModified = stored.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),
             .Path = stored.FullName,
+            .RelativePath = Path.GetRelativePath(vaultRootPath, stored.FullName),
             .Created = stored.CreationTime.ToString("yyyy-MM-dd HH:mm"),
             .Blake3 = computedHashes.Blake3,
             .Sha256 = computedHashes.Sha256,
+            .HashStatus = "Verified",
             .Rating = 0,
             .Notes = $"Ingested from {source.FullName}",
             .OriginalPath = source.FullName,
             .IngestedAt = nowText,
             .Tags = tags
         }
+    End Function
+
+    Private Shared Function InferTypeFamily(extension As String) As String
+        Select Case InferCategory(extension)
+            Case "Images"
+                Return "Image"
+            Case "Documents", "Manifests / Config"
+                Return "Text"
+            Case "Audio"
+                Return "Audio"
+            Case "Video"
+                Return "Video"
+            Case "Archives"
+                Return "Archive"
+            Case "Software / Installers"
+                Return "Installer"
+            Case "ISOs / Disk Images"
+                Return "Disk Image"
+            Case Else
+                Return "File"
+        End Select
     End Function
 
     Private Shared Function InferCategory(extension As String) As String

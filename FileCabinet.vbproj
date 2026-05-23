@@ -23,4 +23,8 @@
     <PackageReference Include="Blake3" Version="2.2.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="FileCabinet.Tests\**\*.vb" />
+  </ItemGroup>
+
 </Project>

@@ -3,14 +3,31 @@ Imports System.ComponentModel
 Imports System.Runtime.CompilerServices
 
 Public Class CatalogData
+    Public Property SchemaVersion As Integer = 1
     Public Property CurrentVaultId As String = ""
     Public Property VaultRootPath As String = ""
+    Public Property DefaultIngestMode As String = "Move"
+    Public Property DuplicatePolicy As String = "Rename"
+    Public Property LastBackupPath As String = ""
     Public Property Vaults As New List(Of VaultModel)
     Public Property Stats As New List(Of StatCardModel)
     Public Property Categories As New List(Of CategoryModel)
     Public Property Tags As New List(Of String)
     Public Property Activities As New List(Of ActivityEntryModel)
     Public Property Artifacts As New List(Of ArtifactModel)
+End Class
+
+Public Class VaultRepairReport
+    Public Property MissingFiles As Integer
+    Public Property DuplicateHashGroups As Integer
+    Public Property OrphanFiles As Integer
+    Public Property AdoptedFiles As Integer
+
+    Public ReadOnly Property Summary As String
+        Get
+            Return $"{MissingFiles:N0} missing file(s), {DuplicateHashGroups:N0} duplicate hash group(s), {OrphanFiles:N0} orphan file(s), {AdoptedFiles:N0} adopted"
+        End Get
+    End Property
 End Class
 
 Public Class VaultModel
@@ -56,14 +73,19 @@ Public Class ArtifactModel
     Implements INotifyPropertyChanged
 
     Private _name As String = ""
+    Private _id As String = ""
     Private _type As String = ""
+    Private _typeFamily As String = ""
     Private _category As String = ""
     Private _size As String = ""
+    Private _sizeBytes As Long
     Private _dateModified As String = ""
     Private _path As String = ""
+    Private _relativePath As String = ""
     Private _created As String = ""
     Private _sha256 As String = ""
     Private _blake3 As String = ""
+    Private _hashStatus As String = "Not checked"
     Private _rating As Integer
     Private _notes As String = ""
     Private _isStarred As Boolean
@@ -82,6 +104,15 @@ Public Class ArtifactModel
         End Set
     End Property
 
+    Public Property Id As String
+        Get
+            Return _id
+        End Get
+        Set(value As String)
+            SetValue(_id, If(value, ""))
+        End Set
+    End Property
+
     Public Property Type As String
         Get
             Return _type
@@ -89,6 +120,15 @@ Public Class ArtifactModel
         Set(value As String)
             SetValue(_type, If(value, ""))
             OnPropertyChanged(NameOf(SummaryText))
+        End Set
+    End Property
+
+    Public Property TypeFamily As String
+        Get
+            Return _typeFamily
+        End Get
+        Set(value As String)
+            SetValue(_typeFamily, If(value, ""))
         End Set
     End Property
 
@@ -111,6 +151,15 @@ Public Class ArtifactModel
         End Set
     End Property
 
+    Public Property SizeBytes As Long
+        Get
+            Return _sizeBytes
+        End Get
+        Set(value As Long)
+            SetValue(_sizeBytes, Math.Max(0, value))
+        End Set
+    End Property
+
     Public Property DateModified As String
         Get
             Return _dateModified
@@ -126,6 +175,15 @@ Public Class ArtifactModel
         End Get
         Set(value As String)
             SetValue(_path, If(value, ""))
+        End Set
+    End Property
+
+    Public Property RelativePath As String
+        Get
+            Return _relativePath
+        End Get
+        Set(value As String)
+            SetValue(_relativePath, If(value, ""))
         End Set
     End Property
 
@@ -153,6 +211,15 @@ Public Class ArtifactModel
         End Get
         Set(value As String)
             SetValue(_blake3, If(value, ""))
+        End Set
+    End Property
+
+    Public Property HashStatus As String
+        Get
+            Return _hashStatus
+        End Get
+        Set(value As String)
+            SetValue(_hashStatus, If(value, "Not checked"))
         End Set
     End Property
 
