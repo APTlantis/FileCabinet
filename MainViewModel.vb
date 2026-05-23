@@ -21,8 +21,10 @@ Public Class MainViewModel
     Private _currentVault As VaultModel
     Private _filteredArtifacts As ICollectionView
     Private _searchText As String = ""
+    Private _tagSearchText As String = ""
     Private _selectedCategory As CategoryModel
     Private _selectedTag As String
+    Private _activeScope As String = "All"
     Private _ingestStatus As String = "Ready to ingest files"
     Private _editName As String = ""
     Private _editCategory As String = ""
@@ -39,6 +41,7 @@ Public Class MainViewModel
     Private _ingestMode As IngestMode = IngestMode.Move
     Private _settingsText As String = ""
     Private _repairStatus As String = "Repair checks not run"
+    Private _artifactRowHeight As Integer = 34
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -48,11 +51,20 @@ Public Class MainViewModel
     Public Property Tags As New ObservableCollection(Of String)
     Public Property Activities As New ObservableCollection(Of ActivityEntryModel)
     Public Property Artifacts As New ObservableCollection(Of ArtifactModel)
+    Public Property RelatedArtifacts As New ObservableCollection(Of ArtifactModel)
+    Private _filteredTags As ICollectionView
     Public Property ClearFiltersCommand As ICommand
+    Public Property ShowAllItemsCommand As ICommand
+    Public Property ShowRecentCommand As ICommand
+    Public Property ShowStarredCommand As ICommand
+    Public Property ShowQuarantineCommand As ICommand
+    Public Property RemoveCurrentVaultCommand As ICommand
     Public Property SaveArtifactCommand As ICommand
     Public Property RevertArtifactCommand As ICommand
     Public Property OpenLocationCommand As ICommand
     Public Property OpenFileCommand As ICommand
+    Public Property RestoreArtifactCommand As ICommand
+    Public Property PermanentlyDeleteArtifactCommand As ICommand
     Public Property HashCheckCommand As ICommand
     Public Property RefreshCommand As ICommand
     Public Property ToggleStarCommand As ICommand
@@ -65,6 +77,7 @@ Public Class MainViewModel
     Public Property RescanVaultCommand As ICommand
     Public Property SortByNameCommand As ICommand
     Public Property SortByDateCommand As ICommand
+    Public Property ToggleDensityCommand As ICommand
 
     Public Sub New()
         _catalogService = New CatalogService()
@@ -72,10 +85,17 @@ Public Class MainViewModel
         _hashService = New HashService()
         _previewService = New PreviewService()
         ClearFiltersCommand = New RelayCommand(Sub(parameter) ClearFilters())
+        ShowAllItemsCommand = New RelayCommand(Sub(parameter) SetScope("All"))
+        ShowRecentCommand = New RelayCommand(Sub(parameter) SetScope("Recent"))
+        ShowStarredCommand = New RelayCommand(Sub(parameter) SetScope("Starred"))
+        ShowQuarantineCommand = New RelayCommand(Sub(parameter) SetScope("Quarantine"))
+        RemoveCurrentVaultCommand = New RelayCommand(Sub(parameter) RemoveCurrentVault(), Function(parameter) CurrentVault IsNot Nothing AndAlso Vaults.Count > 1)
         SaveArtifactCommand = New RelayCommand(Sub(parameter) SaveArtifactEdits(), Function(parameter) SelectedArtifact IsNot Nothing)
         RevertArtifactCommand = New RelayCommand(Sub(parameter) LoadEditorFromSelected(), Function(parameter) SelectedArtifact IsNot Nothing)
         OpenLocationCommand = New RelayCommand(Sub(parameter) OpenSelectedLocation(), Function(parameter) SelectedArtifact IsNot Nothing)
         OpenFileCommand = New RelayCommand(Sub(parameter) OpenSelectedFile(), Function(parameter) SelectedArtifact IsNot Nothing)
+        RestoreArtifactCommand = New RelayCommand(Sub(parameter) RestoreSelectedArtifact(TryCast(parameter, String)), Function(parameter) SelectedArtifact IsNot Nothing)
+        PermanentlyDeleteArtifactCommand = New RelayCommand(Sub(parameter) PermanentlyDeleteSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
         HashCheckCommand = New RelayCommand(Sub(parameter) CheckSelectedHash(), Function(parameter) SelectedArtifact IsNot Nothing)
         RefreshCommand = New RelayCommand(Sub(parameter) RefreshVaultState())
         ToggleStarCommand = New RelayCommand(Sub(parameter) ToggleSelectedStar(), Function(parameter) SelectedArtifact IsNot Nothing)
@@ -88,6 +108,7 @@ Public Class MainViewModel
         RescanVaultCommand = New RelayCommand(Sub(parameter) RescanVault())
         SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
+        ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
         LoadCatalog()
     End Sub
 
@@ -126,6 +147,7 @@ Public Class MainViewModel
                 ActionStatus = If(StoredFileExists(), "Stored file ready", "Stored file missing")
                 LoadPreviewForSelected()
                 LoadEditorFromSelected()
+                RebuildRelatedArtifacts()
             End If
         End Set
     End Property
@@ -142,6 +164,18 @@ Public Class MainViewModel
         End Set
     End Property
 
+    Public Property FilteredTags As ICollectionView
+        Get
+            Return _filteredTags
+        End Get
+        Private Set(value As ICollectionView)
+            If Not ReferenceEquals(_filteredTags, value) Then
+                _filteredTags = value
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
     Public Property SearchText As String
         Get
             Return _searchText
@@ -151,6 +185,20 @@ Public Class MainViewModel
                 _searchText = If(value, "")
                 OnPropertyChanged()
                 RefreshFilters()
+            End If
+        End Set
+    End Property
+
+    Public Property TagSearchText As String
+        Get
+            Return _tagSearchText
+        End Get
+        Set(value As String)
+            Dim normalized = If(value, "")
+            If _tagSearchText <> normalized Then
+                _tagSearchText = normalized
+                OnPropertyChanged()
+                RefreshTagFilter()
             End If
         End Set
     End Property
@@ -179,6 +227,22 @@ Public Class MainViewModel
                 OnPropertyChanged()
                 OnPropertyChanged(NameOf(FilterTitle))
                 RefreshFilters()
+            End If
+        End Set
+    End Property
+
+    Public Property ActiveScope As String
+        Get
+            Return _activeScope
+        End Get
+        Set(value As String)
+            Dim normalized = If(String.IsNullOrWhiteSpace(value), "All", value)
+            If _activeScope <> normalized Then
+                _activeScope = normalized
+                OnPropertyChanged()
+                OnPropertyChanged(NameOf(FilterTitle))
+                OnPropertyChanged(NameOf(ActiveScopeText))
+                RefreshFilters(preserveSelection:=True)
             End If
         End Set
     End Property
@@ -358,6 +422,10 @@ Public Class MainViewModel
         Get
             Dim parts As New List(Of String)
 
+            If Not String.Equals(ActiveScope, "All", StringComparison.OrdinalIgnoreCase) Then
+                parts.Add(ActiveScope)
+            End If
+
             If SelectedCategory IsNot Nothing Then
                 parts.Add(SelectedCategory.Name)
             End If
@@ -375,6 +443,12 @@ Public Class MainViewModel
             End If
 
             Return "FILTERED ITEMS - " & String.Join(" / ", parts)
+        End Get
+    End Property
+
+    Public ReadOnly Property ActiveScopeText As String
+        Get
+            Return $"View: {ActiveScope}"
         End Get
     End Property
 
@@ -428,7 +502,7 @@ Public Class MainViewModel
 
     Public ReadOnly Property InboxCountText As String
         Get
-            Return Artifacts.Where(Function(a) Not String.IsNullOrWhiteSpace(a.IngestedAt)).Count().ToString("N0")
+            Return Artifacts.Where(Function(a) IsRecentArtifact(a)).Count().ToString("N0")
         End Get
     End Property
 
@@ -452,6 +526,44 @@ Public Class MainViewModel
     Public ReadOnly Property SettingsText As String
         Get
             Return _settingsText
+        End Get
+    End Property
+
+    Public Property ArtifactRowHeight As Integer
+        Get
+            Return _artifactRowHeight
+        End Get
+        Set(value As Integer)
+            Dim normalized = Math.Max(28, Math.Min(42, value))
+            If _artifactRowHeight <> normalized Then
+                _artifactRowHeight = normalized
+                OnPropertyChanged()
+                OnPropertyChanged(NameOf(DensityText))
+            End If
+        End Set
+    End Property
+
+    Public ReadOnly Property DensityText As String
+        Get
+            If ArtifactRowHeight <= 30 Then
+                Return "Comfortable rows"
+            End If
+
+            Return "Compact rows"
+        End Get
+    End Property
+
+    Public ReadOnly Property RelatedArtifactsSummary As String
+        Get
+            If SelectedArtifact Is Nothing Then
+                Return "No artifact selected"
+            End If
+
+            If RelatedArtifacts.Count = 0 Then
+                Return "No close relations found yet"
+            End If
+
+            Return $"{RelatedArtifacts.Count:N0} related item(s)"
         End Get
     End Property
 
@@ -557,6 +669,8 @@ Public Class MainViewModel
         HydrateArtifacts(_catalog.Artifacts)
         ReplaceCollection(Artifacts, _catalog.Artifacts)
         RebuildDerivedLists()
+        FilteredTags = CollectionViewSource.GetDefaultView(Tags)
+        FilteredTags.Filter = AddressOf FilterTag
         FilteredArtifacts = CollectionViewSource.GetDefaultView(Artifacts)
         FilteredArtifacts.Filter = AddressOf FilterArtifact
 
@@ -663,11 +777,38 @@ Public Class MainViewModel
             Return
         End If
 
-        SelectedArtifact.Name = If(String.IsNullOrWhiteSpace(EditName), SelectedArtifact.Name, EditName.Trim())
-        SelectedArtifact.Category = If(String.IsNullOrWhiteSpace(EditCategory), "Other", EditCategory.Trim())
-        SelectedArtifact.Tags = ParseTags(EditTagsText)
+        Dim validatedName = If(EditName, "").Trim()
+        If String.IsNullOrWhiteSpace(validatedName) Then
+            EditStatus = "Name is required"
+            Return
+        End If
+
+        Dim validatedCategory = If(EditCategory, "").Trim()
+        If String.IsNullOrWhiteSpace(validatedCategory) Then
+            validatedCategory = "Other"
+        End If
+
+        If validatedCategory.Length > 80 Then
+            EditStatus = "Category is too long"
+            Return
+        End If
+
+        SelectedArtifact.Name = validatedName
+        SelectedArtifact.Category = validatedCategory
+        Dim parsedTags = ParseTags(EditTagsText)
+        If parsedTags.Count > 32 Then
+            EditStatus = "Use 32 tags or fewer"
+            Return
+        End If
+
+        If parsedTags.Any(Function(tag) tag.Length > 48) Then
+            EditStatus = "Tags must be 48 characters or fewer"
+            Return
+        End If
+
+        SelectedArtifact.Tags = parsedTags
         SelectedArtifact.Rating = EditRating
-        SelectedArtifact.Notes = EditNotes.Trim()
+        SelectedArtifact.Notes = If(EditNotes, "").Trim()
 
         RebuildDerivedLists()
         PersistDerivedCatalogLists()
@@ -676,6 +817,7 @@ Public Class MainViewModel
         FilteredArtifacts.Refresh()
         EditStatus = $"Saved {SelectedArtifact.Name} at {DateTime.Now:HH:mm:ss}"
         OnPropertyChanged(NameOf(CategoryNames))
+        RefreshDerivedUiState()
     End Sub
 
     Private Sub OpenSelectedLocation()
@@ -717,6 +859,84 @@ Public Class MainViewModel
         ActionStatus = "Opened file"
     End Sub
 
+    Public Function GetSelectedArtifactName() As String
+        If SelectedArtifact Is Nothing Then
+            Return ""
+        End If
+
+        Return SelectedArtifact.Name
+    End Function
+
+    Private Sub RestoreSelectedArtifact(destinationFolder As String)
+        If SelectedArtifact Is Nothing Then
+            Return
+        End If
+
+        If Not StoredFileExists() Then
+            ActionStatus = "Stored file missing"
+            OnPropertyChanged(NameOf(StoredFileStatus))
+            LoadPreviewForSelected()
+            Return
+        End If
+
+        If String.IsNullOrWhiteSpace(destinationFolder) Then
+            ActionStatus = "Choose a restore folder first"
+            Return
+        End If
+
+        Try
+            Directory.CreateDirectory(destinationFolder)
+            Dim destination = BuildUniquePath(destinationFolder, SelectedArtifact.Name)
+            File.Copy(SelectedArtifact.Path, destination, overwrite:=False)
+
+            Dim activity = New ActivityEntryModel With {
+                .ActionText = $"Restored {SelectedArtifact.Name}",
+                .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  {destination}",
+                .Icon = ""
+            }
+            Activities.Insert(0, activity)
+            _catalog.Activities.Insert(0, activity)
+            _catalogService.Save(_catalog)
+            ActionStatus = $"Restored copy to {destination}"
+        Catch ex As Exception
+            ActionStatus = $"Restore failed: {ex.Message}"
+        End Try
+    End Sub
+
+    Private Sub PermanentlyDeleteSelectedArtifact()
+        If SelectedArtifact Is Nothing Then
+            Return
+        End If
+
+        Dim artifact = SelectedArtifact
+
+        Try
+            If Not String.IsNullOrWhiteSpace(artifact.Path) AndAlso File.Exists(artifact.Path) Then
+                File.Delete(artifact.Path)
+            End If
+
+            Artifacts.Remove(artifact)
+            _catalog.Artifacts = Artifacts.ToList()
+            Dim activity = New ActivityEntryModel With {
+                .ActionText = $"Deleted {artifact.Name}",
+                .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  removed from vault",
+                .Icon = "",
+                .IconBrush = "#F24F5F",
+                .IconBackground = "#4A1F29"
+            }
+            Activities.Insert(0, activity)
+            _catalog.Activities.Insert(0, activity)
+            RebuildDerivedLists()
+            PersistDerivedCatalogLists()
+            _catalogService.Save(_catalog)
+            RefreshFilters()
+            RefreshDerivedUiState()
+            ActionStatus = $"Deleted {artifact.Name}"
+        Catch ex As Exception
+            ActionStatus = $"Delete failed: {ex.Message}"
+        End Try
+    End Sub
+
     Private Sub CheckSelectedHash()
         If SelectedArtifact Is Nothing Then
             Return
@@ -743,12 +963,6 @@ Public Class MainViewModel
             SelectedArtifact.Sha256 = hashes.Sha256
         End If
 
-        _catalog.Artifacts = Artifacts.ToList()
-        _catalogService.Save(_catalog)
-        OnPropertyChanged(NameOf(SelectedBlake3Display))
-        OnPropertyChanged(NameOf(SelectedSha256Display))
-        OnPropertyChanged(NameOf(StoredFileStatus))
-
         If blakeMatches AndAlso shaMatches Then
             SelectedArtifact.HashStatus = "Verified"
             ActionStatus = "Hash verified"
@@ -759,6 +973,12 @@ Public Class MainViewModel
             SelectedArtifact.HashStatus = "SHA-256 mismatch"
             ActionStatus = "SHA-256 mismatch"
         End If
+
+        _catalog.Artifacts = Artifacts.ToList()
+        _catalogService.Save(_catalog)
+        OnPropertyChanged(NameOf(SelectedBlake3Display))
+        OnPropertyChanged(NameOf(SelectedSha256Display))
+        OnPropertyChanged(NameOf(StoredFileStatus))
     End Sub
 
     Private Sub ToggleSelectedStar()
@@ -878,6 +1098,11 @@ Public Class MainViewModel
         IngestDetail = RepairStatus
     End Sub
 
+    Private Sub SetScope(scope As String)
+        ActiveScope = scope
+        ActionStatus = $"Showing {ActiveScope}"
+    End Sub
+
     Private Sub ApplySort(propertyName As String)
         If FilteredArtifacts Is Nothing Then
             Return
@@ -888,6 +1113,11 @@ Public Class MainViewModel
         FilteredArtifacts.SortDescriptions.Add(New SortDescription(propertyName, direction))
         FilteredArtifacts.Refresh()
         ActionStatus = $"Sorted by {propertyName}"
+    End Sub
+
+    Private Sub ToggleDensity()
+        ArtifactRowHeight = If(ArtifactRowHeight <= 30, 34, 28)
+        ActionStatus = If(ArtifactRowHeight <= 30, "Compact table rows", "Comfortable table rows")
     End Sub
 
     Private Function StoredFileExists() As Boolean
@@ -905,12 +1135,55 @@ Public Class MainViewModel
         _catalog.VaultRootPath = path
         If CurrentVault IsNot Nothing Then
             CurrentVault.Path = path
+            If String.IsNullOrWhiteSpace(CurrentVault.Name) Then
+                CurrentVault.Name = "MainVault"
+            End If
+        Else
+            Dim newVault = New VaultModel With {
+                .Id = Guid.NewGuid().ToString("N"),
+                .Name = "MainVault",
+                .Path = path,
+                .IsSelected = True
+            }
+            Vaults.Add(newVault)
+            CurrentVault = newVault
         End If
+        _catalog.CurrentVaultId = CurrentVault.Id
         _catalog.Vaults = Vaults.ToList()
         _catalogService.Save(_catalog)
         OnPropertyChanged(NameOf(VaultRootPath))
         OnPropertyChanged(NameOf(CurrentVaultTitle))
+        OnPropertyChanged(NameOf(StorageTotalText))
         RefreshVaultState()
+        ActionStatus = $"Vault set to {path}"
+    End Sub
+
+    Private Sub RemoveCurrentVault()
+        If CurrentVault Is Nothing Then
+            Return
+        End If
+
+        If Vaults.Count <= 1 Then
+            ActionStatus = "Keep at least one vault"
+            Return
+        End If
+
+        Dim removed = CurrentVault
+        Dim removedIndex = Vaults.IndexOf(removed)
+        Vaults.Remove(removed)
+
+        Dim nextIndex = Math.Min(Math.Max(removedIndex, 0), Vaults.Count - 1)
+        CurrentVault = Vaults(nextIndex)
+        _catalog.CurrentVaultId = CurrentVault.Id
+        _catalog.VaultRootPath = CurrentVault.Path
+        _catalog.Vaults = Vaults.ToList()
+        _catalogService.Save(_catalog)
+
+        OnPropertyChanged(NameOf(VaultRootPath))
+        OnPropertyChanged(NameOf(CurrentVaultTitle))
+        OnPropertyChanged(NameOf(StorageTotalText))
+        RefreshVaultState()
+        ActionStatus = $"Removed vault {removed.DisplayName}"
     End Sub
 
     Private Shared Function ParseTags(tagsText As String) As List(Of String)
@@ -944,6 +1217,7 @@ Public Class MainViewModel
             ToList()
 
         ReplaceCollection(Tags, rebuiltTags)
+        RefreshTagFilter()
     End Sub
 
     Private Sub SetEditValue(Of T)(ByRef storage As T, value As T, propertyName As String)
@@ -975,6 +1249,10 @@ Public Class MainViewModel
             Return False
         End If
 
+        If Not MatchesActiveScope(artifact) Then
+            Return False
+        End If
+
         If Not String.IsNullOrWhiteSpace(SelectedTag) Then
             If artifact.Tags Is Nothing OrElse Not artifact.Tags.Any(Function(t) String.Equals(t, SelectedTag, StringComparison.OrdinalIgnoreCase)) Then
                 Return False
@@ -995,13 +1273,58 @@ Public Class MainViewModel
             ContainsText(artifact.Notes, needle) OrElse
             ContainsText(artifact.TagsText, needle) OrElse
             ContainsText(artifact.Sha256, needle) OrElse
-            ContainsText(artifact.Blake3, needle)
+            ContainsText(artifact.Blake3, needle) OrElse
+            ContainsExtractedText(artifact, needle)
     End Function
 
     Private Shared Function ContainsText(value As String, needle As String) As Boolean
         Return Not String.IsNullOrWhiteSpace(value) AndAlso
             value.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0
     End Function
+
+    Private Function ContainsExtractedText(artifact As ArtifactModel, needle As String) As Boolean
+        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath) Then
+            Return False
+        End If
+
+        Try
+            Dim extractedPath = Path.Combine(VaultRootPath, artifact.ExtractedTextRelativePath)
+            If Not File.Exists(extractedPath) Then
+                Return False
+            End If
+
+            Return File.ReadLines(extractedPath).
+                Any(Function(line) line.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0)
+        Catch
+            Return False
+        End Try
+    End Function
+
+    Private Function FilterTag(item As Object) As Boolean
+        Dim tag = TryCast(item, String)
+        If String.IsNullOrWhiteSpace(tag) Then
+            Return False
+        End If
+
+        If String.IsNullOrWhiteSpace(TagSearchText) Then
+            Return True
+        End If
+
+        Return tag.IndexOf(TagSearchText.Trim(), StringComparison.OrdinalIgnoreCase) >= 0
+    End Function
+
+    Private Sub RefreshTagFilter()
+        If FilteredTags Is Nothing Then
+            Return
+        End If
+
+        Dim previous = SelectedTag
+        FilteredTags.Refresh()
+
+        If Not String.IsNullOrWhiteSpace(previous) AndAlso Not FilteredTags.Cast(Of String)().Contains(previous, StringComparer.OrdinalIgnoreCase) Then
+            SelectedTag = Nothing
+        End If
+    End Sub
 
     Private Sub RefreshFilters(Optional preserveSelection As Boolean = False)
         If FilteredArtifacts Is Nothing Then
@@ -1029,9 +1352,11 @@ Public Class MainViewModel
     End Sub
 
     Private Sub ClearFilters()
+        ActiveScope = "All"
         SelectedCategory = Nothing
         SelectedTag = Nothing
         SearchText = ""
+        TagSearchText = ""
         RefreshFilters(preserveSelection:=True)
     End Sub
 
@@ -1044,8 +1369,73 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(QuarantineCountText))
         OnPropertyChanged(NameOf(IngestModeText))
         OnPropertyChanged(NameOf(IngestModeDetail))
+        OnPropertyChanged(NameOf(ActiveScopeText))
         RebuildStats()
+        RebuildRelatedArtifacts()
     End Sub
+
+    Private Sub RebuildRelatedArtifacts()
+        RelatedArtifacts.Clear()
+
+        If SelectedArtifact Is Nothing Then
+            OnPropertyChanged(NameOf(RelatedArtifactsSummary))
+            Return
+        End If
+
+        Dim selectedTags = If(SelectedArtifact.Tags, New List(Of String))
+        Dim related = Artifacts.
+            Where(Function(a) Not ReferenceEquals(a, SelectedArtifact)).
+            Select(Function(a) New With {
+                .Artifact = a,
+                .Score =
+                    If(String.Equals(a.Category, SelectedArtifact.Category, StringComparison.OrdinalIgnoreCase), 2, 0) +
+                    If(Not String.IsNullOrWhiteSpace(a.Sha256) AndAlso String.Equals(a.Sha256, SelectedArtifact.Sha256, StringComparison.OrdinalIgnoreCase), 5, 0) +
+                    If(a.Tags Is Nothing, 0, a.Tags.Where(Function(tag) selectedTags.Any(Function(selectedTag) String.Equals(selectedTag, tag, StringComparison.OrdinalIgnoreCase))).Count())
+            }).
+            Where(Function(candidate) candidate.Score > 0).
+            OrderByDescending(Function(candidate) candidate.Score).
+            ThenBy(Function(candidate) candidate.Artifact.Name).
+            Take(6).
+            Select(Function(candidate) candidate.Artifact).
+            ToList()
+
+        For Each artifact In related
+            RelatedArtifacts.Add(artifact)
+        Next
+
+        OnPropertyChanged(NameOf(RelatedArtifactsSummary))
+    End Sub
+
+    Private Function MatchesActiveScope(artifact As ArtifactModel) As Boolean
+        Select Case ActiveScope
+            Case "Recent"
+                Return IsRecentArtifact(artifact)
+            Case "Starred"
+                Return artifact.IsStarred
+            Case "Quarantine"
+                Return String.Equals(artifact.Category, "Quarantine", StringComparison.OrdinalIgnoreCase) OrElse
+                    (Not String.IsNullOrWhiteSpace(artifact.RelativePath) AndAlso artifact.RelativePath.StartsWith("quarantine", StringComparison.OrdinalIgnoreCase))
+            Case Else
+                Return True
+        End Select
+    End Function
+
+    Private Shared Function IsRecentArtifact(artifact As ArtifactModel) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        Dim parsed As DateTime
+        If DateTime.TryParse(artifact.IngestedAt, parsed) Then
+            Return parsed >= DateTime.Now.AddDays(-14)
+        End If
+
+        If DateTime.TryParse(artifact.DateModified, parsed) Then
+            Return parsed >= DateTime.Now.AddDays(-14)
+        End If
+
+        Return False
+    End Function
 
     Private Sub HydrateArtifacts(artifacts As List(Of ArtifactModel))
         If artifacts Is Nothing Then
@@ -1070,6 +1460,10 @@ Public Class MainViewModel
                     artifact.RelativePath = Path.GetRelativePath(VaultRootPath, artifact.Path)
                 Catch
                 End Try
+            End If
+
+            If String.IsNullOrWhiteSpace(artifact.ExtractedTextStatus) Then
+                artifact.ExtractedTextStatus = If(String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath), "Not extracted", "Extracted")
             End If
         Next
     End Sub
@@ -1163,7 +1557,7 @@ Public Class MainViewModel
 
         Return Directory.
             EnumerateFiles(itemsRoot, "*", SearchOption.AllDirectories).
-            Where(Function(path) Not knownPaths.Contains(Path.GetFullPath(path))).
+            Where(Function(candidatePath) Not knownPaths.Contains(Path.GetFullPath(candidatePath))).
             ToList()
     End Function
 

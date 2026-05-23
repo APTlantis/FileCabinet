@@ -67,6 +67,45 @@ Class MainWindow
         End If
     End Sub
 
+    Private Sub RestoreArtifactButton_Click(sender As Object, e As RoutedEventArgs)
+        Dim viewModel = TryCast(DataContext, MainViewModel)
+
+        If viewModel Is Nothing OrElse Not viewModel.RestoreArtifactCommand.CanExecute(Nothing) Then
+            Return
+        End If
+
+        Dim dialog As New OpenFolderDialog With {
+            .Title = "Choose folder to restore a copy",
+            .Multiselect = False,
+            .InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+        }
+
+        If dialog.ShowDialog(Me) = True Then
+            viewModel.RestoreArtifactCommand.Execute(dialog.FolderName)
+        End If
+    End Sub
+
+    Private Sub DeleteArtifactButton_Click(sender As Object, e As RoutedEventArgs)
+        Dim viewModel = TryCast(DataContext, MainViewModel)
+
+        If viewModel Is Nothing OrElse Not viewModel.PermanentlyDeleteArtifactCommand.CanExecute(Nothing) Then
+            Return
+        End If
+
+        Dim artifactName = viewModel.GetSelectedArtifactName()
+        Dim result = MessageBox.Show(
+            Me,
+            $"Permanently delete '{artifactName}' from the vault and catalog? This cannot be undone.",
+            "Delete artifact permanently",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning,
+            MessageBoxResult.No)
+
+        If result = MessageBoxResult.Yes Then
+            viewModel.PermanentlyDeleteArtifactCommand.Execute(Nothing)
+        End If
+    End Sub
+
     Private Sub ToggleWindowState()
         If WindowState = WindowState.Maximized Then
             WindowState = WindowState.Normal

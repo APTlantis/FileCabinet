@@ -1,4 +1,5 @@
 Imports System.IO
+Imports System.Text
 
 Public Enum IngestMode
     Copy
@@ -7,6 +8,9 @@ End Enum
 
 Public Class IngestionService
     Private Shared ReadOnly HashServiceInstance As New HashService()
+    Private Shared ReadOnly ExtractableTextExtensions As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
+        ".txt", ".md", ".json", ".toml", ".yaml", ".yml", ".xml", ".ini", ".log", ".csv", ".ps1", ".bat", ".cmd", ".vb", ".cs", ".xaml", ".config", ".rtf", ".asc", ".pem", ".pub"
+    }
 
     Public Function Ingest(paths As IEnumerable(Of String), vaultRootPath As String, Optional progress As IProgress(Of IngestionProgress) = Nothing, Optional mode As IngestMode = IngestMode.Move) As List(Of ArtifactModel)
         Dim artifacts As New List(Of ArtifactModel)
@@ -169,6 +173,7 @@ Public Class IngestionService
         Dim tags = InferTags(source, category)
         Dim nowText = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
         Dim computedHashes = HashServiceInstance.ComputeHashes(stored.FullName)
+        Dim extraction = ExtractText(stored, vaultRootPath)
 
         Return New ArtifactModel With {
             .Id = Guid.NewGuid().ToString("N"),
@@ -185,12 +190,51 @@ Public Class IngestionService
             .Blake3 = computedHashes.Blake3,
             .Sha256 = computedHashes.Sha256,
             .HashStatus = "Verified",
+            .ExtractedTextRelativePath = extraction.RelativePath,
+            .ExtractedTextStatus = extraction.Status,
             .Rating = 0,
             .Notes = $"Ingested from {source.FullName}",
             .OriginalPath = source.FullName,
             .IngestedAt = nowText,
             .Tags = tags
         }
+    End Function
+
+    Private Shared Function ExtractText(stored As FileInfo, vaultRootPath As String) As (RelativePath As String, Status As String)
+        If Not ExtractableTextExtensions.Contains(stored.Extension) Then
+            Return ("", "Not extractable")
+        End If
+
+        Try
+            Const maxChars = 1024 * 1024
+            Dim builder As New StringBuilder()
+
+            Using reader As New StreamReader(stored.FullName, detectEncodingFromByteOrderMarks:=True)
+                Dim buffer(4095) As Char
+
+                While builder.Length < maxChars
+                    Dim remaining = Math.Min(buffer.Length, maxChars - builder.Length)
+                    Dim read = reader.Read(buffer, 0, remaining)
+
+                    If read <= 0 Then
+                        Exit While
+                    End If
+
+                    builder.Append(buffer, 0, read)
+                End While
+            End Using
+
+            Dim extractedRoot = Path.Combine(vaultRootPath, "extracted-text", DateTime.Now.ToString("yyyy"), DateTime.Now.ToString("MM"))
+            Directory.CreateDirectory(extractedRoot)
+            Dim extractedName = $"{Path.GetFileNameWithoutExtension(stored.Name)}-{Guid.NewGuid():N}.txt"
+            Dim extractedPath = Path.Combine(extractedRoot, extractedName)
+            File.WriteAllText(extractedPath, builder.ToString())
+
+            Dim status = If(builder.Length >= maxChars, "Extracted (truncated)", "Extracted")
+            Return (Path.GetRelativePath(vaultRootPath, extractedPath), status)
+        Catch
+            Return ("", "Extraction failed")
+        End Try
     End Function
 
     Private Shared Function InferTypeFamily(extension As String) As String

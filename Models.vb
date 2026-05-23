@@ -31,10 +31,54 @@ Public Class VaultRepairReport
 End Class
 
 Public Class VaultModel
-    Public Property Id As String = ""
-    Public Property Name As String = ""
-    Public Property Path As String = ""
+    Implements INotifyPropertyChanged
+
+    Private _id As String = ""
+    Private _name As String = ""
+    Private _path As String = ""
+    Private _isSelected As Boolean
+
+    Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
+
+    Public Property Id As String
+        Get
+            Return _id
+        End Get
+        Set(value As String)
+            SetValue(_id, If(value, ""))
+        End Set
+    End Property
+
+    Public Property Name As String
+        Get
+            Return _name
+        End Get
+        Set(value As String)
+            If SetValue(_name, If(value, "")) Then
+                OnPropertyChanged(NameOf(DisplayName))
+            End If
+        End Set
+    End Property
+
+    Public Property Path As String
+        Get
+            Return _path
+        End Get
+        Set(value As String)
+            If SetValue(_path, If(value, "")) Then
+                OnPropertyChanged(NameOf(DisplayName))
+            End If
+        End Set
+    End Property
+
     Public Property IsSelected As Boolean
+        Get
+            Return _isSelected
+        End Get
+        Set(value As Boolean)
+            SetValue(_isSelected, value)
+        End Set
+    End Property
 
     <JsonIgnore>
     Public ReadOnly Property DisplayName As String
@@ -46,6 +90,20 @@ Public Class VaultModel
             Return $"{Name} ({Path})"
         End Get
     End Property
+
+    Private Function SetValue(Of T)(ByRef storage As T, value As T, <CallerMemberName> Optional propertyName As String = Nothing) As Boolean
+        If EqualityComparer(Of T).Default.Equals(storage, value) Then
+            Return False
+        End If
+
+        storage = value
+        OnPropertyChanged(propertyName)
+        Return True
+    End Function
+
+    Private Sub OnPropertyChanged(<CallerMemberName> Optional propertyName As String = Nothing)
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(propertyName))
+    End Sub
 End Class
 
 Public Class StatCardModel
@@ -82,6 +140,8 @@ Public Class ArtifactModel
     Private _dateModified As String = ""
     Private _path As String = ""
     Private _relativePath As String = ""
+    Private _extractedTextRelativePath As String = ""
+    Private _extractedTextStatus As String = "Not extracted"
     Private _created As String = ""
     Private _sha256 As String = ""
     Private _blake3 As String = ""
@@ -184,6 +244,24 @@ Public Class ArtifactModel
         End Get
         Set(value As String)
             SetValue(_relativePath, If(value, ""))
+        End Set
+    End Property
+
+    Public Property ExtractedTextRelativePath As String
+        Get
+            Return _extractedTextRelativePath
+        End Get
+        Set(value As String)
+            SetValue(_extractedTextRelativePath, If(value, ""))
+        End Set
+    End Property
+
+    Public Property ExtractedTextStatus As String
+        Get
+            Return _extractedTextStatus
+        End Get
+        Set(value As String)
+            SetValue(_extractedTextStatus, If(value, "Not extracted"))
         End Set
     End Property
 
