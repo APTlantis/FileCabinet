@@ -157,6 +157,46 @@ Public Class ActivityEntryModel
     Public Property IconBackground As String = "#BAC8EF"
 End Class
 
+Public Class ArtifactRelationModel
+    Public Property Artifact As ArtifactModel
+    Public Property Score As Integer
+    Public Property Reasons As New List(Of String)
+
+    Public ReadOnly Property Name As String
+        Get
+            Return If(Artifact?.Name, "")
+        End Get
+    End Property
+
+    Public ReadOnly Property Category As String
+        Get
+            Return If(Artifact?.Category, "")
+        End Get
+    End Property
+
+    Public ReadOnly Property Size As String
+        Get
+            Return If(Artifact?.Size, "")
+        End Get
+    End Property
+
+    Public ReadOnly Property ReasonsText As String
+        Get
+            If Reasons Is Nothing OrElse Reasons.Count = 0 Then
+                Return "Related by catalog metadata"
+            End If
+
+            Return String.Join("  |  ", Reasons)
+        End Get
+    End Property
+
+    Public ReadOnly Property ScoreText As String
+        Get
+            Return $"Score {Score:N0}"
+        End Get
+    End Property
+End Class
+
 Public Class ArtifactModel
     Implements INotifyPropertyChanged
 

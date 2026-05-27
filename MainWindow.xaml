@@ -120,6 +120,45 @@
             </Setter>
         </Style>
 
+        <Style x:Key="RightPanelTabButton" TargetType="RadioButton">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="MinWidth" Value="82" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="Background" Value="#0D1825" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#142A42" />
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#173A61" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="NavCommandButton" TargetType="Button">
             <Setter Property="Height" Value="30" />
             <Setter Property="Padding" Value="9,0" />
@@ -749,21 +788,14 @@
                         <Border Style="{StaticResource PanelBorder}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Margin="16">
-                                    <Grid Margin="0,0,0,18">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel>
-                                            <TextBlock Text="PREVIEW" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="SemiBold" />
-                                            <Border Height="2" Background="{StaticResource AccentBrush}" Margin="0,9,0,0" />
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="DETAILS" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="28,0,0,0" />
-                                        <TextBlock Grid.Column="2" Text="RELATIONS" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="28,0,0,0" />
-                                    </Grid>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                        <RadioButton Content="Preview" GroupName="RightPanelTabs" IsChecked="{Binding IsPreviewTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
+                                        <RadioButton Content="Details" GroupName="RightPanelTabs" IsChecked="{Binding IsDetailsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
+                                        <RadioButton Content="Relations" GroupName="RightPanelTabs" IsChecked="{Binding IsRelationsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" Margin="0" />
+                                    </StackPanel>
 
-                                    <Border Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" MinHeight="136" Margin="0,8,0,24" Padding="10">
+                                    <StackPanel Visibility="{Binding IsPreviewTabSelected, Converter={StaticResource BoolToVisibility}}">
+                                    <Border Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" MinHeight="260" Margin="0,8,0,24" Padding="10">
                                         <Grid>
                                             <Image Source="{Binding SelectedPreview.Image}"
                                                    Stretch="Uniform"
@@ -814,7 +846,9 @@
                                             </StackPanel>
                                         </Grid>
                                     </Border>
+                                    </StackPanel>
 
+                                    <StackPanel Visibility="{Binding IsRelationsTabSelected, Converter={StaticResource BoolToVisibility}}">
                                     <TextBlock Text="Relations" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
                                     <Border Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,20">
                                         <StackPanel>
@@ -822,23 +856,29 @@
                                             <ItemsControl ItemsSource="{Binding RelatedArtifacts}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Grid Margin="0,0,0,8">
+                                                        <Grid Margin="0,0,0,12">
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="*" />
                                                                 <ColumnDefinition Width="Auto" />
                                                             </Grid.ColumnDefinitions>
                                                             <StackPanel>
                                                                 <TextBlock Text="{Binding Name}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" TextTrimming="CharacterEllipsis" />
-                                                                <TextBlock Text="{Binding Category}" Style="{StaticResource SmallLabel}" />
+                                                                <TextBlock Text="{Binding ReasonsText}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                                                <TextBlock Text="{Binding Category}" Style="{StaticResource SmallLabel}" Margin="0,3,0,0" />
                                                             </StackPanel>
-                                                            <TextBlock Grid.Column="1" Text="{Binding Size}" Style="{StaticResource SmallLabel}" Margin="10,0,0,0" />
+                                                            <StackPanel Grid.Column="1" Margin="10,0,0,0" HorizontalAlignment="Right">
+                                                                <TextBlock Text="{Binding ScoreText}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
+                                                                <TextBlock Text="{Binding Size}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" Margin="0,3,0,0" />
+                                                            </StackPanel>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                         </StackPanel>
                                     </Border>
+                                    </StackPanel>
 
+                                    <StackPanel Visibility="{Binding IsDetailsTabSelected, Converter={StaticResource BoolToVisibility}}">
                                     <Grid Margin="0,0,0,6">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -995,6 +1035,7 @@
                                         </Button>
                                     </UniformGrid>
                                     <TextBlock Text="{Binding ActionStatus}" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
+                                    </StackPanel>
                                 </StackPanel>
                             </ScrollViewer>
                         </Border>

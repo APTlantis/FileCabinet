@@ -34,6 +34,7 @@ Public Class MainViewModel
     Private _editStatus As String = "No pending edits"
     Private _actionStatus As String = "Select an artifact to run actions"
     Private _selectedPreview As ArtifactPreview = New ArtifactPreview With {.Kind = ArtifactPreviewKind.GenericFile, .Message = "No preview"}
+    Private _rightPanelTab As String = "Preview"
     Private _ingestProgress As Double
     Private _ingestDetail As String = ""
     Private _isIngesting As Boolean
@@ -53,7 +54,7 @@ Public Class MainViewModel
     Public Property Tags As New ObservableCollection(Of String)
     Public Property Activities As New ObservableCollection(Of ActivityEntryModel)
     Public Property Artifacts As New ObservableCollection(Of ArtifactModel)
-    Public Property RelatedArtifacts As New ObservableCollection(Of ArtifactModel)
+    Public Property RelatedArtifacts As New ObservableCollection(Of ArtifactRelationModel)
     Private _filteredTags As ICollectionView
     Public Property ClearFiltersCommand As ICommand
     Public Property ShowAllItemsCommand As ICommand
@@ -413,6 +414,22 @@ Public Class MainViewModel
         End Set
     End Property
 
+    Public Property RightPanelTab As String
+        Get
+            Return _rightPanelTab
+        End Get
+        Set(value As String)
+            Dim normalized = NormalizeRightPanelTab(value)
+            If _rightPanelTab <> normalized Then
+                _rightPanelTab = normalized
+                OnPropertyChanged()
+                OnPropertyChanged(NameOf(IsPreviewTabSelected))
+                OnPropertyChanged(NameOf(IsDetailsTabSelected))
+                OnPropertyChanged(NameOf(IsRelationsTabSelected))
+            End If
+        End Set
+    End Property
+
     Public ReadOnly Property CurrentVaultTitle As String
         Get
             If CurrentVault Is Nothing Then
@@ -699,6 +716,39 @@ Public Class MainViewModel
         End Get
     End Property
 
+    Public Property IsPreviewTabSelected As Boolean
+        Get
+            Return String.Equals(RightPanelTab, "Preview", StringComparison.OrdinalIgnoreCase)
+        End Get
+        Set(value As Boolean)
+            If value Then
+                RightPanelTab = "Preview"
+            End If
+        End Set
+    End Property
+
+    Public Property IsDetailsTabSelected As Boolean
+        Get
+            Return String.Equals(RightPanelTab, "Details", StringComparison.OrdinalIgnoreCase)
+        End Get
+        Set(value As Boolean)
+            If value Then
+                RightPanelTab = "Details"
+            End If
+        End Set
+    End Property
+
+    Public Property IsRelationsTabSelected As Boolean
+        Get
+            Return String.Equals(RightPanelTab, "Relations", StringComparison.OrdinalIgnoreCase)
+        End Get
+        Set(value As Boolean)
+            If value Then
+                RightPanelTab = "Relations"
+            End If
+        End Set
+    End Property
+
     Public ReadOnly Property IsImagePreview As Boolean
         Get
             Return SelectedPreview IsNot Nothing AndAlso SelectedPreview.Kind = ArtifactPreviewKind.Image
@@ -722,6 +772,17 @@ Public Class MainViewModel
             Return SelectedPreview IsNot Nothing AndAlso SelectedPreview.Kind = ArtifactPreviewKind.Missing
         End Get
     End Property
+
+    Private Shared Function NormalizeRightPanelTab(value As String) As String
+        Select Case If(value, "").Trim().ToLowerInvariant()
+            Case "details"
+                Return "Details"
+            Case "relations"
+                Return "Relations"
+            Case Else
+                Return "Preview"
+        End Select
+    End Function
 
     Private Sub LoadCatalog()
         _isLoadingCatalog = True
@@ -1543,29 +1604,160 @@ Public Class MainViewModel
             Return
         End If
 
-        Dim selectedTags = If(SelectedArtifact.Tags, New List(Of String))
         Dim related = Artifacts.
             Where(Function(a) Not ReferenceEquals(a, SelectedArtifact)).
-            Select(Function(a) New With {
-                .Artifact = a,
-                .Score =
-                    If(String.Equals(a.Category, SelectedArtifact.Category, StringComparison.OrdinalIgnoreCase), 2, 0) +
-                    If(Not String.IsNullOrWhiteSpace(a.Sha256) AndAlso String.Equals(a.Sha256, SelectedArtifact.Sha256, StringComparison.OrdinalIgnoreCase), 5, 0) +
-                    If(a.Tags Is Nothing, 0, a.Tags.Where(Function(tag) selectedTags.Any(Function(selectedTag) String.Equals(selectedTag, tag, StringComparison.OrdinalIgnoreCase))).Count())
-            }).
-            Where(Function(candidate) candidate.Score > 0).
-            OrderByDescending(Function(candidate) candidate.Score).
-            ThenBy(Function(candidate) candidate.Artifact.Name).
+            Select(Function(a) BuildArtifactRelation(SelectedArtifact, a)).
+            Where(Function(relation) relation IsNot Nothing AndAlso relation.Score > 0).
+            OrderByDescending(Function(relation) relation.Score).
+            ThenBy(Function(relation) relation.Name).
             Take(6).
-            Select(Function(candidate) candidate.Artifact).
             ToList()
 
-        For Each artifact In related
-            RelatedArtifacts.Add(artifact)
+        For Each relation In related
+            RelatedArtifacts.Add(relation)
         Next
 
         OnPropertyChanged(NameOf(RelatedArtifactsSummary))
     End Sub
+
+    Public Shared Function BuildArtifactRelation(selected As ArtifactModel, candidate As ArtifactModel) As ArtifactRelationModel
+        If selected Is Nothing OrElse candidate Is Nothing OrElse ReferenceEquals(selected, candidate) Then
+            Return Nothing
+        End If
+
+        Dim score = 0
+        Dim reasons As New List(Of String)
+
+        If Not String.IsNullOrWhiteSpace(candidate.Sha256) AndAlso
+            String.Equals(candidate.Sha256, selected.Sha256, StringComparison.OrdinalIgnoreCase) Then
+            score += 12
+            reasons.Add("duplicate SHA-256")
+        End If
+
+        Dim sharedTags = SharedTagNames(selected, candidate)
+        If sharedTags.Count > 0 Then
+            score += Math.Min(6, sharedTags.Count * 2)
+            reasons.Add("shared tag: " & String.Join(", ", sharedTags.Take(3)))
+        End If
+
+        If SameText(candidate.Category, selected.Category) Then
+            score += 4
+            reasons.Add("same category")
+        End If
+
+        If SameText(candidate.TypeFamily, selected.TypeFamily) Then
+            score += 3
+            reasons.Add("same type family")
+        End If
+
+        If SameDirectory(candidate.OriginalPath, selected.OriginalPath) Then
+            score += 3
+            reasons.Add("same original folder")
+        ElseIf SameDirectory(candidate.Path, selected.Path) Then
+            score += 2
+            reasons.Add("same vault folder")
+        End If
+
+        If SameDateBatch(candidate, selected) Then
+            score += 2
+            reasons.Add("same date batch")
+        End If
+
+        Dim matchingNameTokens = SharedNameTokens(selected.Name, candidate.Name)
+        If matchingNameTokens.Count > 0 Then
+            score += Math.Min(4, matchingNameTokens.Count)
+            reasons.Add("matching name token: " & String.Join(", ", matchingNameTokens.Take(3)))
+        End If
+
+        If score <= 0 Then
+            Return Nothing
+        End If
+
+        Return New ArtifactRelationModel With {
+            .Artifact = candidate,
+            .Score = score,
+            .Reasons = reasons
+        }
+    End Function
+
+    Private Shared Function SharedTagNames(selected As ArtifactModel, candidate As ArtifactModel) As List(Of String)
+        Dim selectedTags = If(selected.Tags, New List(Of String))
+        Dim candidateTags = If(candidate.Tags, New List(Of String))
+
+        Return candidateTags.
+            Where(Function(tag) selectedTags.Any(Function(selectedTag) SameText(selectedTag, tag))).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            OrderBy(Function(tag) tag).
+            ToList()
+    End Function
+
+    Private Shared Function SameText(left As String, right As String) As Boolean
+        Return Not String.IsNullOrWhiteSpace(left) AndAlso
+            String.Equals(left, right, StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Shared Function SameDirectory(leftPath As String, rightPath As String) As Boolean
+        If String.IsNullOrWhiteSpace(leftPath) OrElse String.IsNullOrWhiteSpace(rightPath) Then
+            Return False
+        End If
+
+        Try
+            Dim leftDirectory = Path.GetDirectoryName(Path.GetFullPath(leftPath))
+            Dim rightDirectory = Path.GetDirectoryName(Path.GetFullPath(rightPath))
+            Return Not String.IsNullOrWhiteSpace(leftDirectory) AndAlso
+                String.Equals(leftDirectory, rightDirectory, StringComparison.OrdinalIgnoreCase)
+        Catch
+            Return False
+        End Try
+    End Function
+
+    Private Shared Function SameDateBatch(candidate As ArtifactModel, selected As ArtifactModel) As Boolean
+        Dim candidateDate As DateTime
+        Dim selectedDate As DateTime
+
+        If TryGetBatchDate(candidate, candidateDate) AndAlso TryGetBatchDate(selected, selectedDate) Then
+            Return candidateDate.Date = selectedDate.Date
+        End If
+
+        Return False
+    End Function
+
+    Private Shared Function TryGetBatchDate(artifact As ArtifactModel, ByRef parsed As DateTime) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        Return DateTime.TryParse(artifact.IngestedAt, parsed) OrElse DateTime.TryParse(artifact.DateModified, parsed)
+    End Function
+
+    Private Shared Function SharedNameTokens(leftName As String, rightName As String) As List(Of String)
+        Dim leftTokens = NameTokens(leftName)
+        Dim rightTokens = NameTokens(rightName)
+
+        Return rightTokens.
+            Where(Function(token) leftTokens.Contains(token, StringComparer.OrdinalIgnoreCase)).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            OrderBy(Function(token) token).
+            ToList()
+    End Function
+
+    Private Shared Function NameTokens(name As String) As List(Of String)
+        If String.IsNullOrWhiteSpace(name) Then
+            Return New List(Of String)
+        End If
+
+        Return Path.GetFileNameWithoutExtension(name).
+            Split({" "c, "-"c, "_"c, "."c, "("c, ")"c, "["c, "]"c}, StringSplitOptions.RemoveEmptyEntries).
+            Select(Function(token) token.Trim().ToLowerInvariant()).
+            Where(Function(token) token.Length >= 3 AndAlso Not IsNumericToken(token)).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            ToList()
+    End Function
+
+    Private Shared Function IsNumericToken(token As String) As Boolean
+        Dim ignored As Integer
+        Return Integer.TryParse(token, ignored)
+    End Function
 
     Private Function MatchesActiveScope(artifact As ArtifactModel) As Boolean
         Select Case ActiveScope
