@@ -67,6 +67,47 @@ Public Class VaultRepairReport
     End Property
 End Class
 
+Public Class VaultHealthFinding
+    Public Property FindingType As String = ""
+    Public Property Subject As String = ""
+    Public Property Detail As String = ""
+    Public Property ProposedAction As String = ""
+    Public Property RiskLevel As String = "Low"
+    Public Property MutatesCatalog As Boolean
+    Public Property TouchesRetainedFiles As Boolean
+End Class
+
+Public Class VaultHealthReport
+    Public Property Findings As New List(Of VaultHealthFinding)
+
+    Public ReadOnly Property FindingCount As Integer
+        Get
+            Return Findings.Count
+        End Get
+    End Property
+
+    Public ReadOnly Property Summary As String
+        Get
+            If Findings.Count = 0 Then
+                Return "Vault health: no findings"
+            End If
+
+            Dim groups = Findings.
+                GroupBy(Function(finding) finding.FindingType).
+                OrderBy(Function(group) group.Key).
+                Select(Function(group) $"{group.Count():N0} {group.Key}")
+
+            Return "Vault health: " & String.Join(", ", groups)
+        End Get
+    End Property
+
+    Public ReadOnly Property Detail As String
+        Get
+            Return String.Join("  |  ", Findings.Take(5).Select(Function(finding) $"{finding.FindingType}: {finding.Subject}"))
+        End Get
+    End Property
+End Class
+
 Public Class VaultModel
     Implements INotifyPropertyChanged
 

@@ -1218,11 +1218,6 @@ Public Class MainViewModel
     Private Sub RepairCatalog()
         Dim report = BuildRepairReport(adoptOrphans:=False)
         _repairStatus = BuildRepairStatus(report)
-        _catalog.Artifacts = Artifacts.ToList()
-        _catalogService.Save(_catalog)
-        If SelectedArtifact IsNot Nothing Then
-            LoadPreviewForSelected()
-        End If
         OnPropertyChanged(NameOf(RepairStatus))
         ActionStatus = _repairStatus
         ShowSettings()
@@ -1862,6 +1857,7 @@ Public Class MainViewModel
     End Sub
 
     Private Function BuildRepairReport(adoptOrphans As Boolean) As VaultRepairReport
+        Dim healthReport = BuildVaultHealthReport()
         Dim missingArtifacts = Artifacts.Where(Function(a) String.IsNullOrWhiteSpace(a.Path) OrElse Not File.Exists(a.Path)).ToList()
         Dim duplicateGroups = Artifacts.
             Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256)).
@@ -1875,20 +1871,24 @@ Public Class MainViewModel
             .DuplicateSamples = duplicateGroups.Select(Function(g) g.First().Name).Take(3).ToList()
         }
 
-        Dim missingThumbnailArtifacts = Artifacts.
-            Where(Function(a) _thumbnailService.IsGeneratedThumbnailMissing(a, VaultRootPath)).
+        Dim missingThumbnailArtifacts = healthReport.Findings.
+            Where(Function(finding) String.Equals(finding.FindingType, "Missing thumbnail", StringComparison.OrdinalIgnoreCase)).
+            Select(Function(finding) Artifacts.FirstOrDefault(Function(artifact) String.Equals(artifact.Name, finding.Subject, StringComparison.OrdinalIgnoreCase))).
+            Where(Function(artifact) artifact IsNot Nothing).
             ToList()
         report.MissingThumbnails = missingThumbnailArtifacts.Count
         report.ThumbnailSamples = missingThumbnailArtifacts.Select(Function(a) a.Name).Take(3).ToList()
 
-        For Each artifact In missingThumbnailArtifacts
-            Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, VaultRootPath)
-            artifact.ThumbnailRelativePath = thumbnail.RelativePath
-            artifact.ThumbnailStatus = thumbnail.Status
-            If String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase) Then
-                report.RegeneratedThumbnails += 1
-            End If
-        Next
+        If adoptOrphans Then
+            For Each artifact In missingThumbnailArtifacts
+                Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, VaultRootPath)
+                artifact.ThumbnailRelativePath = thumbnail.RelativePath
+                artifact.ThumbnailStatus = thumbnail.Status
+                If String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase) Then
+                    report.RegeneratedThumbnails += 1
+                End If
+            Next
+        End If
 
         Dim orphanFiles = FindOrphanStoredFiles().ToList()
         report.OrphanFiles = orphanFiles.Count
@@ -1918,6 +1918,108 @@ Public Class MainViewModel
         End If
 
         Return report
+    End Function
+
+    Public Function BuildVaultHealthReport() As VaultHealthReport
+        Return BuildVaultHealthReport(Artifacts, VaultRootPath, _thumbnailService)
+    End Function
+
+    Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService) As VaultHealthReport
+        Dim report As New VaultHealthReport()
+        Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).ToList()
+        Dim thumbService = If(thumbnailService, New ThumbnailService())
+
+        For Each artifact In artifactList
+            If artifact Is Nothing Then
+                Continue For
+            End If
+
+            If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+                report.Findings.Add(New VaultHealthFinding With {
+                    .FindingType = "Missing file",
+                    .Subject = artifact.Name,
+                    .Detail = "Catalog entry points to a stored file that is not present.",
+                    .ProposedAction = "Keep catalog row and mark for operator review.",
+                    .RiskLevel = "Medium",
+                    .MutatesCatalog = False,
+                    .TouchesRetainedFiles = False
+                })
+            End If
+
+            If String.IsNullOrWhiteSpace(artifact.Blake3) OrElse String.IsNullOrWhiteSpace(artifact.Sha256) Then
+                report.Findings.Add(New VaultHealthFinding With {
+                    .FindingType = "Missing hash",
+                    .Subject = artifact.Name,
+                    .Detail = "Artifact is missing one or more integrity hashes.",
+                    .ProposedAction = "Recompute hashes from the retained file.",
+                    .RiskLevel = "Low",
+                    .MutatesCatalog = True,
+                    .TouchesRetainedFiles = False
+                })
+            End If
+
+            If thumbService.IsGeneratedThumbnailMissing(artifact, vaultRootPath) Then
+                report.Findings.Add(New VaultHealthFinding With {
+                    .FindingType = "Missing thumbnail",
+                    .Subject = artifact.Name,
+                    .Detail = "Catalog references a generated thumbnail file that is not present.",
+                    .ProposedAction = "Regenerate thumbnail from the retained file.",
+                    .RiskLevel = "Low",
+                    .MutatesCatalog = True,
+                    .TouchesRetainedFiles = False
+                })
+            End If
+
+            If Not String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath) Then
+                Dim extractedPath = ResolveVaultRelativePath(vaultRootPath, artifact.ExtractedTextRelativePath)
+                If String.IsNullOrWhiteSpace(extractedPath) OrElse Not File.Exists(extractedPath) Then
+                    report.Findings.Add(New VaultHealthFinding With {
+                        .FindingType = "Missing extracted text",
+                        .Subject = artifact.Name,
+                        .Detail = "Catalog references an extracted-text index that is not present.",
+                        .ProposedAction = "Re-extract text if the retained file format is supported.",
+                        .RiskLevel = "Medium",
+                        .MutatesCatalog = True,
+                        .TouchesRetainedFiles = False
+                    })
+                End If
+            End If
+        Next
+
+        Dim duplicateGroups = artifactList.
+            Where(Function(artifact) artifact IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(artifact.Sha256)).
+            GroupBy(Function(artifact) artifact.Sha256, StringComparer.OrdinalIgnoreCase).
+            Where(Function(group) group.Count() > 1)
+
+        For Each duplicateGroup In duplicateGroups
+            report.Findings.Add(New VaultHealthFinding With {
+                .FindingType = "Duplicate hash",
+                .Subject = duplicateGroup.First().Sha256,
+                .Detail = String.Join(", ", duplicateGroup.Select(Function(artifact) artifact.Name).Take(5)),
+                .ProposedAction = "Review duplicate candidates; keep or remove only by operator decision.",
+                .RiskLevel = "Low",
+                .MutatesCatalog = False,
+                .TouchesRetainedFiles = False
+            })
+        Next
+
+        Return report
+    End Function
+
+    Private Shared Function ResolveVaultRelativePath(vaultRootPath As String, relativePath As String) As String
+        If String.IsNullOrWhiteSpace(relativePath) Then
+            Return ""
+        End If
+
+        If Path.IsPathRooted(relativePath) Then
+            Return relativePath
+        End If
+
+        If String.IsNullOrWhiteSpace(vaultRootPath) Then
+            Return ""
+        End If
+
+        Return Path.Combine(vaultRootPath, relativePath)
     End Function
 
     Private Shared Function BuildRepairStatus(report As VaultRepairReport) As String
