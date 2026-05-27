@@ -56,6 +56,7 @@ Public Class MainViewModel
     Public Property Activities As New ObservableCollection(Of ActivityEntryModel)
     Public Property Artifacts As New ObservableCollection(Of ArtifactModel)
     Public Property RelatedArtifacts As New ObservableCollection(Of ArtifactRelationModel)
+    Public Property VaultHealthFindings As New ObservableCollection(Of VaultHealthFinding)
     Private _filteredTags As ICollectionView
     Public Property ClearFiltersCommand As ICommand
     Public Property ShowAllItemsCommand As ICommand
@@ -656,6 +657,16 @@ Public Class MainViewModel
         End Get
     End Property
 
+    Public ReadOnly Property VaultHealthSummary As String
+        Get
+            If VaultHealthFindings.Count = 0 Then
+                Return "No health analysis run"
+            End If
+
+            Return $"{VaultHealthFindings.Count:N0} repair candidate(s)"
+        End Get
+    End Property
+
     Public ReadOnly Property CatalogPath As String
         Get
             Return _catalogService.CatalogPath
@@ -1200,6 +1211,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(SettingsText))
         OnPropertyChanged(NameOf(LastBackupDisplay))
         OnPropertyChanged(NameOf(RecallStatusText))
+        OnPropertyChanged(NameOf(VaultHealthSummary))
         ActionStatus = "Settings summarized"
     End Sub
 
@@ -1218,6 +1230,7 @@ Public Class MainViewModel
     Private Sub RepairCatalog()
         Dim report = BuildRepairReport(adoptOrphans:=False)
         _repairStatus = BuildRepairStatus(report)
+        PublishVaultHealthReport(BuildVaultHealthReport())
         OnPropertyChanged(NameOf(RepairStatus))
         ActionStatus = _repairStatus
         ShowSettings()
@@ -1232,6 +1245,7 @@ Public Class MainViewModel
         _catalogService.Save(_catalog)
         RefreshFilters(preserveSelection:=True)
         RefreshDerivedUiState()
+        PublishVaultHealthReport(BuildVaultHealthReport())
         OnPropertyChanged(NameOf(RepairStatus))
         ActionStatus = $"Rescan complete: {_repairStatus}"
         ShowSettings()
@@ -1924,6 +1938,18 @@ Public Class MainViewModel
         Return BuildVaultHealthReport(Artifacts, VaultRootPath, _thumbnailService)
     End Function
 
+    Private Sub PublishVaultHealthReport(report As VaultHealthReport)
+        VaultHealthFindings.Clear()
+
+        If report IsNot Nothing Then
+            For Each finding In report.Findings
+                VaultHealthFindings.Add(finding)
+            Next
+        End If
+
+        OnPropertyChanged(NameOf(VaultHealthSummary))
+    End Sub
+
     Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService) As VaultHealthReport
         Dim report As New VaultHealthReport()
         Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).ToList()
@@ -2003,8 +2029,52 @@ Public Class MainViewModel
             })
         Next
 
+        AddOrphanGeneratedAssetFindings(report, artifactList, vaultRootPath, "thumbnails", Function(artifact) artifact.ThumbnailRelativePath, "Orphan thumbnail", "Generated thumbnail file is not referenced by any catalog artifact.", "Review generated asset; cleanup should require operator approval.")
+        AddOrphanGeneratedAssetFindings(report, artifactList, vaultRootPath, "extracted-text", Function(artifact) artifact.ExtractedTextRelativePath, "Stale extracted text", "Extracted-text index is not referenced by any catalog artifact.", "Review generated index; cleanup should require operator approval.")
+
         Return report
     End Function
+
+    Private Shared Sub AddOrphanGeneratedAssetFindings(report As VaultHealthReport, artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, folderName As String, referenceSelector As Func(Of ArtifactModel, String), findingType As String, detail As String, proposedAction As String)
+        If report Is Nothing OrElse String.IsNullOrWhiteSpace(vaultRootPath) Then
+            Return
+        End If
+
+        Dim generatedRoot = Path.Combine(vaultRootPath, folderName)
+        If Not Directory.Exists(generatedRoot) Then
+            Return
+        End If
+
+        Dim referencedPaths = New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+        For Each artifact In If(artifacts, Enumerable.Empty(Of ArtifactModel)())
+            If artifact Is Nothing Then
+                Continue For
+            End If
+
+            Dim reference = referenceSelector(artifact)
+            Dim absolutePath = ResolveVaultRelativePath(vaultRootPath, reference)
+            If Not String.IsNullOrWhiteSpace(absolutePath) Then
+                referencedPaths.Add(Path.GetFullPath(absolutePath))
+            End If
+        Next
+
+        For Each generatedPath In Directory.EnumerateFiles(generatedRoot, "*", SearchOption.AllDirectories)
+            Dim fullPath = Path.GetFullPath(generatedPath)
+            If referencedPaths.Contains(fullPath) Then
+                Continue For
+            End If
+
+            report.Findings.Add(New VaultHealthFinding With {
+                .FindingType = findingType,
+                .Subject = Path.GetRelativePath(vaultRootPath, generatedPath),
+                .Detail = detail,
+                .ProposedAction = proposedAction,
+                .RiskLevel = "Low",
+                .MutatesCatalog = False,
+                .TouchesRetainedFiles = False
+            })
+        Next
+    End Sub
 
     Private Shared Function ResolveVaultRelativePath(vaultRootPath As String, relativePath As String) As String
         If String.IsNullOrWhiteSpace(relativePath) Then

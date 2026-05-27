@@ -1059,10 +1059,10 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="SETTINGS" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="SemiBold" />
-                                        <TextBlock Text="Vault, intake, backup, repair" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
+                                        <TextBlock Text="VAULT HEALTH" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="&#xE713;" Command="{Binding ShowSettingsCommand}" ToolTip="Refresh settings summary" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Width="34" Height="30" />
+                                    <Button Grid.Column="1" Content="Analyze" Command="{Binding RepairCatalogCommand}" ToolTip="Analyze vault health without mutating files" Style="{StaticResource ToolButton}" Height="30" />
                                 </Grid>
 
                                 <Grid Grid.Row="1" Margin="0,12,0,10">
@@ -1071,8 +1071,7 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="72" />
@@ -1091,18 +1090,39 @@
                                     <TextBlock Grid.Row="3" Text="Backup" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupDisplay}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
 
-                                    <TextBlock Grid.Row="4" Text="Repair" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
-                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding RepairStatus}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
-
-                                    <TextBlock Grid.Row="5" Text="Recall" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
-                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding RecallStatusText}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
+                                    <Border Grid.Row="4" Grid.ColumnSpan="2" Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="8">
+                                        <ScrollViewer MaxHeight="88" VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding VaultHealthFindings}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,0,0,10">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding Subject}" Style="{StaticResource SmallLabel}" TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding ProposedAction}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="1" Margin="8,0,0,0" HorizontalAlignment="Right">
+                                                                <TextBlock Text="{Binding RiskLevel}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
+                                                                <TextBlock Text="{Binding MutatesCatalog, StringFormat=Catalog: {0}}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" Margin="0,3,0,0" />
+                                                                <TextBlock Text="{Binding TouchesRetainedFiles, StringFormat=Files: {0}}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
                                 </Grid>
 
                                 <WrapPanel Grid.Row="2">
                                     <Button Content="Vault..." Click="ChooseVaultButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="{Binding IngestModeText}" Command="{Binding ToggleIngestModeCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="Backup" Command="{Binding BackupCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
-                                    <Button Content="Repair" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Analyze" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="Rescan" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" />
                                 </WrapPanel>
                             </Grid>
