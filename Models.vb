@@ -162,6 +162,18 @@ Public Class RepairCandidate
     End Property
 End Class
 
+Public Class RepairLogEntry
+    Public Property Timestamp As String = ""
+    Public Property ActionType As String = ""
+    Public Property FindingType As String = ""
+    Public Property Subject As String = ""
+    Public Property ProposedAction As String = ""
+    Public Property Result As String = ""
+    Public Property Detail As String = ""
+    Public Property MutatesCatalog As Boolean
+    Public Property TouchesRetainedFiles As Boolean
+End Class
+
 Public Class VaultModel
     Implements INotifyPropertyChanged
 

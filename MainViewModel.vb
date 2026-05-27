@@ -17,6 +17,7 @@ Public Class MainViewModel
     Private ReadOnly _hashService As HashService
     Private ReadOnly _previewService As PreviewService
     Private ReadOnly _thumbnailService As ThumbnailService
+    Private ReadOnly _repairLogService As RepairLogService
     Private _catalog As CatalogData
     Private _selectedArtifact As ArtifactModel
     Private _currentVault As VaultModel
@@ -93,6 +94,7 @@ Public Class MainViewModel
         _hashService = New HashService()
         _thumbnailService = New ThumbnailService()
         _previewService = New PreviewService(_thumbnailService)
+        _repairLogService = New RepairLogService()
         ClearFiltersCommand = New RelayCommand(Sub(parameter) ClearFilters())
         ShowAllItemsCommand = New RelayCommand(Sub(parameter) SetScope("All"))
         ShowRecentCommand = New RelayCommand(Sub(parameter) SetScope("Recent"))
@@ -1966,34 +1968,49 @@ Public Class MainViewModel
 
     Private Sub ApplySelectedRepairCandidates()
         Dim selected = RepairCandidates.
-            Where(Function(candidate) candidate.IsSelected AndAlso candidate.CanRepairAutomatically).
+            Where(Function(candidate) candidate.IsSelected).
             ToList()
 
         If selected.Count = 0 Then
-            ActionStatus = "No safe repair candidates selected"
+            ActionStatus = "No repair candidates selected"
             RaiseRepairCandidateCommandState()
             Return
         End If
 
         Dim applied = 0
         Dim failed = 0
+        Dim skipped = 0
 
         For Each candidate In selected
-            If ApplyRepairCandidate(candidate) Then
+            If Not candidate.CanRepairAutomatically Then
+                skipped += 1
+                AppendRepairLog(candidate, "Skipped", "Review-only candidate requires manual action")
+            ElseIf ApplyRepairCandidate(candidate) Then
                 applied += 1
+                AppendRepairLog(candidate, "Applied", "Repair completed")
             Else
                 failed += 1
+                AppendRepairLog(candidate, "Failed", "Repair could not be completed safely")
             End If
         Next
 
         _catalog.Artifacts = Artifacts.ToList()
+        Dim activity = New ActivityEntryModel With {
+            .ActionText = $"Applied {applied:N0} repair(s)",
+            .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  {failed:N0} failed, {skipped:N0} skipped; repair log updated",
+            .Icon = "",
+            .IconBrush = "#51D88A",
+            .IconBackground = "#153F2C"
+        }
+        Activities.Insert(0, activity)
+        _catalog.Activities.Insert(0, activity)
         _catalogService.Save(_catalog)
         If SelectedArtifact IsNot Nothing Then
             LoadPreviewForSelected()
         End If
         PublishVaultHealthReport(BuildVaultHealthReport())
         RefreshDerivedUiState()
-        ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed"
+        ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed; {skipped:N0} skipped"
     End Sub
 
     Private Function ApplyRepairCandidate(candidate As RepairCandidate) As Boolean
@@ -2032,6 +2049,23 @@ Public Class MainViewModel
             Return False
         End Try
     End Function
+
+    Private Sub AppendRepairLog(candidate As RepairCandidate, result As String, detail As String)
+        Try
+            _repairLogService.Append(VaultRootPath, New RepairLogEntry With {
+                .Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                .ActionType = If(candidate?.ActionType, ""),
+                .FindingType = If(candidate?.FindingType, ""),
+                .Subject = If(candidate?.Subject, ""),
+                .ProposedAction = If(candidate?.ProposedAction, ""),
+                .Result = result,
+                .Detail = detail,
+                .MutatesCatalog = candidate IsNot Nothing AndAlso candidate.MutatesCatalog,
+                .TouchesRetainedFiles = candidate IsNot Nothing AndAlso candidate.TouchesRetainedFiles
+            })
+        Catch
+        End Try
+    End Sub
 
     Private Function FindArtifactForCandidate(candidate As RepairCandidate) As ArtifactModel
         If candidate?.Finding Is Nothing Then
