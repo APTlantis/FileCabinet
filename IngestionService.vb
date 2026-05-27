@@ -10,6 +10,7 @@ End Enum
 
 Public Class IngestionService
     Private Shared ReadOnly HashServiceInstance As New HashService()
+    Private Shared ReadOnly ThumbnailServiceInstance As New ThumbnailService()
     Private Shared ReadOnly ExtractableTextExtensions As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
         ".txt", ".md", ".json", ".toml", ".yaml", ".yml", ".xml", ".ini", ".log", ".csv", ".ps1", ".bat", ".cmd", ".vb", ".cs", ".xaml", ".config", ".rtf", ".asc", ".pem", ".pub", ".docx"
     }
@@ -176,8 +177,7 @@ Public Class IngestionService
         Dim nowText = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
         Dim computedHashes = HashServiceInstance.ComputeHashes(stored.FullName)
         Dim extraction = ExtractText(stored, vaultRootPath)
-
-        Return New ArtifactModel With {
+        Dim artifact = New ArtifactModel With {
             .Id = Guid.NewGuid().ToString("N"),
             .Name = stored.Name,
             .Type = typeName,
@@ -200,6 +200,12 @@ Public Class IngestionService
             .IngestedAt = nowText,
             .Tags = tags
         }
+
+        Dim thumbnail = ThumbnailServiceInstance.GenerateForArtifact(artifact, vaultRootPath)
+        artifact.ThumbnailRelativePath = thumbnail.RelativePath
+        artifact.ThumbnailStatus = thumbnail.Status
+
+        Return artifact
     End Function
 
     Private Shared Function ExtractText(stored As FileInfo, vaultRootPath As String) As (RelativePath As String, Status As String)

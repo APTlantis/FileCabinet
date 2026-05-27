@@ -84,7 +84,7 @@ The density toggle is only a display preference. It does not change catalog data
 
 The right panel shows the selected artifact.
 
-For images, FileCabinet renders an image preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a clear fallback message.
+For images, FileCabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card.
 
 The details area shows editable metadata and file facts:
 
@@ -98,6 +98,7 @@ The details area shows editable metadata and file facts:
 - BLAKE3 and SHA-256 hashes
 - hash verification status
 - extracted text status and index path
+- thumbnail/preview generation status
 - original source path
 - notes
 
@@ -131,6 +132,12 @@ This makes retained config files, manifests, scripts, markdown, JSON, TOML, YAML
 
 Binary files are marked **Not extractable**. Failed extraction is recorded as **Extraction failed** rather than silently pretending the file was indexed.
 
+## Thumbnail Generation
+
+FileCabinet generates deterministic local thumbnails for image files during ingest and rescan adoption. Thumbnail files are stored under `thumbnails\yyyy\MM\` inside the vault and referenced by the catalog.
+
+Non-renderable retained artifacts such as installers, archives, torrents, and disk images use format-aware fallback cards instead of shell thumbnails. Repair checks report missing generated thumbnails and attempt to regenerate them when the original vault file is present.
+
 ## Related Items
 
 The **Relations** section in the right panel shows a first-pass related-artifacts list. Related items are ranked by:
@@ -145,7 +152,7 @@ This is deterministic local matching, not AI. It is meant to help you quickly sp
 
 FileCabinet includes a few recovery-oriented tools.
 
-**Repair** checks catalog health. It reports missing stored files, duplicate hash groups, orphan files under `items`, and adopted file counts.
+**Repair** checks catalog health. It reports missing stored files, duplicate hash groups, orphan files under `items`, missing generated thumbnails, regenerated thumbnail counts, and adopted file counts.
 
 **Rescan** looks for files under the vault's `items` folder that are not yet in the catalog and adopts them as cataloged artifacts.
 
@@ -162,6 +169,8 @@ Local AI is not active yet. Embeddings, AI classification, semantic search, summ
 OCR is not implemented yet. Text extraction currently handles text-like files, not image text or scanned PDFs.
 
 PDF preview is currently a retained-file fallback rather than full document rendering.
+
+Windows shell thumbnails are not used yet. Preview generation is intentionally local and deterministic.
 
 ## Operational Notes
 

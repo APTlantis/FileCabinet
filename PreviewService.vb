@@ -23,6 +23,8 @@ Public Class ArtifactPreview
 End Class
 
 Public Class PreviewService
+    Private ReadOnly _thumbnailService As ThumbnailService
+
     Private Shared ReadOnly ImageExtensions As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
         ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tif", ".tiff", ".webp"
     }
@@ -34,6 +36,10 @@ Public Class PreviewService
     Private Shared ReadOnly DocumentExtensions As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
         ".pdf", ".doc", ".docx", ".odt", ".rtf", ".xls", ".xlsx", ".ods", ".ppt", ".pptx", ".odp"
     }
+
+    Public Sub New(Optional thumbnailService As ThumbnailService = Nothing)
+        _thumbnailService = If(thumbnailService, New ThumbnailService())
+    End Sub
 
     Public Function LoadPreview(artifact As ArtifactModel) As ArtifactPreview
         If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
@@ -49,6 +55,11 @@ Public Class PreviewService
         Dim extension = Path.GetExtension(artifact.Path)
 
         If ImageExtensions.Contains(extension) Then
+            Dim thumbnailPath = ResolveGeneratedThumbnailPath(artifact)
+            If Not String.IsNullOrWhiteSpace(thumbnailPath) Then
+                Return LoadImagePreview(thumbnailPath, "Image thumbnail")
+            End If
+
             Return LoadImagePreview(artifact.Path)
         End If
 
@@ -73,7 +84,21 @@ Public Class PreviewService
         Return CreateFormatPreview(artifact, extension)
     End Function
 
-    Private Shared Function LoadImagePreview(path As String) As ArtifactPreview
+    Private Function ResolveGeneratedThumbnailPath(artifact As ArtifactModel) As String
+        If artifact Is Nothing OrElse Not String.Equals(artifact.ThumbnailStatus, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase) Then
+            Return ""
+        End If
+
+        Dim vaultRoot = ResolveVaultRoot(artifact)
+        Dim thumbnailPath = _thumbnailService.ResolveThumbnailPath(artifact, vaultRoot)
+        If String.IsNullOrWhiteSpace(thumbnailPath) OrElse Not File.Exists(thumbnailPath) Then
+            Return ""
+        End If
+
+        Return thumbnailPath
+    End Function
+
+    Private Shared Function LoadImagePreview(path As String, Optional message As String = "Image preview") As ArtifactPreview
         Try
             Dim image As New BitmapImage()
             image.BeginInit()
@@ -86,8 +111,8 @@ Public Class PreviewService
             Return New ArtifactPreview With {
                 .Kind = ArtifactPreviewKind.Image,
                 .Image = image,
-                .Message = "Image preview",
-                .Title = "Image Preview"
+                .Message = message,
+                .Title = message
             }
         Catch
             Return New ArtifactPreview With {

@@ -951,6 +951,11 @@
                                         <TextBlock Text="Text" Style="{StaticResource SmallLabel}" />
                                         <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.ExtractedTextStatus}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Preview" Style="{StaticResource SmallLabel}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.ThumbnailStatus}" Style="{StaticResource DataCell}" FontSize="12" />
+                                    </Grid>
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Index" Style="{StaticResource SmallLabel}" />

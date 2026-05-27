@@ -92,6 +92,8 @@ When files are added, the application may:
 
 Large objects such as ISO files or installers are preserved as first-class vault objects rather than treated as unsupported edge cases.
 
+The first local preview pipeline generates cached thumbnails for image artifacts and records fallback-card status for retained files that are not directly rendered. PDF rendering, OCR, and shell-handler thumbnails remain deferred.
+
 ---
 
 # Intelligent Recall

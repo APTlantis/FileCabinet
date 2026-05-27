@@ -29,6 +29,7 @@ Namespace FileCabinet.Tests
                 Assert.AreEqual("Extracted", artifacts(0).ExtractedTextStatus)
                 Assert.IsFalse(String.IsNullOrWhiteSpace(artifacts(0).ExtractedTextRelativePath))
                 Assert.IsTrue(File.Exists(Path.Combine(vaultRoot, artifacts(0).ExtractedTextRelativePath)))
+                Assert.AreEqual(Global.FileCabinet.ThumbnailService.FallbackCardStatus, artifacts(0).ThumbnailStatus)
             Finally
                 If Directory.Exists(workspace) Then
                     Directory.Delete(workspace, recursive:=True)
@@ -109,6 +110,7 @@ Namespace FileCabinet.Tests
 
                 Assert.AreEqual("Not extractable", artifact.ExtractedTextStatus)
                 Assert.AreEqual("", artifact.ExtractedTextRelativePath)
+                Assert.AreEqual(Global.FileCabinet.ThumbnailService.FallbackCardStatus, artifact.ThumbnailStatus)
             Finally
                 If Directory.Exists(workspace) Then
                     Directory.Delete(workspace, recursive:=True)

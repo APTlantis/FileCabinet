@@ -29,13 +29,16 @@ Public Class VaultRepairReport
     Public Property DuplicateHashGroups As Integer
     Public Property OrphanFiles As Integer
     Public Property AdoptedFiles As Integer
+    Public Property MissingThumbnails As Integer
+    Public Property RegeneratedThumbnails As Integer
     Public Property MissingSamples As New List(Of String)
     Public Property OrphanSamples As New List(Of String)
     Public Property DuplicateSamples As New List(Of String)
+    Public Property ThumbnailSamples As New List(Of String)
 
     Public ReadOnly Property Summary As String
         Get
-            Return $"{MissingFiles:N0} missing file(s), {DuplicateHashGroups:N0} duplicate hash group(s), {OrphanFiles:N0} orphan file(s), {AdoptedFiles:N0} adopted"
+            Return $"{MissingFiles:N0} missing file(s), {DuplicateHashGroups:N0} duplicate hash group(s), {OrphanFiles:N0} orphan file(s), {AdoptedFiles:N0} adopted, {MissingThumbnails:N0} missing thumbnail(s), {RegeneratedThumbnails:N0} regenerated"
         End Get
     End Property
 
@@ -53,6 +56,10 @@ Public Class VaultRepairReport
 
             If DuplicateSamples.Count > 0 Then
                 parts.Add("Duplicates: " & String.Join(", ", DuplicateSamples))
+            End If
+
+            If ThumbnailSamples.Count > 0 Then
+                parts.Add("Thumbnails: " & String.Join(", ", ThumbnailSamples))
             End If
 
             Return String.Join("  |  ", parts)
@@ -212,6 +219,8 @@ Public Class ArtifactModel
     Private _relativePath As String = ""
     Private _extractedTextRelativePath As String = ""
     Private _extractedTextStatus As String = "Not extracted"
+    Private _thumbnailRelativePath As String = ""
+    Private _thumbnailStatus As String = "Not applicable"
     Private _created As String = ""
     Private _sha256 As String = ""
     Private _blake3 As String = ""
@@ -332,6 +341,24 @@ Public Class ArtifactModel
         End Get
         Set(value As String)
             SetValue(_extractedTextStatus, If(value, "Not extracted"))
+        End Set
+    End Property
+
+    Public Property ThumbnailRelativePath As String
+        Get
+            Return _thumbnailRelativePath
+        End Get
+        Set(value As String)
+            SetValue(_thumbnailRelativePath, If(value, ""))
+        End Set
+    End Property
+
+    Public Property ThumbnailStatus As String
+        Get
+            Return _thumbnailStatus
+        End Get
+        Set(value As String)
+            SetValue(_thumbnailStatus, If(value, "Not applicable"))
         End Set
     End Property
 

@@ -16,6 +16,7 @@ Public Class MainViewModel
     Private ReadOnly _ingestionService As IngestionService
     Private ReadOnly _hashService As HashService
     Private ReadOnly _previewService As PreviewService
+    Private ReadOnly _thumbnailService As ThumbnailService
     Private _catalog As CatalogData
     Private _selectedArtifact As ArtifactModel
     Private _currentVault As VaultModel
@@ -87,7 +88,8 @@ Public Class MainViewModel
         _catalogService = New CatalogService()
         _ingestionService = New IngestionService()
         _hashService = New HashService()
-        _previewService = New PreviewService()
+        _thumbnailService = New ThumbnailService()
+        _previewService = New PreviewService(_thumbnailService)
         ClearFiltersCommand = New RelayCommand(Sub(parameter) ClearFilters())
         ShowAllItemsCommand = New RelayCommand(Sub(parameter) SetScope("All"))
         ShowRecentCommand = New RelayCommand(Sub(parameter) SetScope("Recent"))
@@ -1223,6 +1225,11 @@ Public Class MainViewModel
     Private Sub RepairCatalog()
         Dim report = BuildRepairReport(adoptOrphans:=False)
         _repairStatus = BuildRepairStatus(report)
+        _catalog.Artifacts = Artifacts.ToList()
+        _catalogService.Save(_catalog)
+        If SelectedArtifact IsNot Nothing Then
+            LoadPreviewForSelected()
+        End If
         OnPropertyChanged(NameOf(RepairStatus))
         ActionStatus = _repairStatus
         ShowSettings()
@@ -1818,6 +1825,10 @@ Public Class MainViewModel
             If String.IsNullOrWhiteSpace(artifact.ExtractedTextStatus) Then
                 artifact.ExtractedTextStatus = If(String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath), "Not extracted", "Extracted")
             End If
+
+            If String.IsNullOrWhiteSpace(artifact.ThumbnailStatus) Then
+                artifact.ThumbnailStatus = If(String.IsNullOrWhiteSpace(artifact.ThumbnailRelativePath), ThumbnailService.NotApplicableStatus, ThumbnailService.GeneratedStatus)
+            End If
         Next
     End Sub
 
@@ -1871,6 +1882,21 @@ Public Class MainViewModel
             .MissingSamples = missingArtifacts.Select(Function(a) a.Name).Take(3).ToList(),
             .DuplicateSamples = duplicateGroups.Select(Function(g) g.First().Name).Take(3).ToList()
         }
+
+        Dim missingThumbnailArtifacts = Artifacts.
+            Where(Function(a) _thumbnailService.IsGeneratedThumbnailMissing(a, VaultRootPath)).
+            ToList()
+        report.MissingThumbnails = missingThumbnailArtifacts.Count
+        report.ThumbnailSamples = missingThumbnailArtifacts.Select(Function(a) a.Name).Take(3).ToList()
+
+        For Each artifact In missingThumbnailArtifacts
+            Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, VaultRootPath)
+            artifact.ThumbnailRelativePath = thumbnail.RelativePath
+            artifact.ThumbnailStatus = thumbnail.Status
+            If String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase) Then
+                report.RegeneratedThumbnails += 1
+            End If
+        Next
 
         Dim orphanFiles = FindOrphanStoredFiles().ToList()
         report.OrphanFiles = orphanFiles.Count
