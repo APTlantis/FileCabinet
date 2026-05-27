@@ -35,11 +35,20 @@ Namespace FileCabinet.Tests
         Sub ReviewFindingsRemainReviewOnly()
             Dim duplicate = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Duplicate hash"))
             Dim orphanThumbnail = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Orphan thumbnail"))
+            Dim hashMismatch = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Hash mismatch"))
+            Dim outsideVault = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("File outside vault"))
+            Dim incompleteMetadata = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Incomplete metadata"))
 
             Assert.AreEqual("ReviewOnly", duplicate.ActionType)
             Assert.IsFalse(duplicate.CanRepairAutomatically)
             Assert.AreEqual("ReviewOnly", orphanThumbnail.ActionType)
             Assert.IsFalse(orphanThumbnail.CanRepairAutomatically)
+            Assert.AreEqual("ReviewOnly", hashMismatch.ActionType)
+            Assert.IsFalse(hashMismatch.CanRepairAutomatically)
+            Assert.AreEqual("ReviewOnly", outsideVault.ActionType)
+            Assert.IsFalse(outsideVault.CanRepairAutomatically)
+            Assert.AreEqual("ReviewOnly", incompleteMetadata.ActionType)
+            Assert.IsFalse(incompleteMetadata.CanRepairAutomatically)
         End Sub
 
         Private Shared Function Finding(findingType As String) As Global.FileCabinet.VaultHealthFinding

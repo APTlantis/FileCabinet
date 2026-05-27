@@ -1954,7 +1954,7 @@ Public Class MainViewModel
     End Function
 
     Public Function BuildVaultHealthReport() As VaultHealthReport
-        Return BuildVaultHealthReport(Artifacts, VaultRootPath, _thumbnailService)
+        Return BuildVaultHealthReport(Artifacts, VaultRootPath, _thumbnailService, _hashService)
     End Function
 
     Private Sub PublishVaultHealthReport(report As VaultHealthReport)
@@ -2153,17 +2153,22 @@ Public Class MainViewModel
         End Select
     End Function
 
-    Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService) As VaultHealthReport
+    Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService, Optional hashService As HashService = Nothing) As VaultHealthReport
         Dim report As New VaultHealthReport()
         Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).ToList()
         Dim thumbService = If(thumbnailService, New ThumbnailService())
+        Dim integrityService = If(hashService, New HashService())
 
         For Each artifact In artifactList
             If artifact Is Nothing Then
                 Continue For
             End If
 
-            If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+            Dim hasArtifactPath = Not String.IsNullOrWhiteSpace(artifact.Path)
+            Dim pathIsInsideVault = Not hasArtifactPath OrElse IsPathInsideDirectory(artifact.Path, vaultRootPath)
+            Dim storedFileExists = hasArtifactPath AndAlso File.Exists(artifact.Path)
+
+            If Not storedFileExists Then
                 report.Findings.Add(New VaultHealthFinding With {
                     .FindingType = "Missing file",
                     .Subject = artifact.Name,
@@ -2175,7 +2180,26 @@ Public Class MainViewModel
                 })
             End If
 
-            If String.IsNullOrWhiteSpace(artifact.Blake3) OrElse String.IsNullOrWhiteSpace(artifact.Sha256) Then
+            If hasArtifactPath AndAlso Not pathIsInsideVault Then
+                report.Findings.Add(New VaultHealthFinding With {
+                    .FindingType = "File outside vault",
+                    .Subject = artifact.Name,
+                    .Detail = "Catalog entry points to a file outside the active vault root.",
+                    .ProposedAction = "Review the path; rebind the vault or restore/copy the artifact into the vault with operator approval.",
+                    .RiskLevel = "Medium",
+                    .MutatesCatalog = False,
+                    .TouchesRetainedFiles = False
+                })
+            End If
+
+            If storedFileExists AndAlso pathIsInsideVault Then
+                AddIncompleteMetadataFinding(report, artifact)
+            End If
+
+            Dim hasBlake3 = Not String.IsNullOrWhiteSpace(artifact.Blake3)
+            Dim hasSha256 = Not String.IsNullOrWhiteSpace(artifact.Sha256)
+
+            If Not hasBlake3 OrElse Not hasSha256 Then
                 report.Findings.Add(New VaultHealthFinding With {
                     .FindingType = "Missing hash",
                     .Subject = artifact.Name,
@@ -2185,6 +2209,8 @@ Public Class MainViewModel
                     .MutatesCatalog = True,
                     .TouchesRetainedFiles = False
                 })
+            ElseIf storedFileExists AndAlso pathIsInsideVault Then
+                AddHashMismatchFinding(report, artifact, integrityService)
             End If
 
             If thumbService.IsGeneratedThumbnailMissing(artifact, vaultRootPath) Then
@@ -2236,6 +2262,138 @@ Public Class MainViewModel
         AddOrphanGeneratedAssetFindings(report, artifactList, vaultRootPath, "extracted-text", Function(artifact) artifact.ExtractedTextRelativePath, "Stale extracted text", "Extracted-text index is not referenced by any catalog artifact.", "Review generated index; cleanup should require operator approval.")
 
         Return report
+    End Function
+
+    Private Shared Sub AddHashMismatchFinding(report As VaultHealthReport, artifact As ArtifactModel, hashService As HashService)
+        Try
+            Dim hashes = hashService.ComputeHashes(artifact.Path)
+            Dim blakeMatches = String.Equals(artifact.Blake3, hashes.Blake3, StringComparison.OrdinalIgnoreCase)
+            Dim shaMatches = String.Equals(artifact.Sha256, hashes.Sha256, StringComparison.OrdinalIgnoreCase)
+
+            If blakeMatches AndAlso shaMatches Then
+                Return
+            End If
+
+            Dim mismatchParts As New List(Of String)
+            If Not blakeMatches Then
+                mismatchParts.Add("BLAKE3")
+            End If
+
+            If Not shaMatches Then
+                mismatchParts.Add("SHA-256")
+            End If
+
+            report.Findings.Add(New VaultHealthFinding With {
+                .FindingType = "Hash mismatch",
+                .Subject = artifact.Name,
+                .Detail = $"{String.Join(" and ", mismatchParts)} did not match the retained file.",
+                .ProposedAction = "Review the retained file before deciding whether to replace the catalog hash, restore a backup, or quarantine the artifact.",
+                .RiskLevel = "High",
+                .MutatesCatalog = False,
+                .TouchesRetainedFiles = False
+            })
+        Catch ex As Exception
+            report.Findings.Add(New VaultHealthFinding With {
+                .FindingType = "Hash verification failed",
+                .Subject = artifact.Name,
+                .Detail = $"Hash verification could not read the retained file: {ex.Message}",
+                .ProposedAction = "Review file permissions and storage health before retrying analysis.",
+                .RiskLevel = "Medium",
+                .MutatesCatalog = False,
+                .TouchesRetainedFiles = False
+            })
+        End Try
+    End Sub
+
+    Private Shared Sub AddIncompleteMetadataFinding(report As VaultHealthReport, artifact As ArtifactModel)
+        Dim missingFields As New List(Of String)
+
+        If String.IsNullOrWhiteSpace(artifact.Id) Then
+            missingFields.Add("id")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.Name) Then
+            missingFields.Add("name")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.Type) Then
+            missingFields.Add("type")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.TypeFamily) Then
+            missingFields.Add("type family")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.Category) Then
+            missingFields.Add("category")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.Size) OrElse artifact.SizeBytes <= 0 Then
+            missingFields.Add("size")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.DateModified) Then
+            missingFields.Add("date modified")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.RelativePath) Then
+            missingFields.Add("relative path")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.Created) Then
+            missingFields.Add("created")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.IngestedAt) Then
+            missingFields.Add("ingested at")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.HashStatus) Then
+            missingFields.Add("hash status")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.ThumbnailStatus) Then
+            missingFields.Add("thumbnail status")
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.ExtractedTextStatus) Then
+            missingFields.Add("extracted text status")
+        End If
+
+        If missingFields.Count = 0 Then
+            Return
+        End If
+
+        Dim subject = If(String.IsNullOrWhiteSpace(artifact.Name), If(String.IsNullOrWhiteSpace(artifact.Path), "(unnamed artifact)", Path.GetFileName(artifact.Path)), artifact.Name)
+        report.Findings.Add(New VaultHealthFinding With {
+            .FindingType = "Incomplete metadata",
+            .Subject = subject,
+            .Detail = "Catalog entry is missing: " & String.Join(", ", missingFields),
+            .ProposedAction = "Review interrupted ingest state; repair safe generated metadata separately and preserve operator-authored context.",
+            .RiskLevel = "Medium",
+            .MutatesCatalog = False,
+            .TouchesRetainedFiles = False
+        })
+    End Sub
+
+    Private Shared Function IsPathInsideDirectory(candidatePath As String, directoryPath As String) As Boolean
+        If String.IsNullOrWhiteSpace(candidatePath) OrElse String.IsNullOrWhiteSpace(directoryPath) Then
+            Return True
+        End If
+
+        Try
+            Dim fullPath = Path.GetFullPath(candidatePath)
+            Dim fullDirectory = Path.GetFullPath(directoryPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+
+            If String.Equals(fullPath, fullDirectory, StringComparison.OrdinalIgnoreCase) Then
+                Return True
+            End If
+
+            fullDirectory &= Path.DirectorySeparatorChar
+            Return fullPath.StartsWith(fullDirectory, StringComparison.OrdinalIgnoreCase)
+        Catch
+            Return True
+        End Try
     End Function
 
     Private Shared Sub AddOrphanGeneratedAssetFindings(report As VaultHealthReport, artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, folderName As String, referenceSelector As Func(Of ArtifactModel, String), findingType As String, detail As String, proposedAction As String)

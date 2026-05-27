@@ -127,5 +127,109 @@ Namespace FileCabinet.Tests
                 End If
             End Try
         End Sub
+
+        <TestMethod>
+        Sub HealthReportDetectsHashMismatchWithoutMutatingCatalogHashes()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "kept.txt")
+            File.WriteAllText(storedPath, "original")
+
+            Try
+                Dim hashService = New Global.FileCabinet.HashService()
+                Dim originalHashes = hashService.ComputeHashes(storedPath)
+                File.WriteAllText(storedPath, "changed")
+
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "kept.txt",
+                    .Path = storedPath,
+                    .Blake3 = originalHashes.Blake3,
+                    .Sha256 = originalHashes.Sha256
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), hashService)
+                Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Hash mismatch" AndAlso item.Subject = "kept.txt")
+
+                Assert.IsNotNull(finding)
+                Assert.AreEqual("High", finding.RiskLevel)
+                Assert.IsFalse(finding.MutatesCatalog)
+                Assert.IsFalse(finding.TouchesRetainedFiles)
+                Assert.AreEqual(originalHashes.Blake3, artifact.Blake3)
+                Assert.AreEqual(originalHashes.Sha256, artifact.Sha256)
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub HealthReportDetectsFilesOutsideActiveVault()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim outsideRoot = Path.Combine(workspace, "outside")
+            Directory.CreateDirectory(vaultRoot)
+            Directory.CreateDirectory(outsideRoot)
+            Dim outsidePath = Path.Combine(outsideRoot, "kept.txt")
+            File.WriteAllText(outsidePath, "outside")
+
+            Try
+                Dim hashes = New Global.FileCabinet.HashService().ComputeHashes(outsidePath)
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "kept.txt",
+                    .Path = outsidePath,
+                    .Blake3 = hashes.Blake3,
+                    .Sha256 = hashes.Sha256
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService())
+                Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "File outside vault" AndAlso item.Subject = "kept.txt")
+
+                Assert.IsNotNull(finding)
+                Assert.AreEqual("Medium", finding.RiskLevel)
+                Assert.IsFalse(finding.MutatesCatalog)
+                Assert.IsFalse(finding.TouchesRetainedFiles)
+                Assert.IsFalse(report.Findings.Any(Function(item) item.FindingType = "Hash mismatch"))
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub HealthReportDetectsIncompleteMetadataForRetainedFile()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "partial.txt")
+            File.WriteAllText(storedPath, "partial")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "partial.txt",
+                    .Path = storedPath,
+                    .HashStatus = ""
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService())
+                Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Incomplete metadata" AndAlso item.Subject = "partial.txt")
+
+                Assert.IsNotNull(finding)
+                Assert.AreEqual("Medium", finding.RiskLevel)
+                Assert.IsFalse(finding.MutatesCatalog)
+                Assert.IsFalse(finding.TouchesRetainedFiles)
+                StringAssert.Contains(finding.Detail, "type")
+                StringAssert.Contains(finding.Detail, "relative path")
+                StringAssert.Contains(finding.Detail, "hash status")
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
     End Class
 End Namespace
