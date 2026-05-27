@@ -1071,7 +1071,8 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="72" />
@@ -1120,6 +1121,43 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                         </ScrollViewer>
+                                    </Border>
+
+                                    <Border Grid.Row="5" Grid.ColumnSpan="2" Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0" Padding="8">
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Repair History" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" />
+                                                <TextBlock Grid.Column="1" Text="{Binding RepairHistorySummary}" Style="{StaticResource SmallLabel}" FontSize="11" />
+                                            </Grid>
+                                            <ScrollViewer MaxHeight="76" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl ItemsSource="{Binding RepairHistory}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,0,0,8">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="70" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Text="{Binding Result}" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                                <StackPanel Grid.Column="1" Margin="8,0,8,0">
+                                                                    <TextBlock Text="{Binding Subject}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource SmallLabel}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                                </StackPanel>
+                                                                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                                                    <TextBlock Text="{Binding ActionType}" Style="{StaticResource SmallLabel}" FontSize="11" HorizontalAlignment="Right" />
+                                                                    <TextBlock Text="{Binding Timestamp}" Style="{StaticResource SmallLabel}" FontSize="11" HorizontalAlignment="Right" />
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </StackPanel>
                                     </Border>
                                 </Grid>
 

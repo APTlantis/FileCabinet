@@ -59,6 +59,7 @@ Public Class MainViewModel
     Public Property RelatedArtifacts As New ObservableCollection(Of ArtifactRelationModel)
     Public Property VaultHealthFindings As New ObservableCollection(Of VaultHealthFinding)
     Public Property RepairCandidates As New ObservableCollection(Of RepairCandidate)
+    Public Property RepairHistory As New ObservableCollection(Of RepairLogEntry)
     Private _filteredTags As ICollectionView
     Public Property ClearFiltersCommand As ICommand
     Public Property ShowAllItemsCommand As ICommand
@@ -142,6 +143,7 @@ Public Class MainViewModel
                     _catalog.CurrentVaultId = value.Id
                     _catalog.VaultRootPath = value.Path
                     _catalogService.Save(_catalog)
+                    RefreshRepairHistory()
                 End If
             End If
         End Set
@@ -672,6 +674,16 @@ Public Class MainViewModel
         End Get
     End Property
 
+    Public ReadOnly Property RepairHistorySummary As String
+        Get
+            If RepairHistory.Count = 0 Then
+                Return "No repair history recorded"
+            End If
+
+            Return $"{RepairHistory.Count:N0} recent repair log entr{If(RepairHistory.Count = 1, "y", "ies")}"
+        End Get
+    End Property
+
     Public ReadOnly Property CatalogPath As String
         Get
             Return _catalogService.CatalogPath
@@ -831,6 +843,8 @@ Public Class MainViewModel
         If CurrentVault Is Nothing Then
             CurrentVault = Vaults.FirstOrDefault()
         End If
+
+        RefreshRepairHistory()
 
         SelectFirstFilteredArtifact()
         _settingsText = "Open settings for vault paths, backups, and repair status"
@@ -2005,6 +2019,7 @@ Public Class MainViewModel
         Activities.Insert(0, activity)
         _catalog.Activities.Insert(0, activity)
         _catalogService.Save(_catalog)
+        RefreshRepairHistory()
         If SelectedArtifact IsNot Nothing Then
             LoadPreviewForSelected()
         End If
@@ -2065,6 +2080,24 @@ Public Class MainViewModel
             })
         Catch
         End Try
+    End Sub
+
+    Private Sub RefreshRepairHistory()
+        RepairHistory.Clear()
+
+        If String.IsNullOrWhiteSpace(VaultRootPath) Then
+            OnPropertyChanged(NameOf(RepairHistorySummary))
+            Return
+        End If
+
+        Try
+            For Each entry In _repairLogService.ReadRecent(VaultRootPath, count:=8)
+                RepairHistory.Add(entry)
+            Next
+        Catch
+        End Try
+
+        OnPropertyChanged(NameOf(RepairHistorySummary))
     End Sub
 
     Private Function FindArtifactForCandidate(candidate As RepairCandidate) As ArtifactModel
