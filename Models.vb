@@ -24,6 +24,12 @@ Public Class CatalogData
     Public Property Artifacts As New List(Of ArtifactModel)
 End Class
 
+Public Class CatalogBackupValidationResult
+    Public Property BackupPath As String = ""
+    Public Property IsValid As Boolean
+    Public Property Detail As String = ""
+End Class
+
 Public Class VaultRepairReport
     Public Property MissingFiles As Integer
     Public Property DuplicateHashGroups As Integer

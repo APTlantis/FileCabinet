@@ -1237,8 +1237,12 @@ Public Class MainViewModel
     Private Sub BackupCatalog()
         Try
             Dim exportsRoot = Path.Combine(VaultRootPath, "exports")
-            Dim backupPath = _catalogService.ExportSnapshot(_catalog, exportsRoot)
-            ActionStatus = $"Catalog backup created: {backupPath}"
+            Dim validation = _catalogService.ExportSnapshotWithValidation(_catalog, exportsRoot)
+            If validation.IsValid Then
+                ActionStatus = $"Catalog backup created and validated: {validation.BackupPath}"
+            Else
+                ActionStatus = $"Catalog backup validation failed: {validation.Detail}"
+            End If
             OnPropertyChanged(NameOf(LastBackupDisplay))
             ShowSettings()
         Catch ex As Exception

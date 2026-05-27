@@ -124,6 +124,52 @@ Public Class CatalogService
         Return catalog.LastBackupPath
     End Function
 
+    Public Function ExportSnapshotWithValidation(catalog As CatalogData, exportsRoot As String) As CatalogBackupValidationResult
+        Dim backupPath = ExportSnapshot(catalog, exportsRoot)
+        Return ValidateBackup(backupPath)
+    End Function
+
+    Public Function ValidateBackup(backupPath As String) As CatalogBackupValidationResult
+        Dim result As New CatalogBackupValidationResult With {
+            .BackupPath = If(backupPath, "")
+        }
+
+        If String.IsNullOrWhiteSpace(backupPath) Then
+            result.Detail = "Backup path is empty."
+            Return result
+        End If
+
+        If Not File.Exists(backupPath) Then
+            result.Detail = "Backup file does not exist."
+            Return result
+        End If
+
+        Try
+            Dim json = File.ReadAllText(backupPath)
+            Dim loaded = JsonSerializer.Deserialize(Of CatalogData)(json, CatalogOptions)
+
+            If Not IsUsable(loaded) Then
+                result.Detail = "Backup JSON loaded but required catalog collections are missing."
+                Return result
+            End If
+
+            If loaded.Categories Is Nothing OrElse
+                loaded.Tags Is Nothing OrElse
+                loaded.Activities Is Nothing OrElse
+                loaded.Stats Is Nothing Then
+                result.Detail = "Backup JSON is missing one or more optional catalog collections."
+                Return result
+            End If
+
+            result.IsValid = True
+            result.Detail = $"Validated {loaded.Artifacts.Count:N0} artifact record(s)."
+            Return result
+        Catch ex As Exception
+            result.Detail = $"Backup validation failed: {ex.Message}"
+            Return result
+        End Try
+    End Function
+
     Private Shared Function IsUsable(catalog As CatalogData) As Boolean
         Return catalog IsNot Nothing AndAlso
             catalog.Vaults IsNot Nothing AndAlso

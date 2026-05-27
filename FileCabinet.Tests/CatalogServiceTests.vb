@@ -63,6 +63,53 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub ExportSnapshotWithValidationConfirmsReadableCatalogBackup()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim catalogPath = Path.Combine(workspace, "appdata", "catalog.json")
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+
+            Try
+                Dim service As New Global.FileCabinet.CatalogService(catalogPath, vaultRoot)
+                Dim catalog = service.LoadOrCreate()
+                catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {
+                    .Id = "artifact-1",
+                    .Name = "sample.txt"
+                })
+
+                Dim validation = service.ExportSnapshotWithValidation(catalog, Path.Combine(vaultRoot, "exports"))
+
+                Assert.IsTrue(validation.IsValid)
+                Assert.IsTrue(File.Exists(validation.BackupPath))
+                StringAssert.Contains(validation.Detail, "1 artifact")
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub ValidateBackupRejectsCorruptOrIncompleteBackup()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim backupPath = Path.Combine(workspace, "exports", "catalog-backup-corrupt.json")
+            Directory.CreateDirectory(Path.GetDirectoryName(backupPath))
+
+            Try
+                File.WriteAllText(backupPath, "{""SchemaVersion"":1,""Vaults"":null,""Artifacts"":null}")
+                Dim service As New Global.FileCabinet.CatalogService(Path.Combine(workspace, "appdata", "catalog.json"), Path.Combine(workspace, "vault"))
+
+                Dim validation = service.ValidateBackup(backupPath)
+
+                Assert.IsFalse(validation.IsValid)
+                StringAssert.Contains(validation.Detail, "required catalog collections")
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub LoadOrCreateAddsPreferenceDefaultsToOlderCatalog()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim catalogPath = Path.Combine(workspace, "appdata", "catalog.json")
