@@ -86,6 +86,19 @@ Public Class IngestionService
         Return CreateArtifact(New FileInfo(originalPath), stored, vaultRootPath)
     End Function
 
+    Public Function ExtractTextForArtifact(artifact As ArtifactModel, vaultRootPath As String) As (RelativePath As String, Status As String)
+        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.Path) Then
+            Return ("", "Extraction failed")
+        End If
+
+        Dim stored = New FileInfo(artifact.Path)
+        If Not stored.Exists Then
+            Return ("", "Extraction failed")
+        End If
+
+        Return ExtractText(stored, vaultRootPath)
+    End Function
+
     Private Shared Function ExpandFiles(paths As IEnumerable(Of String)) As IEnumerable(Of String)
         Dim files As New List(Of String)
 

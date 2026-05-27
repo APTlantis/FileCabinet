@@ -1101,7 +1101,10 @@
                                                                 <ColumnDefinition Width="Auto" />
                                                             </Grid.ColumnDefinitions>
                                                             <StackPanel>
-                                                                <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                                                    <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                                </StackPanel>
                                                                 <TextBlock Text="{Binding Subject}" Style="{StaticResource SmallLabel}" TextTrimming="CharacterEllipsis" />
                                                                 <TextBlock Text="{Binding ActionType}" Foreground="{StaticResource AccentBrush}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
                                                                 <TextBlock Text="{Binding ProposedAction}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
@@ -1125,6 +1128,7 @@
                                     <Button Content="{Binding IngestModeText}" Command="{Binding ToggleIngestModeCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="Backup" Command="{Binding BackupCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="Analyze" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Apply Selected" Click="ApplyRepairCandidatesButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="Rescan" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" />
                                 </WrapPanel>
                             </Grid>

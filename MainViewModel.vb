@@ -81,6 +81,7 @@ Public Class MainViewModel
     Public Property BackupCatalogCommand As ICommand
     Public Property RepairCatalogCommand As ICommand
     Public Property RescanVaultCommand As ICommand
+    Public Property ApplySelectedRepairCandidatesCommand As ICommand
     Public Property SortByNameCommand As ICommand
     Public Property SortByDateCommand As ICommand
     Public Property ToggleDensityCommand As ICommand
@@ -114,6 +115,7 @@ Public Class MainViewModel
         BackupCatalogCommand = New RelayCommand(Sub(parameter) BackupCatalog())
         RepairCatalogCommand = New RelayCommand(Sub(parameter) RepairCatalog())
         RescanVaultCommand = New RelayCommand(Sub(parameter) RescanVault())
+        ApplySelectedRepairCandidatesCommand = New RelayCommand(Sub(parameter) ApplySelectedRepairCandidates(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
         SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
@@ -1951,6 +1953,99 @@ Public Class MainViewModel
         End If
 
         OnPropertyChanged(NameOf(VaultHealthSummary))
+        RaiseRepairCandidateCommandState()
+    End Sub
+
+    Public Function GetSelectedRepairCandidateSummary() As String
+        Dim selected = RepairCandidates.Where(Function(candidate) candidate.IsSelected).ToList()
+        Dim automatic = selected.Where(Function(candidate) candidate.CanRepairAutomatically).ToList()
+        Dim reviewOnly = selected.Count - automatic.Count
+
+        Return $"{automatic.Count:N0} safe repair candidate(s) will be applied. {reviewOnly:N0} review-only candidate(s) will be skipped."
+    End Function
+
+    Private Sub ApplySelectedRepairCandidates()
+        Dim selected = RepairCandidates.
+            Where(Function(candidate) candidate.IsSelected AndAlso candidate.CanRepairAutomatically).
+            ToList()
+
+        If selected.Count = 0 Then
+            ActionStatus = "No safe repair candidates selected"
+            RaiseRepairCandidateCommandState()
+            Return
+        End If
+
+        Dim applied = 0
+        Dim failed = 0
+
+        For Each candidate In selected
+            If ApplyRepairCandidate(candidate) Then
+                applied += 1
+            Else
+                failed += 1
+            End If
+        Next
+
+        _catalog.Artifacts = Artifacts.ToList()
+        _catalogService.Save(_catalog)
+        If SelectedArtifact IsNot Nothing Then
+            LoadPreviewForSelected()
+        End If
+        PublishVaultHealthReport(BuildVaultHealthReport())
+        RefreshDerivedUiState()
+        ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed"
+    End Sub
+
+    Private Function ApplyRepairCandidate(candidate As RepairCandidate) As Boolean
+        If candidate Is Nothing OrElse Not candidate.CanRepairAutomatically Then
+            Return False
+        End If
+
+        Dim artifact = FindArtifactForCandidate(candidate)
+        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+            Return False
+        End If
+
+        Try
+            Select Case candidate.ActionType
+                Case "RegenerateThumbnail"
+                    Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, VaultRootPath)
+                    artifact.ThumbnailRelativePath = thumbnail.RelativePath
+                    artifact.ThumbnailStatus = thumbnail.Status
+                    Return String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
+                Case "RecomputeHash"
+                    Dim hashes = _hashService.ComputeHashes(artifact.Path)
+                    artifact.Blake3 = hashes.Blake3
+                    artifact.Sha256 = hashes.Sha256
+                    artifact.HashStatus = "Verified"
+                    Return True
+                Case "ReExtractText"
+                    Dim extraction = _ingestionService.ExtractTextForArtifact(artifact, VaultRootPath)
+                    artifact.ExtractedTextRelativePath = extraction.RelativePath
+                    artifact.ExtractedTextStatus = extraction.Status
+                    Return String.Equals(extraction.Status, "Extracted", StringComparison.OrdinalIgnoreCase) OrElse
+                        String.Equals(extraction.Status, "Extracted (truncated)", StringComparison.OrdinalIgnoreCase)
+                Case Else
+                    Return False
+            End Select
+        Catch
+            Return False
+        End Try
+    End Function
+
+    Private Function FindArtifactForCandidate(candidate As RepairCandidate) As ArtifactModel
+        If candidate?.Finding Is Nothing Then
+            Return Nothing
+        End If
+
+        Return Artifacts.FirstOrDefault(Function(artifact) String.Equals(artifact.Name, candidate.Subject, StringComparison.OrdinalIgnoreCase))
+    End Function
+
+    Private Sub RaiseRepairCandidateCommandState()
+        Dim command = TryCast(ApplySelectedRepairCandidatesCommand, RelayCommand)
+        If command IsNot Nothing Then
+            command.RaiseCanExecuteChanged()
+        End If
     End Sub
 
     Public Shared Function BuildRepairCandidate(finding As VaultHealthFinding) As RepairCandidate

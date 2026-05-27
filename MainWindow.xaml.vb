@@ -106,6 +106,26 @@ Class MainWindow
         End If
     End Sub
 
+    Private Sub ApplyRepairCandidatesButton_Click(sender As Object, e As RoutedEventArgs)
+        Dim viewModel = TryCast(DataContext, MainViewModel)
+
+        If viewModel Is Nothing OrElse Not viewModel.ApplySelectedRepairCandidatesCommand.CanExecute(Nothing) Then
+            Return
+        End If
+
+        Dim result = MessageBox.Show(
+            Me,
+            viewModel.GetSelectedRepairCandidateSummary(),
+            "Apply selected repairs",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning,
+            MessageBoxResult.No)
+
+        If result = MessageBoxResult.Yes Then
+            viewModel.ApplySelectedRepairCandidatesCommand.Execute(Nothing)
+        End If
+    End Sub
+
     Private Sub ToggleWindowState()
         If WindowState = WindowState.Maximized Then
             WindowState = WindowState.Normal

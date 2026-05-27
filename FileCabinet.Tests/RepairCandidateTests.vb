@@ -23,6 +23,15 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub MissingExtractedTextMapsToReExtractTextCandidate()
+            Dim candidate = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Missing extracted text"))
+
+            Assert.AreEqual("ReExtractText", candidate.ActionType)
+            Assert.IsTrue(candidate.CanRepairAutomatically)
+            Assert.IsTrue(candidate.RequiresOperatorApproval)
+        End Sub
+
+        <TestMethod>
         Sub ReviewFindingsRemainReviewOnly()
             Dim duplicate = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Duplicate hash"))
             Dim orphanThumbnail = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Orphan thumbnail"))

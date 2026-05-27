@@ -146,6 +146,33 @@ Namespace FileCabinet.Tests
             End Try
         End Sub
 
+        <TestMethod>
+        Sub ExtractTextForArtifactRebuildsMissingTextIndex()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "notes.txt")
+            File.WriteAllText(storedPath, "repairable text")
+
+            Try
+                Dim artifact As New Global.FileCabinet.ArtifactModel With {
+                    .Name = "notes.txt",
+                    .Path = storedPath
+                }
+
+                Dim extraction = New Global.FileCabinet.IngestionService().ExtractTextForArtifact(artifact, vaultRoot)
+
+                Assert.AreEqual("Extracted", extraction.Status)
+                Assert.IsFalse(String.IsNullOrWhiteSpace(extraction.RelativePath))
+                StringAssert.Contains(File.ReadAllText(Path.Combine(vaultRoot, extraction.RelativePath)), "repairable text")
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
         Private Shared Sub CreateMinimalDocx(path As String, text As String)
             Using archive = ZipFile.Open(path, ZipArchiveMode.Create)
                 Dim documentEntry = archive.CreateEntry("word/document.xml")

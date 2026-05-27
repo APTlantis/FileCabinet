@@ -113,6 +113,7 @@ Public Class RepairCandidate
     Public Property ActionType As String = "ReviewOnly"
     Public Property CanRepairAutomatically As Boolean
     Public Property RequiresOperatorApproval As Boolean = True
+    Public Property IsSelected As Boolean
 
     Public ReadOnly Property FindingType As String
         Get
