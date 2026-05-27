@@ -61,19 +61,13 @@ Public Class PreviewService
             If Not String.IsNullOrWhiteSpace(extractedTextPath) AndAlso File.Exists(extractedTextPath) Then
                 Dim preview = LoadTextPreview(extractedTextPath)
                 preview.Message = $"{artifact.Type} text preview"
+                preview.Title = $"{artifact.Type} Text Preview"
                 Return preview
             End If
 
-            Return New ArtifactPreview With {
-                .Kind = ArtifactPreviewKind.GenericFile,
-                .Message = $"{artifact.Type} retained in vault; use Open File to inspect the original document",
-                .Title = $"{artifact.Type} retained",
-                .Detail = BuildPreviewDetail(artifact, "Open the original file for full fidelity."),
-                .BadgeText = ResolveBadgeText(artifact, extension),
-                .IconGlyph = ResolveIconGlyph(artifact, extension),
-                .AccentBrush = ResolveAccentBrush(artifact, extension),
-                .AccentBackground = ResolveAccentBackground(artifact, extension)
-            }
+            Dim formatPreview = CreateFormatPreview(artifact, extension)
+            formatPreview.Message = $"{artifact.Type} retained in vault; use Open File to inspect the original document"
+            Return formatPreview
         End If
 
         Return CreateFormatPreview(artifact, extension)
@@ -180,6 +174,14 @@ Public Class PreviewService
                 Return "Torrent Retained"
             Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
                 Return "Security File Retained"
+            Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
+                Return If(normalizedExtension = ".pdf", "PDF Retained", "Document Retained")
+            Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
+                Return "Spreadsheet Retained"
+            Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
+                Return "Presentation Retained"
+            Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
+                Return "Config File Retained"
             Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
                 Return "Audio Retained"
             Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
@@ -206,6 +208,14 @@ Public Class PreviewService
                 Return "Open with your torrent client if you need the source payload."
             Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
                 Return "Keep access limited; inspect with a trusted security tool."
+            Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
+                Return If(normalizedExtension = ".pdf", "Open the PDF for the original rendered document.", "Open the document for full layout fidelity.")
+            Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
+                Return "Open the workbook to inspect formulas, sheets, and formatting."
+            Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
+                Return "Open the deck to inspect slides, speaker notes, and media."
+            Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
+                Return "Open the file to inspect structured configuration."
             Case normalizedExtension = ".pdf"
                 Return "Open the PDF for the original rendered document."
             Case Else
@@ -242,6 +252,14 @@ Public Class PreviewService
                 Return ChrW(&HE896)
             Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE72E)
+            Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE8A5)
+            Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE9D2)
+            Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HEBC6)
+            Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE713)
             Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE8D6)
             Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
@@ -265,6 +283,14 @@ Public Class PreviewService
                 Return "#55D680"
             Case "Keys / Security"
                 Return "#FF6B7A"
+            Case "Documents"
+                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#FF6B7A", "#8FD7FF")
+            Case "Spreadsheets"
+                Return "#65D987"
+            Case "Presentations"
+                Return "#FFB06A"
+            Case "Manifests / Config"
+                Return "#91A7FF"
             Case "Audio"
                 Return "#74D7E6"
             Case "Video"
@@ -290,6 +316,14 @@ Public Class PreviewService
                 Return "#123522"
             Case "Keys / Security"
                 Return "#3B1720"
+            Case "Documents"
+                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#3B1720", "#123044")
+            Case "Spreadsheets"
+                Return "#123522"
+            Case "Presentations"
+                Return "#3A2416"
+            Case "Manifests / Config"
+                Return "#1F264B"
             Case "Audio"
                 Return "#12343A"
             Case "Video"
