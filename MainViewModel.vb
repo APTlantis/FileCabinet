@@ -57,6 +57,7 @@ Public Class MainViewModel
     Public Property Artifacts As New ObservableCollection(Of ArtifactModel)
     Public Property RelatedArtifacts As New ObservableCollection(Of ArtifactRelationModel)
     Public Property VaultHealthFindings As New ObservableCollection(Of VaultHealthFinding)
+    Public Property RepairCandidates As New ObservableCollection(Of RepairCandidate)
     Private _filteredTags As ICollectionView
     Public Property ClearFiltersCommand As ICommand
     Public Property ShowAllItemsCommand As ICommand
@@ -659,11 +660,11 @@ Public Class MainViewModel
 
     Public ReadOnly Property VaultHealthSummary As String
         Get
-            If VaultHealthFindings.Count = 0 Then
+            If RepairCandidates.Count = 0 Then
                 Return "No health analysis run"
             End If
 
-            Return $"{VaultHealthFindings.Count:N0} repair candidate(s)"
+            Return $"{RepairCandidates.Count:N0} repair candidate(s)"
         End Get
     End Property
 
@@ -1940,15 +1941,55 @@ Public Class MainViewModel
 
     Private Sub PublishVaultHealthReport(report As VaultHealthReport)
         VaultHealthFindings.Clear()
+        RepairCandidates.Clear()
 
         If report IsNot Nothing Then
             For Each finding In report.Findings
                 VaultHealthFindings.Add(finding)
+                RepairCandidates.Add(BuildRepairCandidate(finding))
             Next
         End If
 
         OnPropertyChanged(NameOf(VaultHealthSummary))
     End Sub
+
+    Public Shared Function BuildRepairCandidate(finding As VaultHealthFinding) As RepairCandidate
+        If finding Is Nothing Then
+            Return New RepairCandidate()
+        End If
+
+        Dim actionType = ResolveRepairActionType(finding.FindingType)
+        Return New RepairCandidate With {
+            .Finding = finding,
+            .ActionType = actionType,
+            .CanRepairAutomatically = IsAutomaticRepairCandidate(actionType),
+            .RequiresOperatorApproval = True
+        }
+    End Function
+
+    Private Shared Function ResolveRepairActionType(findingType As String) As String
+        Select Case If(findingType, "").Trim().ToLowerInvariant()
+            Case "missing thumbnail"
+                Return "RegenerateThumbnail"
+            Case "missing hash"
+                Return "RecomputeHash"
+            Case "missing extracted text"
+                Return "ReExtractText"
+            Case "orphan file"
+                Return "AdoptOrphan"
+            Case Else
+                Return "ReviewOnly"
+        End Select
+    End Function
+
+    Private Shared Function IsAutomaticRepairCandidate(actionType As String) As Boolean
+        Select Case actionType
+            Case "RegenerateThumbnail", "RecomputeHash", "ReExtractText"
+                Return True
+            Case Else
+                Return False
+        End Select
+    End Function
 
     Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService) As VaultHealthReport
         Dim report As New VaultHealthReport()

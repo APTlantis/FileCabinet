@@ -108,6 +108,59 @@ Public Class VaultHealthReport
     End Property
 End Class
 
+Public Class RepairCandidate
+    Public Property Finding As VaultHealthFinding
+    Public Property ActionType As String = "ReviewOnly"
+    Public Property CanRepairAutomatically As Boolean
+    Public Property RequiresOperatorApproval As Boolean = True
+
+    Public ReadOnly Property FindingType As String
+        Get
+            Return If(Finding?.FindingType, "")
+        End Get
+    End Property
+
+    Public ReadOnly Property Subject As String
+        Get
+            Return If(Finding?.Subject, "")
+        End Get
+    End Property
+
+    Public ReadOnly Property ProposedAction As String
+        Get
+            Return If(Finding?.ProposedAction, "")
+        End Get
+    End Property
+
+    Public ReadOnly Property RiskLevel As String
+        Get
+            Return If(Finding?.RiskLevel, "")
+        End Get
+    End Property
+
+    Public ReadOnly Property MutatesCatalog As Boolean
+        Get
+            Return Finding IsNot Nothing AndAlso Finding.MutatesCatalog
+        End Get
+    End Property
+
+    Public ReadOnly Property TouchesRetainedFiles As Boolean
+        Get
+            Return Finding IsNot Nothing AndAlso Finding.TouchesRetainedFiles
+        End Get
+    End Property
+
+    Public ReadOnly Property ApprovalText As String
+        Get
+            If RequiresOperatorApproval Then
+                Return "Approval required"
+            End If
+
+            Return "Safe automatic repair"
+        End Get
+    End Property
+End Class
+
 Public Class VaultModel
     Implements INotifyPropertyChanged
 
