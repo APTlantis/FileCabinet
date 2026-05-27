@@ -43,6 +43,7 @@ Public Class MainViewModel
     Private _repairStatus As String = "Repair checks not run"
     Private _artifactRowHeight As Integer = 34
     Private _columnPresetIndex As Integer
+    Private _isLoadingCatalog As Boolean
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -189,6 +190,7 @@ Public Class MainViewModel
                 _searchText = If(value, "")
                 OnPropertyChanged()
                 RefreshFilters()
+                SaveUiPreferences()
             End If
         End Set
     End Property
@@ -203,6 +205,7 @@ Public Class MainViewModel
                 _tagSearchText = normalized
                 OnPropertyChanged()
                 RefreshTagFilter()
+                SaveUiPreferences()
             End If
         End Set
     End Property
@@ -217,6 +220,7 @@ Public Class MainViewModel
                 OnPropertyChanged()
                 OnPropertyChanged(NameOf(FilterTitle))
                 RefreshFilters()
+                SaveUiPreferences()
             End If
         End Set
     End Property
@@ -231,6 +235,7 @@ Public Class MainViewModel
                 OnPropertyChanged()
                 OnPropertyChanged(NameOf(FilterTitle))
                 RefreshFilters()
+                SaveUiPreferences()
             End If
         End Set
     End Property
@@ -247,6 +252,7 @@ Public Class MainViewModel
                 OnPropertyChanged(NameOf(FilterTitle))
                 OnPropertyChanged(NameOf(ActiveScopeText))
                 RefreshFilters(preserveSelection:=True)
+                SaveUiPreferences()
             End If
         End Set
     End Property
@@ -566,6 +572,7 @@ Public Class MainViewModel
                 _artifactRowHeight = normalized
                 OnPropertyChanged()
                 OnPropertyChanged(NameOf(DensityText))
+                SaveUiPreferences()
             End If
         End Set
     End Property
@@ -717,12 +724,20 @@ Public Class MainViewModel
     End Property
 
     Private Sub LoadCatalog()
+        _isLoadingCatalog = True
         _catalog = _catalogService.LoadOrCreate()
         If String.Equals(_catalog.DefaultIngestMode, "Copy", StringComparison.OrdinalIgnoreCase) Then
             _ingestMode = IngestMode.Copy
         Else
             _ingestMode = IngestMode.Move
         End If
+
+        _artifactRowHeight = If(String.Equals(_catalog.TableDensity, "Compact", StringComparison.OrdinalIgnoreCase), 28, 34)
+        _columnPresetIndex = ParseColumnPreset(_catalog.ColumnPreset)
+        _activeScope = NormalizeScope(_catalog.ActiveScope)
+        _searchText = If(_catalog.SearchText, "")
+        _tagSearchText = If(_catalog.TagSearchText, "")
+        _selectedTag = If(_catalog.SelectedTag, "")
 
         ReplaceCollection(Vaults, _catalog.Vaults)
         ReplaceCollection(Stats, _catalog.Stats)
@@ -732,6 +747,7 @@ Public Class MainViewModel
         HydrateArtifacts(_catalog.Artifacts)
         ReplaceCollection(Artifacts, _catalog.Artifacts)
         RebuildDerivedLists()
+        _selectedCategory = Categories.FirstOrDefault(Function(category) String.Equals(category.Name, _catalog.SelectedCategory, StringComparison.OrdinalIgnoreCase))
         FilteredTags = CollectionViewSource.GetDefaultView(Tags)
         FilteredTags.Filter = AddressOf FilterTag
         FilteredArtifacts = CollectionViewSource.GetDefaultView(Artifacts)
@@ -745,7 +761,20 @@ Public Class MainViewModel
 
         SelectFirstFilteredArtifact()
         _settingsText = "Open settings for vault paths, backups, and repair status"
+        _isLoadingCatalog = False
+        SaveUiPreferences()
         RefreshDerivedUiState()
+        OnPropertyChanged(NameOf(SearchText))
+        OnPropertyChanged(NameOf(TagSearchText))
+        OnPropertyChanged(NameOf(SelectedTag))
+        OnPropertyChanged(NameOf(SelectedCategory))
+        OnPropertyChanged(NameOf(ActiveScope))
+        OnPropertyChanged(NameOf(FilterTitle))
+        OnPropertyChanged(NameOf(DensityText))
+        OnPropertyChanged(NameOf(ColumnPresetText))
+        OnPropertyChanged(NameOf(ShowCategoryColumn))
+        OnPropertyChanged(NameOf(ShowDateColumn))
+        OnPropertyChanged(NameOf(ShowTagsColumn))
     End Sub
 
     Public Async Function IngestPathsAsync(paths As IEnumerable(Of String)) As Task
@@ -1193,6 +1222,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(ShowCategoryColumn))
         OnPropertyChanged(NameOf(ShowDateColumn))
         OnPropertyChanged(NameOf(ShowTagsColumn))
+        SaveUiPreferences()
         ActionStatus = $"Table columns set to {ColumnPresetName}"
     End Sub
 
@@ -1208,6 +1238,45 @@ Public Class MainViewModel
             End Select
         End Get
     End Property
+
+    Private Shared Function ParseColumnPreset(value As String) As Integer
+        Select Case If(value, "").Trim().ToLowerInvariant()
+            Case "compact"
+                Return 1
+            Case "minimal"
+                Return 2
+            Case Else
+                Return 0
+        End Select
+    End Function
+
+    Private Shared Function NormalizeScope(value As String) As String
+        Select Case If(value, "").Trim().ToLowerInvariant()
+            Case "recent"
+                Return "Recent"
+            Case "starred"
+                Return "Starred"
+            Case "quarantine"
+                Return "Quarantine"
+            Case Else
+                Return "All"
+        End Select
+    End Function
+
+    Private Sub SaveUiPreferences()
+        If _isLoadingCatalog OrElse _catalog Is Nothing Then
+            Return
+        End If
+
+        _catalog.TableDensity = If(ArtifactRowHeight <= 30, "Compact", "Comfortable")
+        _catalog.ColumnPreset = ColumnPresetName
+        _catalog.ActiveScope = ActiveScope
+        _catalog.SearchText = SearchText
+        _catalog.TagSearchText = TagSearchText
+        _catalog.SelectedTag = If(SelectedTag, "")
+        _catalog.SelectedCategory = If(SelectedCategory?.Name, "")
+        _catalogService.Save(_catalog)
+    End Sub
 
     Private Function StoredFileExists() As Boolean
         Return SelectedArtifact IsNot Nothing AndAlso

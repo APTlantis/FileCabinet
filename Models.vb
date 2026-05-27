@@ -9,6 +9,13 @@ Public Class CatalogData
     Public Property DefaultIngestMode As String = "Move"
     Public Property DuplicatePolicy As String = "Rename"
     Public Property LastBackupPath As String = ""
+    Public Property TableDensity As String = "Comfortable"
+    Public Property ColumnPreset As String = "Full"
+    Public Property ActiveScope As String = "All"
+    Public Property SearchText As String = ""
+    Public Property TagSearchText As String = ""
+    Public Property SelectedTag As String = ""
+    Public Property SelectedCategory As String = ""
     Public Property Vaults As New List(Of VaultModel)
     Public Property Stats As New List(Of StatCardModel)
     Public Property Categories As New List(Of CategoryModel)

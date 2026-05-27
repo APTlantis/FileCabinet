@@ -5,6 +5,14 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>FileCabinet</RootNamespace>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\FileCabinet.ico</ApplicationIcon>
+    <AssemblyTitle>FileCabinet</AssemblyTitle>
+    <Product>FileCabinet</Product>
+    <Company>FileCabinet</Company>
+    <Description>Personal vault and artifact manager</Description>
+    <Version>0.1.0</Version>
+    <FileVersion>0.1.0.0</FileVersion>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +29,10 @@
 
   <ItemGroup>
     <PackageReference Include="Blake3" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\FileCabinet.ico" />
   </ItemGroup>
 
   <ItemGroup>

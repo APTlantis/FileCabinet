@@ -67,6 +67,18 @@ Public Class CatalogService
             catalog.DuplicatePolicy = "Rename"
         End If
 
+        If String.IsNullOrWhiteSpace(catalog.TableDensity) Then
+            catalog.TableDensity = "Comfortable"
+        End If
+
+        If String.IsNullOrWhiteSpace(catalog.ColumnPreset) Then
+            catalog.ColumnPreset = "Full"
+        End If
+
+        If String.IsNullOrWhiteSpace(catalog.ActiveScope) Then
+            catalog.ActiveScope = "All"
+        End If
+
         If catalog.Vaults Is Nothing Then
             catalog.Vaults = New List(Of VaultModel)
         End If
@@ -139,6 +151,9 @@ Public Class CatalogService
             .VaultRootPath = root,
             .DefaultIngestMode = "Move",
             .DuplicatePolicy = "Rename",
+            .TableDensity = "Comfortable",
+            .ColumnPreset = "Full",
+            .ActiveScope = "All",
             .Vaults = New List(Of VaultModel) From {
                 New VaultModel With {.Id = "main", .Name = "MainVault", .Path = root, .IsSelected = True}
             },

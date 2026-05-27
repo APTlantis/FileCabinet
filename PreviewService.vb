@@ -14,6 +14,12 @@ Public Class ArtifactPreview
     Public Property Image As BitmapImage
     Public Property Text As String = ""
     Public Property Message As String = ""
+    Public Property Title As String = ""
+    Public Property Detail As String = ""
+    Public Property BadgeText As String = ""
+    Public Property IconGlyph As String = ChrW(&HE8A5)
+    Public Property AccentBrush As String = "#4DA3FF"
+    Public Property AccentBackground As String = "#142A42"
 End Class
 
 Public Class PreviewService
@@ -33,7 +39,10 @@ Public Class PreviewService
         If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
             Return New ArtifactPreview With {
                 .Kind = ArtifactPreviewKind.Missing,
-                .Message = "Stored file missing"
+                .Message = "Stored file missing",
+                .Title = "Missing File",
+                .Detail = "The catalog entry exists, but the retained file was not found.",
+                .BadgeText = "!"
             }
         End If
 
@@ -57,14 +66,17 @@ Public Class PreviewService
 
             Return New ArtifactPreview With {
                 .Kind = ArtifactPreviewKind.GenericFile,
-                .Message = $"{artifact.Type} retained in vault; use Open File to inspect the original document"
+                .Message = $"{artifact.Type} retained in vault; use Open File to inspect the original document",
+                .Title = $"{artifact.Type} retained",
+                .Detail = BuildPreviewDetail(artifact, "Open the original file for full fidelity."),
+                .BadgeText = ResolveBadgeText(artifact, extension),
+                .IconGlyph = ResolveIconGlyph(artifact, extension),
+                .AccentBrush = ResolveAccentBrush(artifact, extension),
+                .AccentBackground = ResolveAccentBackground(artifact, extension)
             }
         End If
 
-        Return New ArtifactPreview With {
-            .Kind = ArtifactPreviewKind.GenericFile,
-            .Message = $"{artifact.Type} retained in vault; preview is not available yet"
-        }
+        Return CreateFormatPreview(artifact, extension)
     End Function
 
     Private Shared Function LoadImagePreview(path As String) As ArtifactPreview
@@ -80,12 +92,19 @@ Public Class PreviewService
             Return New ArtifactPreview With {
                 .Kind = ArtifactPreviewKind.Image,
                 .Image = image,
-                .Message = "Image preview"
+                .Message = "Image preview",
+                .Title = "Image Preview"
             }
         Catch
             Return New ArtifactPreview With {
                 .Kind = ArtifactPreviewKind.GenericFile,
-                .Message = "Image preview unavailable"
+                .Message = "Image preview unavailable",
+                .Title = "Image Preview Unavailable",
+                .Detail = "The image is retained in the vault, but WPF could not decode it.",
+                .BadgeText = "IMG",
+                .IconGlyph = ChrW(&HE91B),
+                .AccentBrush = "#55D680",
+                .AccentBackground = "#123522"
             }
         End Try
     End Function
@@ -113,14 +132,199 @@ Public Class PreviewService
             Return New ArtifactPreview With {
                 .Kind = ArtifactPreviewKind.Text,
                 .Text = builder.ToString(),
-                .Message = "Text preview"
+                .Message = "Text preview",
+                .Title = "Text Preview"
             }
         Catch
             Return New ArtifactPreview With {
                 .Kind = ArtifactPreviewKind.GenericFile,
-                .Message = "Text preview unavailable"
+                .Message = "Text preview unavailable",
+                .Title = "Text Preview Unavailable",
+                .Detail = "The file is retained in the vault, but text could not be read safely.",
+                .BadgeText = "TXT",
+                .IconGlyph = ChrW(&HE8A5),
+                .AccentBrush = "#4DA3FF",
+                .AccentBackground = "#142A42"
             }
         End Try
+    End Function
+
+    Private Shared Function CreateFormatPreview(artifact As ArtifactModel, extension As String) As ArtifactPreview
+        Dim title = ResolvePreviewTitle(artifact, extension)
+        Dim actionHint = ResolveActionHint(artifact, extension)
+
+        Return New ArtifactPreview With {
+            .Kind = ArtifactPreviewKind.GenericFile,
+            .Message = $"{artifact.Type} retained in vault; preview is not available yet",
+            .Title = title,
+            .Detail = BuildPreviewDetail(artifact, actionHint),
+            .BadgeText = ResolveBadgeText(artifact, extension),
+            .IconGlyph = ResolveIconGlyph(artifact, extension),
+            .AccentBrush = ResolveAccentBrush(artifact, extension),
+            .AccentBackground = ResolveAccentBackground(artifact, extension)
+        }
+    End Function
+
+    Private Shared Function ResolvePreviewTitle(artifact As ArtifactModel, extension As String) As String
+        Dim category = If(artifact?.Category, "")
+        Dim normalizedExtension = If(extension, "").ToLowerInvariant()
+
+        Select Case True
+            Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
+                Return "Disk Image Retained"
+            Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
+                Return "Installer Retained"
+            Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
+                Return "Archive Retained"
+            Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
+                Return "Torrent Retained"
+            Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
+                Return "Security File Retained"
+            Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
+                Return "Audio Retained"
+            Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
+                Return "Video Retained"
+            Case normalizedExtension = ".pdf"
+                Return "PDF Retained"
+            Case Else
+                Return $"{artifact.Type} Retained"
+        End Select
+    End Function
+
+    Private Shared Function ResolveActionHint(artifact As ArtifactModel, extension As String) As String
+        Dim category = If(artifact?.Category, "")
+        Dim normalizedExtension = If(extension, "").ToLowerInvariant()
+
+        Select Case True
+            Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
+                Return "Open the file to mount or inspect the image."
+            Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
+                Return "Open only when you are ready to run the installer."
+            Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
+                Return "Open the archive to browse or extract contents."
+            Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
+                Return "Open with your torrent client if you need the source payload."
+            Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
+                Return "Keep access limited; inspect with a trusted security tool."
+            Case normalizedExtension = ".pdf"
+                Return "Open the PDF for the original rendered document."
+            Case Else
+                Return "Open the original file with the system default app."
+        End Select
+    End Function
+
+    Private Shared Function ResolveBadgeText(artifact As ArtifactModel, extension As String) As String
+        Dim normalizedExtension = If(extension, "").TrimStart("."c).ToUpperInvariant()
+        If Not String.IsNullOrWhiteSpace(normalizedExtension) Then
+            Return normalizedExtension
+        End If
+
+        Dim family = If(artifact?.TypeFamily, "FILE").ToUpperInvariant()
+        If family.Length <= 4 Then
+            Return family
+        End If
+
+        Return family.Substring(0, 4)
+    End Function
+
+    Private Shared Function ResolveIconGlyph(artifact As ArtifactModel, extension As String) As String
+        Dim category = If(artifact?.Category, "")
+        Dim normalizedExtension = If(extension, "").ToLowerInvariant()
+
+        Select Case True
+            Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE958)
+            Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE896)
+            Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE7B8)
+            Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE896)
+            Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE72E)
+            Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE8D6)
+            Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
+                Return ChrW(&HE8B2)
+            Case normalizedExtension = ".pdf"
+                Return ChrW(&HE8A5)
+            Case Else
+                Return ChrW(&HE8A5)
+        End Select
+    End Function
+
+    Private Shared Function ResolveAccentBrush(artifact As ArtifactModel, extension As String) As String
+        Select Case If(artifact?.Category, "")
+            Case "ISOs / Disk Images"
+                Return "#7BB7FF"
+            Case "Software / Installers"
+                Return "#BFA7FF"
+            Case "Archives"
+                Return "#F7B955"
+            Case "Torrents"
+                Return "#55D680"
+            Case "Keys / Security"
+                Return "#FF6B7A"
+            Case "Audio"
+                Return "#74D7E6"
+            Case "Video"
+                Return "#FF8C6A"
+            Case Else
+                If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
+                    Return "#FF6B7A"
+                End If
+
+                Return "#A8BCD5"
+        End Select
+    End Function
+
+    Private Shared Function ResolveAccentBackground(artifact As ArtifactModel, extension As String) As String
+        Select Case If(artifact?.Category, "")
+            Case "ISOs / Disk Images"
+                Return "#122D4F"
+            Case "Software / Installers"
+                Return "#2A214D"
+            Case "Archives"
+                Return "#3A2712"
+            Case "Torrents"
+                Return "#123522"
+            Case "Keys / Security"
+                Return "#3B1720"
+            Case "Audio"
+                Return "#12343A"
+            Case "Video"
+                Return "#3A2118"
+            Case Else
+                If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
+                    Return "#3B1720"
+                End If
+
+                Return "#18283A"
+        End Select
+    End Function
+
+    Private Shared Function BuildPreviewDetail(artifact As ArtifactModel, actionHint As String) As String
+        Dim parts As New List(Of String)
+
+        If artifact IsNot Nothing Then
+            If Not String.IsNullOrWhiteSpace(artifact.Size) Then
+                parts.Add(artifact.Size)
+            End If
+
+            If Not String.IsNullOrWhiteSpace(artifact.Category) Then
+                parts.Add(artifact.Category)
+            End If
+
+            If Not String.IsNullOrWhiteSpace(artifact.HashStatus) Then
+                parts.Add($"Hash: {artifact.HashStatus}")
+            End If
+        End If
+
+        If Not String.IsNullOrWhiteSpace(actionHint) Then
+            parts.Add(actionHint)
+        End If
+
+        Return String.Join("  |  ", parts)
     End Function
 
     Private Shared Function ResolveExtractedTextPath(artifact As ArtifactModel) As String

@@ -7,6 +7,7 @@
         Height="1040"
         MinWidth="1180"
         MinHeight="720"
+        Icon="Assets/FileCabinet.ico"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanResize"
@@ -777,14 +778,39 @@
                                                            TextWrapping="Wrap" />
                                             </ScrollViewer>
 
-                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsGenericPreview, Converter={StaticResource BoolToVisibility}}">
-                                                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="#A8BCD5" FontSize="48" HorizontalAlignment="Center" />
-                                                <TextBlock Text="{Binding SelectedPreview.Message}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="210" Visibility="{Binding IsGenericPreview, Converter={StaticResource BoolToVisibility}}">
+                                                <Grid Width="96" Height="96" HorizontalAlignment="Center">
+                                                    <Border Background="{Binding SelectedPreview.AccentBackground}" BorderBrush="{Binding SelectedPreview.AccentBrush}" BorderThickness="1" CornerRadius="8" />
+                                                    <TextBlock Text="{Binding SelectedPreview.IconGlyph}"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               Foreground="{Binding SelectedPreview.AccentBrush}"
+                                                               FontSize="36"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,-10,0,0" />
+                                                    <Border Background="#0B1520"
+                                                            BorderBrush="{Binding SelectedPreview.AccentBrush}"
+                                                            BorderThickness="1"
+                                                            CornerRadius="4"
+                                                            Padding="7,2"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Bottom"
+                                                            Margin="0,0,0,10">
+                                                        <TextBlock Text="{Binding SelectedPreview.BadgeText}"
+                                                                   Foreground="{Binding SelectedPreview.AccentBrush}"
+                                                                   FontSize="11"
+                                                                   FontWeight="SemiBold"
+                                                                   TextAlignment="Center" />
+                                                    </Border>
+                                                </Grid>
+                                                <TextBlock Text="{Binding SelectedPreview.Title}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,12,0,0" />
+                                                <TextBlock Text="{Binding SelectedPreview.Detail}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
                                             </StackPanel>
 
-                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsMissingPreview, Converter={StaticResource BoolToVisibility}}">
+                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="210" Visibility="{Binding IsMissingPreview, Converter={StaticResource BoolToVisibility}}">
                                                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" Foreground="#F24F5F" FontSize="42" HorizontalAlignment="Center" />
-                                                <TextBlock Text="{Binding SelectedPreview.Message}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                                <TextBlock Text="{Binding SelectedPreview.Title}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
+                                                <TextBlock Text="{Binding SelectedPreview.Detail}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>

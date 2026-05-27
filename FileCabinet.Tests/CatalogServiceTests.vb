@@ -61,5 +61,31 @@ Namespace FileCabinet.Tests
                 End If
             End Try
         End Sub
+
+        <TestMethod>
+        Sub LoadOrCreateAddsPreferenceDefaultsToOlderCatalog()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim catalogPath = Path.Combine(workspace, "appdata", "catalog.json")
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Directory.CreateDirectory(Path.GetDirectoryName(catalogPath))
+            File.WriteAllText(catalogPath, $"{{""SchemaVersion"":1,""CurrentVaultId"":""main"",""VaultRootPath"":""{vaultRoot.Replace("\", "\\")}"",""DefaultIngestMode"":""Move"",""DuplicatePolicy"":""Rename"",""Vaults"":[{{""Id"":""main"",""Name"":""MainVault"",""Path"":""{vaultRoot.Replace("\", "\\")}""}}],""Artifacts"":[]}}")
+
+            Try
+                Dim service As New Global.FileCabinet.CatalogService(catalogPath, vaultRoot)
+                Dim catalog = service.LoadOrCreate()
+
+                Assert.AreEqual("Comfortable", catalog.TableDensity)
+                Assert.AreEqual("Full", catalog.ColumnPreset)
+                Assert.AreEqual("All", catalog.ActiveScope)
+                Assert.AreEqual("", catalog.SearchText)
+                Assert.AreEqual("", catalog.TagSearchText)
+                Assert.AreEqual("", catalog.SelectedTag)
+                Assert.AreEqual("", catalog.SelectedCategory)
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
     End Class
 End Namespace
