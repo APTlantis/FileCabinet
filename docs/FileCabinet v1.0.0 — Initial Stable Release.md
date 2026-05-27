@@ -82,7 +82,7 @@ Indexed content becomes globally searchable directly inside the vault.
 
 ### Deterministic Related Items
 
-Related artifact discovery uses deterministic local matching rather than AI-driven inference:
+Related artifact discovery uses deterministic local matching with inspectable reasons:
 
 * duplicate hashes
 * shared categories
@@ -110,7 +110,7 @@ FileCabinet is intentionally **not**:
 * a generic document manager
 * a cloud-sync storage platform
 * an enterprise DMS
-* an AI-first productivity suite
+* an automatic inference workspace
 
 The native filesystem already handles large-scale storage extremely well.
 
@@ -137,7 +137,7 @@ v1.0.0 focuses on stabilizing:
 * deterministic workflows
 * repair/recovery tooling
 
-AI-assisted categorization, embeddings, OCR expansion, and semantic workflows remain intentionally deferred until the core vault systems are fully mature and reliable.
+FileCabinet remains intentionally focused on deterministic retention, inspectable metadata, and operator-authored context.
 
 ---
 

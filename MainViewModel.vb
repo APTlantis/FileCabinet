@@ -569,15 +569,9 @@ Public Class MainViewModel
         End Get
     End Property
 
-    Public ReadOnly Property AiStatusText As String
+    Public ReadOnly Property RecallStatusText As String
         Get
-            Return "Deferred until core vault workflows are stable"
-        End Get
-    End Property
-
-    Public ReadOnly Property OcrStatusText As String
-        Get
-            Return "Deferred; text-like files are indexed locally"
+            Return "Deterministic metadata, text, hashes, and relations"
         End Get
     End Property
 
@@ -1202,11 +1196,10 @@ Public Class MainViewModel
 
     Private Sub ShowSettings()
         Dim backupText = If(String.IsNullOrWhiteSpace(_catalog.LastBackupPath), "No catalog backup yet", _catalog.LastBackupPath)
-        _settingsText = $"Vault: {VaultRootPath}{vbCrLf}Catalog: {CatalogPath}{vbCrLf}Last backup: {backupText}{vbCrLf}Intake: {IngestModeText}{vbCrLf}{DuplicatePolicyText}{vbCrLf}Repair: {RepairStatus}{vbCrLf}AI: deferred until core vault workflows are stable"
+        _settingsText = $"Vault: {VaultRootPath}{vbCrLf}Catalog: {CatalogPath}{vbCrLf}Last backup: {backupText}{vbCrLf}Intake: {IngestModeText}{vbCrLf}{DuplicatePolicyText}{vbCrLf}Repair: {RepairStatus}{vbCrLf}Recall: deterministic metadata, text, hashes, and relations"
         OnPropertyChanged(NameOf(SettingsText))
         OnPropertyChanged(NameOf(LastBackupDisplay))
-        OnPropertyChanged(NameOf(AiStatusText))
-        OnPropertyChanged(NameOf(OcrStatusText))
+        OnPropertyChanged(NameOf(RecallStatusText))
         ActionStatus = "Settings summarized"
     End Sub
 
@@ -1597,8 +1590,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(IngestModeDetail))
         OnPropertyChanged(NameOf(ActiveScopeText))
         OnPropertyChanged(NameOf(LastBackupDisplay))
-        OnPropertyChanged(NameOf(AiStatusText))
-        OnPropertyChanged(NameOf(OcrStatusText))
+        OnPropertyChanged(NameOf(RecallStatusText))
         RebuildStats()
         RebuildRelatedArtifacts()
     End Sub

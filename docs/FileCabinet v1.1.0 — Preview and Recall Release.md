@@ -92,22 +92,19 @@ Where v1.0.0 established durable storage and catalog safety, v1.1.0 improves the
 * what metadata can be edited
 * whether generated preview assets are healthy
 
-The result is a stronger artifact review loop without introducing cloud services, AI inference, or platform-dependent shell thumbnail behavior.
+The result is a stronger artifact review loop without introducing cloud services, automatic inference, or platform-dependent shell thumbnail behavior.
 
 ---
 
-## What Remains Deferred
+## Design Boundaries
 
-FileCabinet v1.1.0 intentionally does not add:
+FileCabinet v1.1.0 intentionally keeps the preview and recall model deterministic. It does not add:
 
 * PDF page rendering
-* OCR for screenshots or scanned documents
+* image-text extraction for screenshots or scanned documents
 * Windows shell thumbnail extraction
-* semantic embeddings
-* AI-assisted categorization
-* assistant-style recall
 
-Those features remain planned for later releases after the local vault and preview foundations are mature.
+The application continues to emphasize deliberate curation, operator-authored context, inspectable metadata, and repairable local vault state.
 
 ---
 

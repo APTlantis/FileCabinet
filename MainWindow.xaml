@@ -662,10 +662,10 @@
                                     <Border Grid.Column="1" Background="{StaticResource BorderDimBrush}" Margin="10,0" />
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Auto-Process" Style="{StaticResource SectionTitle}" Margin="0,0,0,9" />
-                                        <CheckBox Content="Extract text (OCR / parsing)" IsChecked="False" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,7" />
-                                        <CheckBox Content="Generate embeddings (deferred)" IsChecked="False" IsEnabled="False" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,7" />
+                                        <CheckBox Content="Extract searchable text" IsChecked="True" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,7" />
+                                        <CheckBox Content="Verify hashes" IsChecked="True" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,7" />
                                         <CheckBox Content="Create thumbnails / previews" IsChecked="True" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,7" />
-                                        <CheckBox Content="Classify &amp; tag with AI (deferred)" IsChecked="False" IsEnabled="False" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,10" />
+                                        <CheckBox Content="Record original source path" IsChecked="True" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,10" />
                                         <Button Content="More options..." Command="{Binding ShowSettingsCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </Grid>
@@ -1094,8 +1094,8 @@
                                     <TextBlock Grid.Row="4" Text="Repair" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
                                     <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding RepairStatus}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
 
-                                    <TextBlock Grid.Row="5" Text="AI / OCR" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
-                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding AiStatusText}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
+                                    <TextBlock Grid.Row="5" Text="Recall" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding RecallStatusText}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
                                 </Grid>
 
                                 <WrapPanel Grid.Row="2">

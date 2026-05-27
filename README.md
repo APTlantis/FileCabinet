@@ -146,7 +146,7 @@ The **Relations** section in the right panel shows a first-pass related-artifact
 - shared category
 - shared tags
 
-This is deterministic local matching, not AI. It is meant to help you quickly spot nearby artifacts such as a manifest and archive, related images, or files with matching tags.
+This is deterministic local matching with explainable reasons. It is meant to help you quickly spot nearby artifacts such as a manifest and archive, related images, or files with matching tags.
 
 ## Repair, Rescan, And Backups
 
@@ -158,15 +158,13 @@ FileCabinet includes a few recovery-oriented tools.
 
 **Back up catalog** writes a portable catalog snapshot into the vault's `exports` folder. This is useful before manual vault work, experimentation, or moving data between machines.
 
-The settings/status strip at the bottom right summarizes vault path, catalog path, last backup, intake mode, duplicate behavior, repair status, and AI status.
+The settings/status strip at the bottom right summarizes vault path, catalog path, last backup, intake mode, duplicate behavior, repair status, and deterministic recall status.
 
-## What FileCabinet Does Not Do Yet
+## Design Boundaries
 
-Some UI labels are intentionally present but still deferred.
+FileCabinet is intentionally focused on deliberate curation rather than automatic inference.
 
-Local AI is not active yet. Embeddings, AI classification, semantic search, summarization, and assistant-style recall are planned after the core vault workflows are stable.
-
-OCR is not implemented yet. Text extraction currently handles text-like files, not image text or scanned PDFs.
+Text extraction currently handles text-like files, not image text or scanned PDFs.
 
 PDF preview is currently a retained-file fallback rather than full document rendering.
 

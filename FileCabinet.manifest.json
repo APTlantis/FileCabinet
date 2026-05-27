@@ -1,0 +1,152 @@
+{
+  "project": {
+    "id": "filecabinet",
+    "title": "FileCabinet",
+    "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
+    "type": "tool",
+    "stage": "production",
+    "version": "1.1.0",
+    "tags": [
+      "local-first",
+      "desktop",
+      "vault",
+      "artifact-management",
+      "metadata",
+      "integrity-verification",
+      "preview-pipeline",
+      "wpf",
+      "vbnet"
+    ]
+  },
+  "metadata": {
+    "created": "2026-05-23",
+    "last_updated": "2026-05-27",
+    "completed": "2026-05-27",
+    "maintainer": "APTlantis",
+    "license": "Unspecified",
+    "language_primary": "VB.NET",
+    "languages_used": [
+      "VB.NET",
+      "XAML",
+      "PowerShell",
+      "Markdown",
+      "JSON"
+    ]
+  },
+  "runtime": {
+    "platform": "desktop",
+    "environment": "Windows x64, self-contained .NET 10 WPF application",
+    "services": [],
+    "storage": [
+      "Local filesystem vault",
+      "AppData catalog",
+      "Vault items folder",
+      "Vault thumbnails folder",
+      "Vault extracted-text folder",
+      "Vault exports folder",
+      "Vault quarantine folder"
+    ]
+  },
+  "relationships": {
+    "depends_on_projects": [],
+    "used_by_projects": [],
+    "external_dependencies": [
+      ".NET 10",
+      "WPF",
+      "WiX Toolset 6.0.2",
+      "Blake3 2.2.1"
+    ]
+  },
+  "artifacts": {
+    "produces": [
+      "artifacts/installer/FileCabinet-1.1.0.0-win-x64.msi",
+      "docs/FileCabinet v1.1.0 — Preview and Recall Release.md",
+      "docs/FileCabinet_v1.1.0_Release.pdf",
+      "Vault catalog JSON",
+      "Vault thumbnail PNG assets",
+      "Vault extracted text indexes",
+      "Vault catalog backup exports"
+    ],
+    "consumes": [
+      "User-selected files and folders for vault ingestion",
+      "Existing vault item files during rescan",
+      "Existing catalog data from AppData"
+    ]
+  },
+  "datasets": [
+    {
+      "name": "FileCabinet catalog",
+      "description": "Local JSON catalog containing vault metadata, artifact records, tags, categories, hashes, extracted text paths, thumbnail paths, activities, and UI preferences.",
+      "format": "JSON",
+      "size": "User-dependent",
+      "location": "%APPDATA%/FileCabinet/catalog.json"
+    },
+    {
+      "name": "FileCabinet vault",
+      "description": "Portable retained artifact storage containing items, thumbnails, extracted text, quarantine, and exports.",
+      "format": "Filesystem directory tree",
+      "size": "User-dependent",
+      "location": "User-selected vault root"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "installer/build-installer.ps1",
+      "language": "PowerShell",
+      "role": "Publishes the self-contained Windows x64 build and creates the WiX MSI installer.",
+      "status": "active",
+      "version": 1
+    }
+  ],
+  "documentation": {
+    "writerside_topic": "",
+    "architecture_doc": "FileCabinet.md",
+    "readme": "README.md"
+  },
+  "links": {
+    "repository": "https://github.com/APTlantis/FileCabinet",
+    "homepage": "https://github.com/APTlantis/FileCabinet",
+    "dashboard": "https://github.com/APTlantis/FileCabinet/releases"
+  },
+  "structure": {
+    "repo_path": "D:/FileCabinet",
+    "docs_path": "D:/FileCabinet/docs",
+    "data_path": "User-selected vault root"
+  },
+  "automation": {
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.1.0.0",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.1.0.0-win-x64.msi to the GitHub v1.1.0 release.",
+    "tasks": [
+      "Run unit tests",
+      "Build self-contained Windows x64 publish output",
+      "Build WiX MSI installer",
+      "Attach MSI to GitHub release",
+      "Include release notes from docs/FileCabinet v1.1.0 — Preview and Recall Release.md"
+    ]
+  },
+  "notes": {
+    "release_name": "FileCabinet v1.1.0 — Preview and Recall Release",
+    "installer": "FileCabinet-1.1.0.0-win-x64.msi",
+    "installer_sha256": "D74A7AA6D23CC1D43173B815029A6BBD29AE82623828A03D84E90C32129BEAA1",
+    "installer_size_bytes": 58925056,
+    "v1_1_highlights": [
+      "Preview Pipeline V1 with generated image thumbnails",
+      "Format-aware preview cards for retained binary and document artifacts",
+      "Real Preview, Details, and Relations tabs",
+      "Explainable deterministic relation scoring",
+      "Installer and application version updated to 1.1.0"
+    ],
+    "not_in_scope": [
+      "PDF page rendering",
+      "Image-text extraction for screenshots and scanned documents",
+      "Windows shell thumbnail extraction"
+    ],
+    "design_boundaries": [
+      "Deterministic recall over automatic inference",
+      "Operator-authored context over generated categorization",
+      "Inspectable metadata over opaque ranking",
+      "Repairable local vault state over cloud dependency"
+    ],
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 19 tests on 2026-05-27"
+  }
+}
