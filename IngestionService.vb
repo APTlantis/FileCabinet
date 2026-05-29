@@ -209,6 +209,11 @@ Public Class IngestionService
             .ExtractedTextStatus = extraction.Status,
             .Rating = 0,
             .Notes = $"Ingested from {source.FullName}",
+            .SourceProvenance = source.DirectoryName,
+            .AcquisitionMethod = "Ingest",
+            .TrustClassification = "Unknown",
+            .RetentionPriority = "Normal",
+            .ArchiveStatus = "Active",
             .OriginalPath = source.FullName,
             .IngestedAt = nowText,
             .Tags = tags

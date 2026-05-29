@@ -92,6 +92,13 @@ The details area shows editable metadata and file facts:
 - category
 - tags
 - rating
+- retention reason
+- why this matters
+- source provenance
+- acquisition method
+- trust classification
+- retention priority
+- archive status
 - stored path
 - type
 - created and modified timestamps
@@ -103,6 +110,23 @@ The details area shows editable metadata and file facts:
 - notes
 
 Use **Save** to persist metadata edits. Use **Revert** to reload the selected artifact's current catalog values.
+
+Structured operator metadata is separate from free-form notes. Use it to preserve the human reason an artifact was retained, where it came from, how it was acquired, how much you trust it, and whether it is active, archived, quarantined, or waiting for review.
+
+## Metadata And Recall
+
+The **Relations** tab uses deterministic catalog signals only. Relation reasons remain inspectable, such as duplicate hashes, shared tags, same original folder, same ingest session, matching filename tokens, shared extension family, shared provenance tokens, shared release markers, shared hash prefixes, and shared extracted-text keywords.
+
+The navigation panel includes built-in discovery scopes for common recall and cleanup tasks:
+
+- **Unverified** shows artifacts with unverified or questionable trust, or hashes that are not verified.
+- **Missing Preview** shows generated previews that are referenced but missing.
+- **Repair Needed** shows artifacts with vault health findings.
+- **Duplicate Candidates** shows artifacts that share a SHA-256 hash with another catalog item.
+- **Same Source Batch** shows artifacts near the selected artifact's source folder and ingest session; without a selected item it shows batch clusters.
+- **Large Artifacts** shows artifacts at or above 1 GB.
+
+These views combine with text search, category filters, and tag filters.
 
 ## Artifact Actions
 

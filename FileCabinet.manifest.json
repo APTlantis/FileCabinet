@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "tags": [
       "local-first",
       "desktop",
@@ -60,7 +60,7 @@
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.2.0.0-win-x64.msi",
+      "artifacts/installer/FileCabinet-1.3.0.0-win-x64.msi",
       "docs/FileCabinet v1.2.0 — Vault Reliability and Trust Release.md",
       "Vault catalog JSON",
       "Vault thumbnail PNG assets",
@@ -115,28 +115,27 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.2.0.0",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.2.0.0-win-x64.msi to the GitHub v1.2.0 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.3.0.0",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.3.0.0-win-x64.msi to the GitHub v1.3.0 release.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.2.0 — Vault Reliability and Trust Release.md"
+      "Include release notes from docs/FileCabinet v1.3.0 — Metadata and Recall Quality Release.md"
     ]
   },
   "notes": {
-    "release_name": "FileCabinet v1.2.0 — Vault Reliability and Trust Release",
-    "installer": "FileCabinet-1.2.0.0-win-x64.msi",
-    "installer_sha256": "282E1B6DF7BE31754F4B907C8A3DBAB70AECDE09B116A2A6FF06DA6FD109DFA0",
-    "installer_size_bytes": 58941440,
-    "v1_2_highlights": [
-      "Vault Health report with explicit repair candidates",
-      "Controlled Apply Selected workflow for safe repairs",
-      "Vault-local repair log and repair history UI",
-      "Hash mismatch, outside-vault, rebind, and incomplete metadata findings",
-      "Catalog backup validation after export",
-      "Installer and application version updated to 1.2.0"
+    "release_name": "FileCabinet v1.3.0 — Metadata and Recall Quality Release",
+    "installer": "FileCabinet-1.3.0.0-win-x64.msi",
+    "installer_sha256": "86FDD6CE6CEDBE8685DF37D145E7DC799C02EE5FCC5EB77DE9E45C611C438F7E",
+    "installer_size_bytes": 58937344,
+    "v1_3_highlights": [
+      "Structured operator metadata for retention reason, provenance, acquisition method, trust, priority, and archive status",
+      "Expanded deterministic relation scoring with inspectable recall reasons",
+      "Built-in discovery scopes for unverified, missing preview, repair needed, duplicate candidates, same source batch, and large artifacts",
+      "Search includes the new structured metadata fields",
+      "Installer and application version updated to 1.3.0"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -149,6 +148,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 36 tests on 2026-05-29"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 38 tests on 2026-05-29; installer/build-installer.ps1 -Version 1.3.0.0 completed on 2026-05-29"
   }
 }

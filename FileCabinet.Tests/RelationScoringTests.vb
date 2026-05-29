@@ -47,6 +47,44 @@ Namespace FileCabinet.Tests
             End Try
         End Sub
 
+        <TestMethod>
+        Sub ExpandedSignalsProduceInspectableRelationReasons()
+            Dim root = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim extractedRoot = Path.Combine(root, "extracted-text")
+            Directory.CreateDirectory(extractedRoot)
+
+            Try
+                Dim selected = Artifact("aptlantis-release-v1.2.0-manifest.json", "Manifests / Config", "Text", "abcdef1234560000", {"release"})
+                selected.OriginalPath = Path.Combine(root, "source", "aptlantis-release-v1.2.0-manifest.json")
+                selected.SourceProvenance = "Aptlantis release share"
+                selected.IngestedAt = "2026-05-23 09:00"
+                selected.ExtractedTextRelativePath = Path.Combine("extracted-text", "selected.txt")
+
+                Dim candidate = Artifact("aptlantis-installer-v1.2.0.json", "Manifests / Config", "Text", "abcdef1234569999", {"installer"})
+                candidate.OriginalPath = Path.Combine(root, "source", "aptlantis-installer-v1.2.0.json")
+                candidate.SourceProvenance = "Aptlantis release share"
+                candidate.IngestedAt = "2026-05-23 11:30"
+                candidate.ExtractedTextRelativePath = Path.Combine("extracted-text", "candidate.txt")
+
+                File.WriteAllText(Path.Combine(extractedRoot, "selected.txt"), "deterministic manifest retention context restore")
+                File.WriteAllText(Path.Combine(extractedRoot, "candidate.txt"), "deterministic installer manifest verification context")
+
+                Dim relation = Global.FileCabinet.MainViewModel.BuildArtifactRelation(selected, candidate, root)
+
+                Assert.IsNotNull(relation)
+                CollectionAssert.Contains(relation.Reasons, "same ingest session")
+                CollectionAssert.Contains(relation.Reasons, "shared extension family: manifest/config")
+                Assert.IsTrue(relation.Reasons.Any(Function(reason) reason.Contains("shared provenance token: aptlantis")))
+                Assert.IsTrue(relation.Reasons.Any(Function(reason) reason.Contains("shared release marker: v1.2.0")))
+                Assert.IsTrue(relation.Reasons.Any(Function(reason) reason.Contains("shared hash prefix: abcdef123456")))
+                Assert.IsTrue(relation.Reasons.Any(Function(reason) reason.Contains("shared extracted keyword:")))
+            Finally
+                If Directory.Exists(root) Then
+                    Directory.Delete(root, recursive:=True)
+                End If
+            End Try
+        End Sub
+
         Private Shared Function Artifact(name As String, category As String, typeFamily As String, sha256 As String, tags As IEnumerable(Of String)) As Global.FileCabinet.ArtifactModel
             Return New Global.FileCabinet.ArtifactModel With {
                 .Name = name,

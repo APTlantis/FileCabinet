@@ -340,6 +340,13 @@ Public Class ArtifactModel
     Private _hashStatus As String = "Not checked"
     Private _rating As Integer
     Private _notes As String = ""
+    Private _retentionReason As String = ""
+    Private _whyThisMatters As String = ""
+    Private _sourceProvenance As String = ""
+    Private _acquisitionMethod As String = ""
+    Private _trustClassification As String = "Unknown"
+    Private _retentionPriority As String = "Normal"
+    Private _archiveStatus As String = "Active"
     Private _isStarred As Boolean
     Private _originalPath As String = ""
     Private _ingestedAt As String = ""
@@ -528,6 +535,69 @@ Public Class ArtifactModel
         End Get
         Set(value As String)
             SetValue(_notes, If(value, ""))
+        End Set
+    End Property
+
+    Public Property RetentionReason As String
+        Get
+            Return _retentionReason
+        End Get
+        Set(value As String)
+            SetValue(_retentionReason, If(value, ""))
+        End Set
+    End Property
+
+    Public Property WhyThisMatters As String
+        Get
+            Return _whyThisMatters
+        End Get
+        Set(value As String)
+            SetValue(_whyThisMatters, If(value, ""))
+        End Set
+    End Property
+
+    Public Property SourceProvenance As String
+        Get
+            Return _sourceProvenance
+        End Get
+        Set(value As String)
+            SetValue(_sourceProvenance, If(value, ""))
+        End Set
+    End Property
+
+    Public Property AcquisitionMethod As String
+        Get
+            Return _acquisitionMethod
+        End Get
+        Set(value As String)
+            SetValue(_acquisitionMethod, If(value, ""))
+        End Set
+    End Property
+
+    Public Property TrustClassification As String
+        Get
+            Return _trustClassification
+        End Get
+        Set(value As String)
+            SetValue(_trustClassification, If(value, "Unknown"))
+        End Set
+    End Property
+
+    Public Property RetentionPriority As String
+        Get
+            Return _retentionPriority
+        End Get
+        Set(value As String)
+            SetValue(_retentionPriority, If(value, "Normal"))
+        End Set
+    End Property
+
+    Public Property ArchiveStatus As String
+        Get
+            Return _archiveStatus
+        End Get
+        Set(value As String)
+            SetValue(_archiveStatus, If(value, "Active"))
         End Set
     End Property
 

@@ -4,6 +4,7 @@ Imports System.Diagnostics
 Imports System.IO
 Imports System.Linq
 Imports System.Runtime.CompilerServices
+Imports System.Text.RegularExpressions
 Imports System.Threading.Tasks
 Imports System.Windows
 Imports System.Windows.Data
@@ -11,6 +12,8 @@ Imports System.Windows.Input
 
 Public Class MainViewModel
     Implements INotifyPropertyChanged
+
+    Private Const LargeArtifactThresholdBytes As Long = 1024L * 1024L * 1024L
 
     Private ReadOnly _catalogService As CatalogService
     Private ReadOnly _ingestionService As IngestionService
@@ -33,6 +36,13 @@ Public Class MainViewModel
     Private _editTagsText As String = ""
     Private _editRating As Integer
     Private _editNotes As String = ""
+    Private _editRetentionReason As String = ""
+    Private _editWhyThisMatters As String = ""
+    Private _editSourceProvenance As String = ""
+    Private _editAcquisitionMethod As String = ""
+    Private _editTrustClassification As String = "Unknown"
+    Private _editRetentionPriority As String = "Normal"
+    Private _editArchiveStatus As String = "Active"
     Private _editStatus As String = "No pending edits"
     Private _actionStatus As String = "Select an artifact to run actions"
     Private _selectedPreview As ArtifactPreview = New ArtifactPreview With {.Kind = ArtifactPreviewKind.GenericFile, .Message = "No preview"}
@@ -66,6 +76,12 @@ Public Class MainViewModel
     Public Property ShowRecentCommand As ICommand
     Public Property ShowStarredCommand As ICommand
     Public Property ShowQuarantineCommand As ICommand
+    Public Property ShowUnverifiedCommand As ICommand
+    Public Property ShowMissingPreviewCommand As ICommand
+    Public Property ShowRepairNeededCommand As ICommand
+    Public Property ShowDuplicateCandidatesCommand As ICommand
+    Public Property ShowSameSourceBatchCommand As ICommand
+    Public Property ShowLargeArtifactsCommand As ICommand
     Public Property RemoveCurrentVaultCommand As ICommand
     Public Property SaveArtifactCommand As ICommand
     Public Property RevertArtifactCommand As ICommand
@@ -101,6 +117,12 @@ Public Class MainViewModel
         ShowRecentCommand = New RelayCommand(Sub(parameter) SetScope("Recent"))
         ShowStarredCommand = New RelayCommand(Sub(parameter) SetScope("Starred"))
         ShowQuarantineCommand = New RelayCommand(Sub(parameter) SetScope("Quarantine"))
+        ShowUnverifiedCommand = New RelayCommand(Sub(parameter) SetScope("Unverified"))
+        ShowMissingPreviewCommand = New RelayCommand(Sub(parameter) SetScope("Missing preview"))
+        ShowRepairNeededCommand = New RelayCommand(Sub(parameter) SetScope("Repair needed"))
+        ShowDuplicateCandidatesCommand = New RelayCommand(Sub(parameter) SetScope("Duplicate candidates"))
+        ShowSameSourceBatchCommand = New RelayCommand(Sub(parameter) SetScope("Same source batch"))
+        ShowLargeArtifactsCommand = New RelayCommand(Sub(parameter) SetScope("Large artifacts"))
         RemoveCurrentVaultCommand = New RelayCommand(Sub(parameter) RemoveCurrentVault(), Function(parameter) CurrentVault IsNot Nothing AndAlso Vaults.Count > 1)
         SaveArtifactCommand = New RelayCommand(Sub(parameter) SaveArtifactEdits(), Function(parameter) SelectedArtifact IsNot Nothing)
         RevertArtifactCommand = New RelayCommand(Sub(parameter) LoadEditorFromSelected(), Function(parameter) SelectedArtifact IsNot Nothing)
@@ -164,6 +186,9 @@ Public Class MainViewModel
                 LoadPreviewForSelected()
                 LoadEditorFromSelected()
                 RebuildRelatedArtifacts()
+                If String.Equals(ActiveScope, "Same source batch", StringComparison.OrdinalIgnoreCase) Then
+                    RefreshFilters(preserveSelection:=True)
+                End If
             End If
         End Set
     End Property
@@ -256,7 +281,7 @@ Public Class MainViewModel
             Return _activeScope
         End Get
         Set(value As String)
-            Dim normalized = If(String.IsNullOrWhiteSpace(value), "All", value)
+            Dim normalized = NormalizeScope(value)
             If _activeScope <> normalized Then
                 _activeScope = normalized
                 OnPropertyChanged()
@@ -322,6 +347,69 @@ Public Class MainViewModel
         End Get
         Set(value As String)
             SetEditValue(_editNotes, If(value, ""), NameOf(EditNotes))
+        End Set
+    End Property
+
+    Public Property EditRetentionReason As String
+        Get
+            Return _editRetentionReason
+        End Get
+        Set(value As String)
+            SetEditValue(_editRetentionReason, If(value, ""), NameOf(EditRetentionReason))
+        End Set
+    End Property
+
+    Public Property EditWhyThisMatters As String
+        Get
+            Return _editWhyThisMatters
+        End Get
+        Set(value As String)
+            SetEditValue(_editWhyThisMatters, If(value, ""), NameOf(EditWhyThisMatters))
+        End Set
+    End Property
+
+    Public Property EditSourceProvenance As String
+        Get
+            Return _editSourceProvenance
+        End Get
+        Set(value As String)
+            SetEditValue(_editSourceProvenance, If(value, ""), NameOf(EditSourceProvenance))
+        End Set
+    End Property
+
+    Public Property EditAcquisitionMethod As String
+        Get
+            Return _editAcquisitionMethod
+        End Get
+        Set(value As String)
+            SetEditValue(_editAcquisitionMethod, If(value, ""), NameOf(EditAcquisitionMethod))
+        End Set
+    End Property
+
+    Public Property EditTrustClassification As String
+        Get
+            Return _editTrustClassification
+        End Get
+        Set(value As String)
+            SetEditValue(_editTrustClassification, NormalizeChoice(value, TrustClassificationOptions, "Unknown"), NameOf(EditTrustClassification))
+        End Set
+    End Property
+
+    Public Property EditRetentionPriority As String
+        Get
+            Return _editRetentionPriority
+        End Get
+        Set(value As String)
+            SetEditValue(_editRetentionPriority, NormalizeChoice(value, RetentionPriorityOptions, "Normal"), NameOf(EditRetentionPriority))
+        End Set
+    End Property
+
+    Public Property EditArchiveStatus As String
+        Get
+            Return _editArchiveStatus
+        End Get
+        Set(value As String)
+            SetEditValue(_editArchiveStatus, NormalizeChoice(value, ArchiveStatusOptions, "Active"), NameOf(EditArchiveStatus))
         End Set
     End Property
 
@@ -706,6 +794,24 @@ Public Class MainViewModel
         End Get
     End Property
 
+    Public ReadOnly Property TrustClassificationOptions As IEnumerable(Of String)
+        Get
+            Return {"Unknown", "Trusted", "Unverified", "Questionable"}
+        End Get
+    End Property
+
+    Public ReadOnly Property RetentionPriorityOptions As IEnumerable(Of String)
+        Get
+            Return {"Normal", "High", "Cold archive", "Review later"}
+        End Get
+    End Property
+
+    Public ReadOnly Property ArchiveStatusOptions As IEnumerable(Of String)
+        Get
+            Return {"Active", "Archived", "Quarantined", "Needs review"}
+        End Get
+    End Property
+
     Public ReadOnly Property StoredFileStatus As String
         Get
             If SelectedArtifact Is Nothing Then
@@ -933,6 +1039,13 @@ Public Class MainViewModel
             EditTagsText = ""
             EditRating = 0
             EditNotes = ""
+            EditRetentionReason = ""
+            EditWhyThisMatters = ""
+            EditSourceProvenance = ""
+            EditAcquisitionMethod = ""
+            EditTrustClassification = "Unknown"
+            EditRetentionPriority = "Normal"
+            EditArchiveStatus = "Active"
             EditStatus = "No artifact selected"
             _isLoadingEditor = False
             Return
@@ -943,6 +1056,13 @@ Public Class MainViewModel
         EditTagsText = SelectedArtifact.TagsText
         EditRating = SelectedArtifact.Rating
         EditNotes = SelectedArtifact.Notes
+        EditRetentionReason = SelectedArtifact.RetentionReason
+        EditWhyThisMatters = SelectedArtifact.WhyThisMatters
+        EditSourceProvenance = SelectedArtifact.SourceProvenance
+        EditAcquisitionMethod = SelectedArtifact.AcquisitionMethod
+        EditTrustClassification = SelectedArtifact.TrustClassification
+        EditRetentionPriority = SelectedArtifact.RetentionPriority
+        EditArchiveStatus = SelectedArtifact.ArchiveStatus
         EditStatus = "No pending edits"
         _isLoadingEditor = False
     End Sub
@@ -988,6 +1108,13 @@ Public Class MainViewModel
         SelectedArtifact.Tags = parsedTags
         SelectedArtifact.Rating = EditRating
         SelectedArtifact.Notes = If(EditNotes, "").Trim()
+        SelectedArtifact.RetentionReason = If(EditRetentionReason, "").Trim()
+        SelectedArtifact.WhyThisMatters = If(EditWhyThisMatters, "").Trim()
+        SelectedArtifact.SourceProvenance = If(EditSourceProvenance, "").Trim()
+        SelectedArtifact.AcquisitionMethod = If(EditAcquisitionMethod, "").Trim()
+        SelectedArtifact.TrustClassification = NormalizeChoice(EditTrustClassification, TrustClassificationOptions, "Unknown")
+        SelectedArtifact.RetentionPriority = NormalizeChoice(EditRetentionPriority, RetentionPriorityOptions, "Normal")
+        SelectedArtifact.ArchiveStatus = NormalizeChoice(EditArchiveStatus, ArchiveStatusOptions, "Active")
 
         RebuildDerivedLists()
         PersistDerivedCatalogLists()
@@ -1351,9 +1478,32 @@ Public Class MainViewModel
                 Return "Starred"
             Case "quarantine"
                 Return "Quarantine"
+            Case "unverified"
+                Return "Unverified"
+            Case "missing preview"
+                Return "Missing preview"
+            Case "repair needed"
+                Return "Repair needed"
+            Case "duplicate candidates"
+                Return "Duplicate candidates"
+            Case "same source batch"
+                Return "Same source batch"
+            Case "large artifacts"
+                Return "Large artifacts"
             Case Else
                 Return "All"
         End Select
+    End Function
+
+    Private Shared Function NormalizeChoice(value As String, allowedValues As IEnumerable(Of String), defaultValue As String) As String
+        Dim normalized = If(value, "").Trim()
+        Dim match = allowedValues.FirstOrDefault(Function(optionValue) String.Equals(optionValue, normalized, StringComparison.OrdinalIgnoreCase))
+
+        If String.IsNullOrWhiteSpace(match) Then
+            Return defaultValue
+        End If
+
+        Return match
     End Function
 
     Private Sub SaveUiPreferences()
@@ -1522,6 +1672,13 @@ Public Class MainViewModel
             ContainsText(artifact.Path, needle) OrElse
             ContainsText(artifact.OriginalPath, needle) OrElse
             ContainsText(artifact.Notes, needle) OrElse
+            ContainsText(artifact.RetentionReason, needle) OrElse
+            ContainsText(artifact.WhyThisMatters, needle) OrElse
+            ContainsText(artifact.SourceProvenance, needle) OrElse
+            ContainsText(artifact.AcquisitionMethod, needle) OrElse
+            ContainsText(artifact.TrustClassification, needle) OrElse
+            ContainsText(artifact.RetentionPriority, needle) OrElse
+            ContainsText(artifact.ArchiveStatus, needle) OrElse
             ContainsText(artifact.TagsText, needle) OrElse
             ContainsText(artifact.Sha256, needle) OrElse
             ContainsText(artifact.Blake3, needle) OrElse
@@ -1637,7 +1794,7 @@ Public Class MainViewModel
 
         Dim related = Artifacts.
             Where(Function(a) Not ReferenceEquals(a, SelectedArtifact)).
-            Select(Function(a) BuildArtifactRelation(SelectedArtifact, a)).
+            Select(Function(a) BuildArtifactRelation(SelectedArtifact, a, VaultRootPath)).
             Where(Function(relation) relation IsNot Nothing AndAlso relation.Score > 0).
             OrderByDescending(Function(relation) relation.Score).
             ThenBy(Function(relation) relation.Name).
@@ -1651,7 +1808,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(RelatedArtifactsSummary))
     End Sub
 
-    Public Shared Function BuildArtifactRelation(selected As ArtifactModel, candidate As ArtifactModel) As ArtifactRelationModel
+    Public Shared Function BuildArtifactRelation(selected As ArtifactModel, candidate As ArtifactModel, Optional vaultRootPath As String = "") As ArtifactRelationModel
         If selected Is Nothing OrElse candidate Is Nothing OrElse ReferenceEquals(selected, candidate) Then
             Return Nothing
         End If
@@ -1694,6 +1851,41 @@ Public Class MainViewModel
             reasons.Add("same date batch")
         End If
 
+        If SameIngestSession(candidate, selected) Then
+            score += 3
+            reasons.Add("same ingest session")
+        End If
+
+        Dim sharedExtension = SharedExtensionFamily(selected, candidate)
+        If Not String.IsNullOrWhiteSpace(sharedExtension) Then
+            score += 2
+            reasons.Add("shared extension family: " & sharedExtension)
+        End If
+
+        Dim provenanceMatches = SharedProvenanceTokens(selected, candidate)
+        If provenanceMatches.Count > 0 Then
+            score += Math.Min(4, provenanceMatches.Count * 2)
+            reasons.Add("shared provenance token: " & String.Join(", ", provenanceMatches.Take(3)))
+        End If
+
+        Dim releaseMatches = SharedReleaseMarkers(selected, candidate)
+        If releaseMatches.Count > 0 Then
+            score += Math.Min(4, releaseMatches.Count * 2)
+            reasons.Add("shared release marker: " & String.Join(", ", releaseMatches.Take(3)))
+        End If
+
+        Dim sharedHashPrefix = SharedHashPrefixFamily(selected, candidate)
+        If Not String.IsNullOrWhiteSpace(sharedHashPrefix) Then
+            score += 2
+            reasons.Add("shared hash prefix: " & sharedHashPrefix)
+        End If
+
+        Dim extractedKeywordMatches = SharedExtractedKeywords(selected, candidate, vaultRootPath)
+        If extractedKeywordMatches.Count > 0 Then
+            score += Math.Min(4, extractedKeywordMatches.Count * 2)
+            reasons.Add("shared extracted keyword: " & String.Join(", ", extractedKeywordMatches.Take(3)))
+        End If
+
         Dim matchingNameTokens = SharedNameTokens(selected.Name, candidate.Name)
         If matchingNameTokens.Count > 0 Then
             score += Math.Min(4, matchingNameTokens.Count)
@@ -1721,6 +1913,175 @@ Public Class MainViewModel
             OrderBy(Function(tag) tag).
             ToList()
     End Function
+
+    Private Shared Function SameIngestSession(candidate As ArtifactModel, selected As ArtifactModel) As Boolean
+        Dim candidateDate As DateTime
+        Dim selectedDate As DateTime
+
+        If Not DateTime.TryParse(candidate?.IngestedAt, candidateDate) OrElse Not DateTime.TryParse(selected?.IngestedAt, selectedDate) Then
+            Return False
+        End If
+
+        Return candidateDate.Date = selectedDate.Date AndAlso Math.Abs((candidateDate - selectedDate).TotalHours) <= 4
+    End Function
+
+    Private Shared Function SharedExtensionFamily(selected As ArtifactModel, candidate As ArtifactModel) As String
+        Dim selectedExtension = ExtensionFamily(selected)
+        Dim candidateExtension = ExtensionFamily(candidate)
+
+        If Not String.IsNullOrWhiteSpace(selectedExtension) AndAlso String.Equals(selectedExtension, candidateExtension, StringComparison.OrdinalIgnoreCase) Then
+            Return selectedExtension
+        End If
+
+        Return ""
+    End Function
+
+    Private Shared Function ExtensionFamily(artifact As ArtifactModel) As String
+        Dim extension = Path.GetExtension(If(artifact?.Name, "")).TrimStart("."c).ToLowerInvariant()
+        If String.IsNullOrWhiteSpace(extension) Then
+            extension = Path.GetExtension(If(artifact?.Path, "")).TrimStart("."c).ToLowerInvariant()
+        End If
+
+        If String.IsNullOrWhiteSpace(extension) Then
+            Return ""
+        End If
+
+        Select Case extension
+            Case "json", "yaml", "yml", "toml", "xml", "ini", "config", "conf", "manifest"
+                Return "manifest/config"
+            Case "md", "txt", "rtf", "log", "csv"
+                Return "text"
+            Case "zip", "7z", "rar", "tar", "gz", "bz2", "xz"
+                Return "archive"
+            Case "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff"
+                Return "image"
+            Case "exe", "msi", "msix", "appx", "deb", "rpm"
+                Return "installer"
+            Case "iso", "img", "vhd", "vhdx"
+                Return "disk image"
+            Case Else
+                Return extension
+        End Select
+    End Function
+
+    Private Shared Function SharedProvenanceTokens(selected As ArtifactModel, candidate As ArtifactModel) As List(Of String)
+        Dim selectedTokens = ProvenanceTokens(selected)
+        Dim candidateTokens = ProvenanceTokens(candidate)
+
+        Return candidateTokens.
+            Where(Function(token) selectedTokens.Contains(token, StringComparer.OrdinalIgnoreCase)).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            ToList()
+    End Function
+
+    Private Shared Function ProvenanceTokens(artifact As ArtifactModel) As List(Of String)
+        Dim text = String.Join(" ", {
+            If(artifact?.SourceProvenance, ""),
+            If(artifact?.OriginalPath, ""),
+            If(artifact?.Path, ""),
+            If(artifact?.RetentionReason, "")
+        })
+
+        Return GeneralTokens(text).
+            Where(Function(token) token.Length >= 4).
+            ToList()
+    End Function
+
+    Private Shared Function SharedReleaseMarkers(selected As ArtifactModel, candidate As ArtifactModel) As List(Of String)
+        Dim selectedMarkers = ReleaseMarkers(SelectedTextForMarkers(selected))
+        Dim candidateMarkers = ReleaseMarkers(SelectedTextForMarkers(candidate))
+
+        Return candidateMarkers.
+            Where(Function(marker) selectedMarkers.Contains(marker, StringComparer.OrdinalIgnoreCase)).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            OrderBy(Function(marker) marker).
+            ToList()
+    End Function
+
+    Private Shared Function SelectedTextForMarkers(artifact As ArtifactModel) As String
+        Return String.Join(" ", {
+            If(artifact?.Name, ""),
+            If(artifact?.OriginalPath, ""),
+            If(artifact?.SourceProvenance, ""),
+            If(artifact?.RetentionReason, ""),
+            If(artifact?.WhyThisMatters, "")
+        })
+    End Function
+
+    Private Shared Function ReleaseMarkers(value As String) As List(Of String)
+        If String.IsNullOrWhiteSpace(value) Then
+            Return New List(Of String)
+        End If
+
+        Return Regex.Matches(value.ToLowerInvariant(), "\bv?\d+(?:\.\d+){1,3}\b").
+            Cast(Of Match)().
+            Select(Function(match) match.Value).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            OrderBy(Function(token) token).
+            ToList()
+    End Function
+
+    Private Shared Function SharedHashPrefixFamily(selected As ArtifactModel, candidate As ArtifactModel) As String
+        For Each selectedHash In {selected?.Sha256, selected?.Blake3}
+            If String.IsNullOrWhiteSpace(selectedHash) OrElse selectedHash.Length < 12 Then
+                Continue For
+            End If
+
+            For Each candidateHash In {candidate?.Sha256, candidate?.Blake3}
+                If Not String.IsNullOrWhiteSpace(candidateHash) AndAlso candidateHash.Length >= 12 AndAlso
+                    Not String.Equals(selectedHash, candidateHash, StringComparison.OrdinalIgnoreCase) AndAlso
+                    String.Equals(selectedHash.Substring(0, 12), candidateHash.Substring(0, 12), StringComparison.OrdinalIgnoreCase) Then
+                    Return selectedHash.Substring(0, 12)
+                End If
+            Next
+        Next
+
+        Return ""
+    End Function
+
+    Private Shared Function SharedExtractedKeywords(selected As ArtifactModel, candidate As ArtifactModel, vaultRootPath As String) As List(Of String)
+        If String.IsNullOrWhiteSpace(vaultRootPath) Then
+            Return New List(Of String)
+        End If
+
+        Dim selectedKeywords = ExtractedKeywords(selected, vaultRootPath)
+        Dim candidateKeywords = ExtractedKeywords(candidate, vaultRootPath)
+
+        Return candidateKeywords.
+            Where(Function(keyword) selectedKeywords.Contains(keyword, StringComparer.OrdinalIgnoreCase)).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            OrderBy(Function(keyword) keyword).
+            ToList()
+    End Function
+
+    Private Shared Function ExtractedKeywords(artifact As ArtifactModel, vaultRootPath As String) As List(Of String)
+        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath) Then
+            Return New List(Of String)
+        End If
+
+        Try
+            Dim extractedPath = Path.Combine(vaultRootPath, artifact.ExtractedTextRelativePath)
+            If Not File.Exists(extractedPath) Then
+                Return New List(Of String)
+            End If
+
+            Dim text = String.Join(" ", File.ReadLines(extractedPath).Take(80))
+            Return GeneralTokens(text).
+                Where(Function(token) token.Length >= 5 AndAlso Not CommonRelationStopWords.Contains(token)).
+                GroupBy(Function(token) token, StringComparer.OrdinalIgnoreCase).
+                OrderByDescending(Function(group) group.Count()).
+                ThenBy(Function(group) group.Key).
+                Select(Function(group) group.Key).
+                Take(24).
+                ToList()
+        Catch
+            Return New List(Of String)
+        End Try
+    End Function
+
+    Private Shared ReadOnly CommonRelationStopWords As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
+        "about", "after", "again", "artifact", "before", "between", "could", "false", "file", "files", "from", "have", "metadata", "other", "should", "source", "their", "there", "these", "those", "true", "vault", "where", "which", "would"
+    }
 
     Private Shared Function SameText(left As String, right As String) As Boolean
         Return Not String.IsNullOrWhiteSpace(left) AndAlso
@@ -1777,10 +2138,21 @@ Public Class MainViewModel
             Return New List(Of String)
         End If
 
-        Return Path.GetFileNameWithoutExtension(name).
-            Split({" "c, "-"c, "_"c, "."c, "("c, ")"c, "["c, "]"c}, StringSplitOptions.RemoveEmptyEntries).
-            Select(Function(token) token.Trim().ToLowerInvariant()).
+        Return GeneralTokens(Path.GetFileNameWithoutExtension(name)).
             Where(Function(token) token.Length >= 3 AndAlso Not IsNumericToken(token)).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            ToList()
+    End Function
+
+    Private Shared Function GeneralTokens(value As String) As List(Of String)
+        If String.IsNullOrWhiteSpace(value) Then
+            Return New List(Of String)
+        End If
+
+        Return value.
+            Split({" "c, "-"c, "_"c, "/"c, "\"c, "."c, "("c, ")"c, "["c, "]"c, "{"c, "}"c, ":"c, ";"c, ","c, "="c, "+"c, "#"c, "!"c, "?"c}, StringSplitOptions.RemoveEmptyEntries).
+            Select(Function(token) token.Trim().ToLowerInvariant()).
+            Where(Function(token) token.Length > 0 AndAlso token.Any(Function(ch) Char.IsLetterOrDigit(ch))).
             Distinct(StringComparer.OrdinalIgnoreCase).
             ToList()
     End Function
@@ -1791,7 +2163,15 @@ Public Class MainViewModel
     End Function
 
     Private Function MatchesActiveScope(artifact As ArtifactModel) As Boolean
-        Select Case ActiveScope
+        Return ArtifactMatchesDiscoveryScope(artifact, ActiveScope, Artifacts, VaultRootPath, SelectedArtifact, _thumbnailService)
+    End Function
+
+    Public Shared Function ArtifactMatchesDiscoveryScope(artifact As ArtifactModel, scope As String, artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, Optional selectedArtifact As ArtifactModel = Nothing, Optional thumbnailService As ThumbnailService = Nothing) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        Select Case NormalizeScope(scope)
             Case "Recent"
                 Return IsRecentArtifact(artifact)
             Case "Starred"
@@ -1799,6 +2179,18 @@ Public Class MainViewModel
             Case "Quarantine"
                 Return String.Equals(artifact.Category, "Quarantine", StringComparison.OrdinalIgnoreCase) OrElse
                     (Not String.IsNullOrWhiteSpace(artifact.RelativePath) AndAlso artifact.RelativePath.StartsWith("quarantine", StringComparison.OrdinalIgnoreCase))
+            Case "Unverified"
+                Return IsUnverifiedArtifact(artifact)
+            Case "Missing preview"
+                Return HasMissingPreview(artifact, vaultRootPath, thumbnailService)
+            Case "Repair needed"
+                Return HasRepairNeed(artifact, vaultRootPath, thumbnailService)
+            Case "Duplicate candidates"
+                Return IsDuplicateCandidate(artifact, artifacts)
+            Case "Same source batch"
+                Return IsSameSourceBatchArtifact(artifact, artifacts, selectedArtifact)
+            Case "Large artifacts"
+                Return artifact.SizeBytes >= LargeArtifactThresholdBytes
             Case Else
                 Return True
         End Select
@@ -1819,6 +2211,63 @@ Public Class MainViewModel
         End If
 
         Return False
+    End Function
+
+    Private Shared Function IsUnverifiedArtifact(artifact As ArtifactModel) As Boolean
+        Return String.Equals(artifact.TrustClassification, "Unverified", StringComparison.OrdinalIgnoreCase) OrElse
+            String.Equals(artifact.TrustClassification, "Questionable", StringComparison.OrdinalIgnoreCase) OrElse
+            Not String.Equals(artifact.HashStatus, "Verified", StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Shared Function HasMissingPreview(artifact As ArtifactModel, vaultRootPath As String, thumbnailService As ThumbnailService) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        Dim thumbService = If(thumbnailService, New ThumbnailService())
+        Return thumbService.IsGeneratedThumbnailMissing(artifact, vaultRootPath) OrElse
+            String.Equals(artifact.ThumbnailStatus, "Missing", StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Shared Function HasRepairNeed(artifact As ArtifactModel, vaultRootPath As String, thumbnailService As ThumbnailService) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        Dim report = BuildVaultHealthReport({artifact}, vaultRootPath, If(thumbnailService, New ThumbnailService()))
+        Return report.Findings.Count > 0
+    End Function
+
+    Private Shared Function IsDuplicateCandidate(artifact As ArtifactModel, artifacts As IEnumerable(Of ArtifactModel)) As Boolean
+        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.Sha256) Then
+            Return False
+        End If
+
+        Return If(artifacts, Enumerable.Empty(Of ArtifactModel)()).
+            Count(Function(candidate) candidate IsNot Nothing AndAlso
+                Not ReferenceEquals(candidate, artifact) AndAlso
+                String.Equals(candidate.Sha256, artifact.Sha256, StringComparison.OrdinalIgnoreCase)) > 0
+    End Function
+
+    Private Shared Function IsSameSourceBatchArtifact(artifact As ArtifactModel, artifacts As IEnumerable(Of ArtifactModel), selectedArtifact As ArtifactModel) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        If selectedArtifact IsNot Nothing Then
+            Return SameSourceBatch(artifact, selectedArtifact)
+        End If
+
+        Return If(artifacts, Enumerable.Empty(Of ArtifactModel)()).
+            Any(Function(candidate) candidate IsNot Nothing AndAlso Not ReferenceEquals(candidate, artifact) AndAlso SameSourceBatch(artifact, candidate))
+    End Function
+
+    Private Shared Function SameSourceBatch(left As ArtifactModel, right As ArtifactModel) As Boolean
+        If left Is Nothing OrElse right Is Nothing OrElse ReferenceEquals(left, right) Then
+            Return False
+        End If
+
+        Return SameDirectory(left.OriginalPath, right.OriginalPath) AndAlso SameIngestSession(left, right)
     End Function
 
     Private Sub HydrateArtifacts(artifacts As List(Of ArtifactModel))
@@ -1853,6 +2302,10 @@ Public Class MainViewModel
             If String.IsNullOrWhiteSpace(artifact.ThumbnailStatus) Then
                 artifact.ThumbnailStatus = If(String.IsNullOrWhiteSpace(artifact.ThumbnailRelativePath), ThumbnailService.NotApplicableStatus, ThumbnailService.GeneratedStatus)
             End If
+
+            artifact.TrustClassification = NormalizeChoice(artifact.TrustClassification, {"Unknown", "Trusted", "Unverified", "Questionable"}, "Unknown")
+            artifact.RetentionPriority = NormalizeChoice(artifact.RetentionPriority, {"Normal", "High", "Cold archive", "Review later"}, "Normal")
+            artifact.ArchiveStatus = NormalizeChoice(artifact.ArchiveStatus, {"Active", "Archived", "Quarantined", "Needs review"}, "Active")
         Next
     End Sub
 

@@ -115,7 +115,7 @@ Namespace FileCabinet.Tests
             Dim catalogPath = Path.Combine(workspace, "appdata", "catalog.json")
             Dim vaultRoot = Path.Combine(workspace, "vault")
             Directory.CreateDirectory(Path.GetDirectoryName(catalogPath))
-            File.WriteAllText(catalogPath, $"{{""SchemaVersion"":1,""CurrentVaultId"":""main"",""VaultRootPath"":""{vaultRoot.Replace("\", "\\")}"",""DefaultIngestMode"":""Move"",""DuplicatePolicy"":""Rename"",""Vaults"":[{{""Id"":""main"",""Name"":""MainVault"",""Path"":""{vaultRoot.Replace("\", "\\")}""}}],""Artifacts"":[]}}")
+            File.WriteAllText(catalogPath, $"{{""SchemaVersion"":1,""CurrentVaultId"":""main"",""VaultRootPath"":""{vaultRoot.Replace("\", "\\")}"",""DefaultIngestMode"":""Move"",""DuplicatePolicy"":""Rename"",""Vaults"":[{{""Id"":""main"",""Name"":""MainVault"",""Path"":""{vaultRoot.Replace("\", "\\")}""}}],""Artifacts"":[{{""Id"":""artifact-1"",""Name"":""legacy.txt""}}]}}")
 
             Try
                 Dim service As New Global.FileCabinet.CatalogService(catalogPath, vaultRoot)
@@ -128,6 +128,28 @@ Namespace FileCabinet.Tests
                 Assert.AreEqual("", catalog.TagSearchText)
                 Assert.AreEqual("", catalog.SelectedTag)
                 Assert.AreEqual("", catalog.SelectedCategory)
+                Assert.AreEqual(1, catalog.Artifacts.Count)
+                Assert.AreEqual("Unknown", catalog.Artifacts(0).TrustClassification)
+                Assert.AreEqual("Normal", catalog.Artifacts(0).RetentionPriority)
+                Assert.AreEqual("Active", catalog.Artifacts(0).ArchiveStatus)
+
+                catalog.Artifacts(0).RetentionReason = "Keep for recovery"
+                catalog.Artifacts(0).WhyThisMatters = "Documents restore context"
+                catalog.Artifacts(0).SourceProvenance = "Aptlantis release share"
+                catalog.Artifacts(0).AcquisitionMethod = "Manual import"
+                catalog.Artifacts(0).TrustClassification = "Trusted"
+                catalog.Artifacts(0).RetentionPriority = "High"
+                catalog.Artifacts(0).ArchiveStatus = "Archived"
+                service.Save(catalog)
+
+                Dim reloaded = service.LoadOrCreate()
+                Assert.AreEqual("Keep for recovery", reloaded.Artifacts(0).RetentionReason)
+                Assert.AreEqual("Documents restore context", reloaded.Artifacts(0).WhyThisMatters)
+                Assert.AreEqual("Aptlantis release share", reloaded.Artifacts(0).SourceProvenance)
+                Assert.AreEqual("Manual import", reloaded.Artifacts(0).AcquisitionMethod)
+                Assert.AreEqual("Trusted", reloaded.Artifacts(0).TrustClassification)
+                Assert.AreEqual("High", reloaded.Artifacts(0).RetentionPriority)
+                Assert.AreEqual("Archived", reloaded.Artifacts(0).ArchiveStatus)
             Finally
                 If Directory.Exists(workspace) Then
                     Directory.Delete(workspace, recursive:=True)
