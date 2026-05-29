@@ -231,5 +231,36 @@ Namespace FileCabinet.Tests
                 End If
             End Try
         End Sub
+
+        <TestMethod>
+        Sub HealthReportDetectsPathRebindCandidateWhenRelativePathResolves()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim resolvedPath = Path.Combine(itemRoot, "portable.txt")
+            File.WriteAllText(resolvedPath, "portable")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "portable.txt",
+                    .Path = Path.Combine(workspace, "old-drive", "items", "portable.txt"),
+                    .RelativePath = Path.Combine("items", "portable.txt")
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService())
+                Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Path rebind candidate" AndAlso item.Subject = "portable.txt")
+
+                Assert.IsNotNull(finding)
+                Assert.AreEqual("Medium", finding.RiskLevel)
+                Assert.IsTrue(finding.MutatesCatalog)
+                Assert.IsFalse(finding.TouchesRetainedFiles)
+                Assert.IsTrue(report.Findings.Any(Function(item) item.FindingType = "Missing file" AndAlso item.Subject = "portable.txt"))
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
     End Class
 End Namespace

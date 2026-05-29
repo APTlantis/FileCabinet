@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "tags": [
       "local-first",
       "desktop",
@@ -20,8 +20,8 @@
   },
   "metadata": {
     "created": "2026-05-23",
-    "last_updated": "2026-05-27",
-    "completed": "2026-05-27",
+    "last_updated": "2026-05-29",
+    "completed": "2026-05-29",
     "maintainer": "APTlantis",
     "license": "Unspecified",
     "language_primary": "VB.NET",
@@ -44,7 +44,8 @@
       "Vault thumbnails folder",
       "Vault extracted-text folder",
       "Vault exports folder",
-      "Vault quarantine folder"
+      "Vault quarantine folder",
+      "Vault repair log"
     ]
   },
   "relationships": {
@@ -59,13 +60,13 @@
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.1.0.0-win-x64.msi",
-      "docs/FileCabinet v1.1.0 — Preview and Recall Release.md",
-      "docs/FileCabinet_v1.1.0_Release.pdf",
+      "artifacts/installer/FileCabinet-1.2.0.0-win-x64.msi",
+      "docs/FileCabinet v1.2.0 — Vault Reliability and Trust Release.md",
       "Vault catalog JSON",
       "Vault thumbnail PNG assets",
       "Vault extracted text indexes",
-      "Vault catalog backup exports"
+      "Vault catalog backup exports",
+      "Vault repair log JSONL history"
     ],
     "consumes": [
       "User-selected files and folders for vault ingestion",
@@ -114,32 +115,33 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.1.0.0",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.1.0.0-win-x64.msi to the GitHub v1.1.0 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.2.0.0",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.2.0.0-win-x64.msi to the GitHub v1.2.0 release.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.1.0 — Preview and Recall Release.md"
+      "Include release notes from docs/FileCabinet v1.2.0 — Vault Reliability and Trust Release.md"
     ]
   },
   "notes": {
-    "release_name": "FileCabinet v1.1.0 — Preview and Recall Release",
-    "installer": "FileCabinet-1.1.0.0-win-x64.msi",
-    "installer_sha256": "D74A7AA6D23CC1D43173B815029A6BBD29AE82623828A03D84E90C32129BEAA1",
-    "installer_size_bytes": 58925056,
-    "v1_1_highlights": [
-      "Preview Pipeline V1 with generated image thumbnails",
-      "Format-aware preview cards for retained binary and document artifacts",
-      "Real Preview, Details, and Relations tabs",
-      "Explainable deterministic relation scoring",
-      "Installer and application version updated to 1.1.0"
+    "release_name": "FileCabinet v1.2.0 — Vault Reliability and Trust Release",
+    "installer": "FileCabinet-1.2.0.0-win-x64.msi",
+    "installer_sha256": "282E1B6DF7BE31754F4B907C8A3DBAB70AECDE09B116A2A6FF06DA6FD109DFA0",
+    "installer_size_bytes": 58941440,
+    "v1_2_highlights": [
+      "Vault Health report with explicit repair candidates",
+      "Controlled Apply Selected workflow for safe repairs",
+      "Vault-local repair log and repair history UI",
+      "Hash mismatch, outside-vault, rebind, and incomplete metadata findings",
+      "Catalog backup validation after export",
+      "Installer and application version updated to 1.2.0"
     ],
     "not_in_scope": [
-      "PDF page rendering",
-      "Image-text extraction for screenshots and scanned documents",
-      "Windows shell thumbnail extraction"
+      "Automatic restore execution",
+      "Automatic hash mismatch resolution",
+      "Destructive cleanup of orphan generated assets"
     ],
     "design_boundaries": [
       "Deterministic recall over automatic inference",
@@ -147,6 +149,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 19 tests on 2026-05-27"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 36 tests on 2026-05-29"
   }
 }

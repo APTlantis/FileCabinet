@@ -152,11 +152,15 @@ This is deterministic local matching with explainable reasons. It is meant to he
 
 FileCabinet includes a few recovery-oriented tools.
 
-**Repair** checks catalog health. It reports missing stored files, duplicate hash groups, orphan files under `items`, missing generated thumbnails, regenerated thumbnail counts, and adopted file counts.
+**Analyze** checks vault health without mutating retained files. It reports missing stored files, duplicate hash groups, missing hashes, hash mismatches, missing thumbnails, orphan thumbnails, missing extracted-text indexes, stale extracted-text indexes, path rebind candidates, files outside the active vault, and incomplete metadata.
+
+**Apply Selected** runs only safe repair candidates after confirmation, such as recomputing missing hashes, regenerating missing thumbnails, re-extracting missing text indexes, and rebinding stale absolute paths when the vault-relative file exists under the active vault. Review-only findings remain visible but are skipped by controlled execution.
+
+Repair activity is written to the vault-local `catalog\repair-log.jsonl` history and summarized in the Vault Health panel.
 
 **Rescan** looks for files under the vault's `items` folder that are not yet in the catalog and adopts them as cataloged artifacts.
 
-**Back up catalog** writes a portable catalog snapshot into the vault's `exports` folder. This is useful before manual vault work, experimentation, or moving data between machines.
+**Back up catalog** writes a portable catalog snapshot into the vault's `exports` folder and validates that the exported JSON can be read back as a usable catalog. This is useful before manual vault work, experimentation, or moving data between machines.
 
 The settings/status strip at the bottom right summarizes vault path, catalog path, last backup, intake mode, duplicate behavior, repair status, and deterministic recall status.
 

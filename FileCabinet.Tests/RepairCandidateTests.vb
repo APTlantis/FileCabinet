@@ -51,6 +51,15 @@ Namespace FileCabinet.Tests
             Assert.IsFalse(incompleteMetadata.CanRepairAutomatically)
         End Sub
 
+        <TestMethod>
+        Sub PathRebindCandidateMapsToSafeCatalogRepair()
+            Dim candidate = Global.FileCabinet.MainViewModel.BuildRepairCandidate(Finding("Path rebind candidate"))
+
+            Assert.AreEqual("RebindPath", candidate.ActionType)
+            Assert.IsTrue(candidate.CanRepairAutomatically)
+            Assert.IsTrue(candidate.RequiresOperatorApproval)
+        End Sub
+
         Private Shared Function Finding(findingType As String) As Global.FileCabinet.VaultHealthFinding
             Return New Global.FileCabinet.VaultHealthFinding With {
                 .FindingType = findingType,

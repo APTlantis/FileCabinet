@@ -2038,29 +2038,51 @@ Public Class MainViewModel
         End If
 
         Dim artifact = FindArtifactForCandidate(candidate)
-        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+        If artifact Is Nothing Then
             Return False
         End If
 
         Try
             Select Case candidate.ActionType
                 Case "RegenerateThumbnail"
+                    If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+                        Return False
+                    End If
+
                     Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, VaultRootPath)
                     artifact.ThumbnailRelativePath = thumbnail.RelativePath
                     artifact.ThumbnailStatus = thumbnail.Status
                     Return String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
                 Case "RecomputeHash"
+                    If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+                        Return False
+                    End If
+
                     Dim hashes = _hashService.ComputeHashes(artifact.Path)
                     artifact.Blake3 = hashes.Blake3
                     artifact.Sha256 = hashes.Sha256
                     artifact.HashStatus = "Verified"
                     Return True
                 Case "ReExtractText"
+                    If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+                        Return False
+                    End If
+
                     Dim extraction = _ingestionService.ExtractTextForArtifact(artifact, VaultRootPath)
                     artifact.ExtractedTextRelativePath = extraction.RelativePath
                     artifact.ExtractedTextStatus = extraction.Status
                     Return String.Equals(extraction.Status, "Extracted", StringComparison.OrdinalIgnoreCase) OrElse
                         String.Equals(extraction.Status, "Extracted (truncated)", StringComparison.OrdinalIgnoreCase)
+                Case "RebindPath"
+                    Dim resolvedPath = ResolveVaultRelativePath(VaultRootPath, artifact.RelativePath)
+                    If String.IsNullOrWhiteSpace(resolvedPath) OrElse
+                        Not IsPathInsideDirectory(resolvedPath, VaultRootPath) OrElse
+                        Not File.Exists(resolvedPath) Then
+                        Return False
+                    End If
+
+                    artifact.Path = resolvedPath
+                    Return True
                 Case Else
                     Return False
             End Select
@@ -2141,6 +2163,8 @@ Public Class MainViewModel
                 Return "RecomputeHash"
             Case "missing extracted text"
                 Return "ReExtractText"
+            Case "path rebind candidate"
+                Return "RebindPath"
             Case "orphan file"
                 Return "AdoptOrphan"
             Case Else
@@ -2150,7 +2174,7 @@ Public Class MainViewModel
 
     Private Shared Function IsAutomaticRepairCandidate(actionType As String) As Boolean
         Select Case actionType
-            Case "RegenerateThumbnail", "RecomputeHash", "ReExtractText"
+            Case "RegenerateThumbnail", "RecomputeHash", "ReExtractText", "RebindPath"
                 Return True
             Case Else
                 Return False
@@ -2180,6 +2204,18 @@ Public Class MainViewModel
                     .ProposedAction = "Keep catalog row and mark for operator review.",
                     .RiskLevel = "Medium",
                     .MutatesCatalog = False,
+                    .TouchesRetainedFiles = False
+                })
+            End If
+
+            If Not storedFileExists AndAlso HasRebindCandidate(artifact, vaultRootPath) Then
+                report.Findings.Add(New VaultHealthFinding With {
+                    .FindingType = "Path rebind candidate",
+                    .Subject = artifact.Name,
+                    .Detail = "Catalog absolute path is missing, but the vault-relative path resolves under the active vault root.",
+                    .ProposedAction = "Review and rebind the catalog path to the resolved vault-relative file with operator approval.",
+                    .RiskLevel = "Medium",
+                    .MutatesCatalog = True,
                     .TouchesRetainedFiles = False
                 })
             End If
@@ -2379,6 +2415,17 @@ Public Class MainViewModel
             .TouchesRetainedFiles = False
         })
     End Sub
+
+    Private Shared Function HasRebindCandidate(artifact As ArtifactModel, vaultRootPath As String) As Boolean
+        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(vaultRootPath) OrElse String.IsNullOrWhiteSpace(artifact.RelativePath) Then
+            Return False
+        End If
+
+        Dim resolvedPath = ResolveVaultRelativePath(vaultRootPath, artifact.RelativePath)
+        Return Not String.IsNullOrWhiteSpace(resolvedPath) AndAlso
+            IsPathInsideDirectory(resolvedPath, vaultRootPath) AndAlso
+            File.Exists(resolvedPath)
+    End Function
 
     Private Shared Function IsPathInsideDirectory(candidatePath As String, directoryPath As String) As Boolean
         If String.IsNullOrWhiteSpace(candidatePath) OrElse String.IsNullOrWhiteSpace(directoryPath) Then
