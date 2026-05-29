@@ -128,8 +128,8 @@
   "notes": {
     "release_name": "FileCabinet v1.3.0 — Metadata and Recall Quality Release",
     "installer": "FileCabinet-1.3.0.0-win-x64.msi",
-    "installer_sha256": "86FDD6CE6CEDBE8685DF37D145E7DC799C02EE5FCC5EB77DE9E45C611C438F7E",
-    "installer_size_bytes": 58937344,
+    "installer_sha256": "A202C47803872CAD3C96C6EC6C3ABC319D890D5E4FF006BB1544E4A2658B91AE",
+    "installer_size_bytes": 58941440,
     "v1_3_highlights": [
       "Structured operator metadata for retention reason, provenance, acquisition method, trust, priority, and archive status",
       "Expanded deterministic relation scoring with inspectable recall reasons",
