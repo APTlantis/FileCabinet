@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <Compile Remove="FileCabinet.Tests\**\*.vb" />
+    <Compile Remove="FileCabinet.Cli\**\*.vb" />
   </ItemGroup>
 
 </Project>

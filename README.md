@@ -190,6 +190,22 @@ Repair activity is written to the vault-local `catalog\repair-log.jsonl` history
 
 The settings/status strip at the bottom right summarizes vault path, catalog path, last backup, intake mode, duplicate behavior, repair status, and deterministic recall status.
 
+## CLI And Headless Operations
+
+FileCabinet also includes a separate console executable for scripting and scheduled operations:
+
+```powershell
+FileCabinet.Cli.exe --help
+FileCabinet.Cli.exe ingest --copy --vault K:\FileCabinet C:\Downloads\artifact.zip
+FileCabinet.Cli.exe verify --fail-on medium --json
+FileCabinet.Cli.exe search "firmware manifest" --scope all
+FileCabinet.Cli.exe export --output K:\FileCabinet\exports
+FileCabinet.Cli.exe report --format json --output K:\FileCabinet\exports\health.json
+FileCabinet.Cli.exe repair-preview --json
+```
+
+The CLI writes real stdout/stderr and returns script-friendly exit codes: `0` for success, `1` for command/runtime failure, `2` when verification findings meet the requested threshold, and `3` for partial ingest. The first CLI release intentionally keeps repair execution read-only through `repair-preview`; use the desktop app for operator-approved repair application.
+
 ## Design Boundaries
 
 FileCabinet is intentionally focused on deliberate curation rather than automatic inference.

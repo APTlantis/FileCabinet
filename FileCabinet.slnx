@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="FileCabinet.vbproj" />
+  <Project Path="FileCabinet.Cli\FileCabinet.Cli.vbproj" />
 </Solution>
