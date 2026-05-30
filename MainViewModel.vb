@@ -57,6 +57,9 @@ Public Class MainViewModel
     Private _artifactRowHeight As Integer = 34
     Private _columnPresetIndex As Integer
     Private _isLoadingCatalog As Boolean
+    Private _isVaultMaintenanceRunning As Boolean
+    Private _vaultMaintenanceStatus As String = "Vault maintenance ready"
+    Private _vaultMaintenanceDetail As String = ""
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -130,17 +133,17 @@ Public Class MainViewModel
         OpenFileCommand = New RelayCommand(Sub(parameter) OpenSelectedFile(), Function(parameter) SelectedArtifact IsNot Nothing)
         RestoreArtifactCommand = New RelayCommand(Sub(parameter) RestoreSelectedArtifact(TryCast(parameter, String)), Function(parameter) SelectedArtifact IsNot Nothing)
         PermanentlyDeleteArtifactCommand = New RelayCommand(Sub(parameter) PermanentlyDeleteSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
-        HashCheckCommand = New RelayCommand(Sub(parameter) CheckSelectedHash(), Function(parameter) SelectedArtifact IsNot Nothing)
-        RefreshCommand = New RelayCommand(Sub(parameter) RefreshVaultState())
+        HashCheckCommand = New AsyncRelayCommand(Function(parameter) CheckSelectedHashAsync(), Function(parameter) SelectedArtifact IsNot Nothing AndAlso Not IsVaultMaintenanceRunning)
+        RefreshCommand = New AsyncRelayCommand(Function(parameter) RefreshVaultStateAsync(), Function(parameter) Not IsVaultMaintenanceRunning)
         ToggleStarCommand = New RelayCommand(Sub(parameter) ToggleSelectedStar(), Function(parameter) SelectedArtifact IsNot Nothing)
         AddTagsCommand = New RelayCommand(Sub(parameter) FocusTagEditing(), Function(parameter) SelectedArtifact IsNot Nothing)
         ToggleIngestModeCommand = New RelayCommand(Sub(parameter) ToggleIngestMode())
         QuarantineCommand = New RelayCommand(Sub(parameter) QuarantineSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
         ShowSettingsCommand = New RelayCommand(Sub(parameter) ShowSettings())
         BackupCatalogCommand = New RelayCommand(Sub(parameter) BackupCatalog())
-        RepairCatalogCommand = New RelayCommand(Sub(parameter) RepairCatalog())
-        RescanVaultCommand = New RelayCommand(Sub(parameter) RescanVault())
-        ApplySelectedRepairCandidatesCommand = New RelayCommand(Sub(parameter) ApplySelectedRepairCandidates(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
+        RepairCatalogCommand = New AsyncRelayCommand(Function(parameter) RepairCatalogAsync(), Function(parameter) Not IsVaultMaintenanceRunning)
+        RescanVaultCommand = New AsyncRelayCommand(Function(parameter) RescanVaultAsync(), Function(parameter) Not IsVaultMaintenanceRunning)
+        ApplySelectedRepairCandidatesCommand = New AsyncRelayCommand(Function(parameter) ApplySelectedRepairCandidatesAsync(), Function(parameter) Not IsVaultMaintenanceRunning AndAlso RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
         SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
@@ -468,6 +471,43 @@ Public Class MainViewModel
         Set(value As Boolean)
             If _isIngesting <> value Then
                 _isIngesting = value
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
+    Public Property IsVaultMaintenanceRunning As Boolean
+        Get
+            Return _isVaultMaintenanceRunning
+        End Get
+        Private Set(value As Boolean)
+            If _isVaultMaintenanceRunning <> value Then
+                _isVaultMaintenanceRunning = value
+                OnPropertyChanged()
+                RaiseMaintenanceCommandState()
+            End If
+        End Set
+    End Property
+
+    Public Property VaultMaintenanceStatus As String
+        Get
+            Return _vaultMaintenanceStatus
+        End Get
+        Private Set(value As String)
+            If _vaultMaintenanceStatus <> value Then
+                _vaultMaintenanceStatus = value
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
+    Public Property VaultMaintenanceDetail As String
+        Get
+            Return _vaultMaintenanceDetail
+        End Get
+        Private Set(value As String)
+            If _vaultMaintenanceDetail <> value Then
+                _vaultMaintenanceDetail = value
                 OnPropertyChanged()
             End If
         End Set
@@ -970,7 +1010,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(ShowTagsColumn))
     End Sub
 
-    Public Async Function IngestPathsAsync(paths As IEnumerable(Of String)) As Task
+    Public Async Function IngestPathsAsync(paths As IEnumerable(Of String), Optional modeOverride As IngestMode? = Nothing) As Task
         If IsIngesting Then
             IngestStatus = "Ingestion already running"
             Return
@@ -988,9 +1028,10 @@ Public Class MainViewModel
                                                           End Sub)
 
         Dim ingested As List(Of ArtifactModel)
+        Dim requestedMode = If(modeOverride.HasValue, modeOverride.Value, CurrentIngestMode)
 
         Try
-            ingested = Await Task.Run(Function() _ingestionService.Ingest(paths, VaultRootPath, progress, CurrentIngestMode))
+            ingested = Await Task.Run(Function() _ingestionService.Ingest(paths, VaultRootPath, progress, requestedMode))
         Finally
             IsIngesting = False
         End Try
@@ -1001,10 +1042,10 @@ Public Class MainViewModel
             Return
         End If
 
-        RunOnUiThread(Sub() ApplyIngestedArtifacts(ingested))
+        RunOnUiThread(Sub() ApplyIngestedArtifacts(ingested, requestedMode))
     End Function
 
-    Private Sub ApplyIngestedArtifacts(ingested As List(Of ArtifactModel))
+    Private Sub ApplyIngestedArtifacts(ingested As List(Of ArtifactModel), mode As IngestMode)
         For Each artifact In ingested
             Artifacts.Insert(0, artifact)
             _catalog.Artifacts.Insert(0, artifact)
@@ -1012,7 +1053,7 @@ Public Class MainViewModel
 
         Dim activity = New ActivityEntryModel With {
             .ActionText = $"Ingested {ingested.Count:N0} file(s)",
-            .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  copied into vault",
+            .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  {IngestModeActionText(mode)} into vault",
             .Icon = ""
         }
 
@@ -1025,10 +1066,26 @@ Public Class MainViewModel
         RefreshFilters()
         SelectedArtifact = ingested.First()
         IngestStatus = $"Ingested {ingested.Count:N0} file(s) into {VaultRootPath}"
-        IngestDetail = $"{IngestModeText}; catalog updated"
+        IngestDetail = $"{IngestModeLabel(mode)}; catalog updated"
         IngestProgress = 100
         RefreshDerivedUiState()
     End Sub
+
+    Private Shared Function IngestModeLabel(mode As IngestMode) As String
+        If mode = IngestMode.Move Then
+            Return "Move into vault"
+        End If
+
+        Return "Copy into vault"
+    End Function
+
+    Private Shared Function IngestModeActionText(mode As IngestMode) As String
+        If mode = IngestMode.Move Then
+            Return "moved"
+        End If
+
+        Return "copied"
+    End Function
 
     Private Sub LoadEditorFromSelected()
         _isLoadingEditor = True
@@ -1243,8 +1300,12 @@ Public Class MainViewModel
         End Try
     End Sub
 
-    Private Sub CheckSelectedHash()
+    Private Async Function CheckSelectedHashAsync() As Task
         If SelectedArtifact Is Nothing Then
+            Return
+        End If
+
+        If IsVaultMaintenanceRunning Then
             Return
         End If
 
@@ -1255,37 +1316,63 @@ Public Class MainViewModel
             Return
         End If
 
-        Dim hashes = _hashService.ComputeHashes(SelectedArtifact.Path)
-        Dim blakeMatches = String.IsNullOrWhiteSpace(SelectedArtifact.Blake3) OrElse
-            String.Equals(SelectedArtifact.Blake3, hashes.Blake3, StringComparison.OrdinalIgnoreCase)
-        Dim shaMatches = String.IsNullOrWhiteSpace(SelectedArtifact.Sha256) OrElse
-            String.Equals(SelectedArtifact.Sha256, hashes.Sha256, StringComparison.OrdinalIgnoreCase)
+        IsVaultMaintenanceRunning = True
+        VaultMaintenanceStatus = "Verifying selected artifact"
+        VaultMaintenanceDetail = SelectedArtifact.Name
+        ActionStatus = "Checking retained file hashes..."
 
-        If String.IsNullOrWhiteSpace(SelectedArtifact.Blake3) Then
-            SelectedArtifact.Blake3 = hashes.Blake3
-        End If
+        Try
+            Dim artifact = SelectedArtifact
+            Dim path = artifact.Path
+            Dim existingBlake3 = artifact.Blake3
+            Dim existingSha256 = artifact.Sha256
+            Dim hashes = Await Task.Run(Function() _hashService.ComputeHashes(path))
+            If Not ReferenceEquals(SelectedArtifact, artifact) Then
+                VaultMaintenanceStatus = "Hash check complete"
+                VaultMaintenanceDetail = "Selection changed before results were applied"
+                ActionStatus = "Hash check complete; selection changed"
+                Return
+            End If
 
-        If String.IsNullOrWhiteSpace(SelectedArtifact.Sha256) Then
-            SelectedArtifact.Sha256 = hashes.Sha256
-        End If
+            Dim blakeMatches = String.IsNullOrWhiteSpace(existingBlake3) OrElse
+                String.Equals(existingBlake3, hashes.Blake3, StringComparison.OrdinalIgnoreCase)
+            Dim shaMatches = String.IsNullOrWhiteSpace(existingSha256) OrElse
+                String.Equals(existingSha256, hashes.Sha256, StringComparison.OrdinalIgnoreCase)
 
-        If blakeMatches AndAlso shaMatches Then
-            SelectedArtifact.HashStatus = "Verified"
-            ActionStatus = "Hash verified"
-        ElseIf Not blakeMatches Then
-            SelectedArtifact.HashStatus = "BLAKE3 mismatch"
-            ActionStatus = "BLAKE3 mismatch"
-        Else
-            SelectedArtifact.HashStatus = "SHA-256 mismatch"
-            ActionStatus = "SHA-256 mismatch"
-        End If
+            If String.IsNullOrWhiteSpace(artifact.Blake3) Then
+                artifact.Blake3 = hashes.Blake3
+            End If
 
-        _catalog.Artifacts = Artifacts.ToList()
-        _catalogService.Save(_catalog)
-        OnPropertyChanged(NameOf(SelectedBlake3Display))
-        OnPropertyChanged(NameOf(SelectedSha256Display))
-        OnPropertyChanged(NameOf(StoredFileStatus))
-    End Sub
+            If String.IsNullOrWhiteSpace(artifact.Sha256) Then
+                artifact.Sha256 = hashes.Sha256
+            End If
+
+            If blakeMatches AndAlso shaMatches Then
+                artifact.HashStatus = "Verified"
+                ActionStatus = "Hash verified"
+            ElseIf Not blakeMatches Then
+                artifact.HashStatus = "BLAKE3 mismatch"
+                ActionStatus = "BLAKE3 mismatch"
+            Else
+                artifact.HashStatus = "SHA-256 mismatch"
+                ActionStatus = "SHA-256 mismatch"
+            End If
+
+            _catalog.Artifacts = Artifacts.ToList()
+            _catalogService.Save(_catalog)
+            VaultMaintenanceStatus = "Hash check complete"
+            VaultMaintenanceDetail = ActionStatus
+            OnPropertyChanged(NameOf(SelectedBlake3Display))
+            OnPropertyChanged(NameOf(SelectedSha256Display))
+            OnPropertyChanged(NameOf(StoredFileStatus))
+        Catch ex As Exception
+            VaultMaintenanceStatus = "Hash check failed"
+            VaultMaintenanceDetail = ex.Message
+            ActionStatus = $"Hash check failed: {ex.Message}"
+        Finally
+            IsVaultMaintenanceRunning = False
+        End Try
+    End Function
 
     Private Sub ToggleSelectedStar()
         If SelectedArtifact Is Nothing Then
@@ -1377,33 +1464,90 @@ Public Class MainViewModel
         End Try
     End Sub
 
-    Private Sub RepairCatalog()
-        Dim report = BuildRepairReport(adoptOrphans:=False)
-        _repairStatus = BuildRepairStatus(report)
-        PublishVaultHealthReport(BuildVaultHealthReport())
-        OnPropertyChanged(NameOf(RepairStatus))
-        ActionStatus = _repairStatus
-        ShowSettings()
-    End Sub
+    Private Async Function RepairCatalogAsync() As Task
+        If IsVaultMaintenanceRunning Then
+            Return
+        End If
 
-    Private Sub RescanVault()
-        Dim report = BuildRepairReport(adoptOrphans:=True)
-        _repairStatus = BuildRepairStatus(report)
-        RebuildDerivedLists()
-        PersistDerivedCatalogLists()
-        _catalog.Artifacts = Artifacts.ToList()
-        _catalogService.Save(_catalog)
-        RefreshFilters(preserveSelection:=True)
-        RefreshDerivedUiState()
-        PublishVaultHealthReport(BuildVaultHealthReport())
-        OnPropertyChanged(NameOf(RepairStatus))
-        ActionStatus = $"Rescan complete: {_repairStatus}"
-        ShowSettings()
-    End Sub
+        IsVaultMaintenanceRunning = True
+        VaultMaintenanceStatus = "Analyzing vault health"
+        VaultMaintenanceDetail = "Checking retained files, hashes, thumbnails, and generated indexes"
+        ActionStatus = "Analyzing vault health..."
 
-    Private Sub RefreshVaultState()
+        Try
+            Dim artifactSnapshot = Artifacts.ToList()
+            Dim vaultRoot = VaultRootPath
+            Dim result = Await Task.Run(Function()
+                                            Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRoot, New ThumbnailService(), New HashService())
+                                            Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRoot, healthReport)
+                                            Return New VaultMaintenanceResult With {
+                                                .HealthReport = healthReport,
+                                                .RepairReport = repairReport
+                                            }
+                                        End Function)
+
+            _repairStatus = BuildRepairStatus(result.RepairReport)
+            PublishVaultHealthReport(result.HealthReport)
+            OnPropertyChanged(NameOf(RepairStatus))
+            VaultMaintenanceStatus = "Analysis complete"
+            VaultMaintenanceDetail = result.HealthReport.Summary
+            ActionStatus = _repairStatus
+            ShowSettings()
+        Catch ex As Exception
+            VaultMaintenanceStatus = "Analysis failed"
+            VaultMaintenanceDetail = ex.Message
+            ActionStatus = $"Analyze failed: {ex.Message}"
+        Finally
+            IsVaultMaintenanceRunning = False
+        End Try
+    End Function
+
+    Private Async Function RescanVaultAsync() As Task
+        If IsVaultMaintenanceRunning Then
+            Return
+        End If
+
+        IsVaultMaintenanceRunning = True
+        VaultMaintenanceStatus = "Rescanning vault"
+        VaultMaintenanceDetail = "Preparing generated asset recovery and orphan adoption"
+        ActionStatus = "Rescanning vault..."
+
+        Try
+            Dim artifactSnapshot = Artifacts.ToList()
+            Dim vaultRoot = VaultRootPath
+            Dim result = Await Task.Run(Function() BuildRescanResult(artifactSnapshot, vaultRoot))
+
+            ApplyThumbnailUpdates(result.ThumbnailUpdates)
+            ApplyAdoptedArtifacts(result.AdoptedArtifacts)
+            VaultMaintenanceDetail = "Finalizing health report"
+            Dim refreshedSnapshot = Artifacts.ToList()
+            result.HealthReport = Await Task.Run(Function() BuildVaultHealthReport(refreshedSnapshot, vaultRoot, New ThumbnailService(), New HashService()))
+
+            _repairStatus = BuildRepairStatus(result.RepairReport)
+            RebuildDerivedLists()
+            PersistDerivedCatalogLists()
+            _catalog.Artifacts = Artifacts.ToList()
+            _catalogService.Save(_catalog)
+            RefreshFilters(preserveSelection:=True)
+            RefreshDerivedUiState()
+            PublishVaultHealthReport(result.HealthReport)
+            OnPropertyChanged(NameOf(RepairStatus))
+            VaultMaintenanceStatus = "Rescan complete"
+            VaultMaintenanceDetail = result.HealthReport.Summary
+            ActionStatus = $"Rescan complete: {_repairStatus}"
+            ShowSettings()
+        Catch ex As Exception
+            VaultMaintenanceStatus = "Rescan failed"
+            VaultMaintenanceDetail = ex.Message
+            ActionStatus = $"Rescan failed: {ex.Message}"
+        Finally
+            IsVaultMaintenanceRunning = False
+        End Try
+    End Function
+
+    Private Async Function RefreshVaultStateAsync() As Task
         CatalogService.EnsureVaultFolders(VaultRootPath)
-        RepairCatalog()
+        Await RepairCatalogAsync()
         RebuildDerivedLists()
         PersistDerivedCatalogLists()
         _catalog.Artifacts = Artifacts.ToList()
@@ -1412,7 +1556,7 @@ Public Class MainViewModel
         RefreshDerivedUiState()
         IngestStatus = "Vault refreshed"
         IngestDetail = RepairStatus
-    End Sub
+    End Function
 
     Private Sub SetScope(scope As String)
         ActiveScope = scope
@@ -1555,7 +1699,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(VaultRootPath))
         OnPropertyChanged(NameOf(CurrentVaultTitle))
         OnPropertyChanged(NameOf(StorageTotalText))
-        RefreshVaultState()
+        Dim refreshTask = RefreshVaultStateAsync()
         ActionStatus = $"Vault set to {path}"
     End Sub
 
@@ -1583,7 +1727,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(VaultRootPath))
         OnPropertyChanged(NameOf(CurrentVaultTitle))
         OnPropertyChanged(NameOf(StorageTotalText))
-        RefreshVaultState()
+        Dim refreshTask = RefreshVaultStateAsync()
         ActionStatus = $"Removed vault {removed.DisplayName}"
     End Sub
 
@@ -2346,10 +2490,10 @@ Public Class MainViewModel
         End If
     End Sub
 
-    Private Function BuildRepairReport(adoptOrphans As Boolean) As VaultRepairReport
-        Dim healthReport = BuildVaultHealthReport()
-        Dim missingArtifacts = Artifacts.Where(Function(a) String.IsNullOrWhiteSpace(a.Path) OrElse Not File.Exists(a.Path)).ToList()
-        Dim duplicateGroups = Artifacts.
+    Public Shared Function BuildRepairReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, healthReport As VaultHealthReport, Optional orphanFiles As IEnumerable(Of String) = Nothing) As VaultRepairReport
+        Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).Where(Function(a) a IsNot Nothing).ToList()
+        Dim missingArtifacts = artifactList.Where(Function(a) String.IsNullOrWhiteSpace(a.Path) OrElse Not File.Exists(a.Path)).ToList()
+        Dim duplicateGroups = artifactList.
             Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256)).
             GroupBy(Function(a) a.Sha256, StringComparer.OrdinalIgnoreCase).
             Where(Function(g) g.Count() > 1).
@@ -2361,51 +2505,17 @@ Public Class MainViewModel
             .DuplicateSamples = duplicateGroups.Select(Function(g) g.First().Name).Take(3).ToList()
         }
 
-        Dim missingThumbnailArtifacts = healthReport.Findings.
+        Dim missingThumbnailArtifacts = If(healthReport?.Findings, Enumerable.Empty(Of VaultHealthFinding)()).
             Where(Function(finding) String.Equals(finding.FindingType, "Missing thumbnail", StringComparison.OrdinalIgnoreCase)).
-            Select(Function(finding) Artifacts.FirstOrDefault(Function(artifact) String.Equals(artifact.Name, finding.Subject, StringComparison.OrdinalIgnoreCase))).
+            Select(Function(finding) artifactList.FirstOrDefault(Function(artifact) String.Equals(artifact.Name, finding.Subject, StringComparison.OrdinalIgnoreCase))).
             Where(Function(artifact) artifact IsNot Nothing).
             ToList()
         report.MissingThumbnails = missingThumbnailArtifacts.Count
         report.ThumbnailSamples = missingThumbnailArtifacts.Select(Function(a) a.Name).Take(3).ToList()
 
-        If adoptOrphans Then
-            For Each artifact In missingThumbnailArtifacts
-                Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, VaultRootPath)
-                artifact.ThumbnailRelativePath = thumbnail.RelativePath
-                artifact.ThumbnailStatus = thumbnail.Status
-                If String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase) Then
-                    report.RegeneratedThumbnails += 1
-                End If
-            Next
-        End If
-
-        Dim orphanFiles = FindOrphanStoredFiles().ToList()
-        report.OrphanFiles = orphanFiles.Count
-        report.OrphanSamples = orphanFiles.Select(Function(orphanPath) Path.GetFileName(orphanPath)).Take(3).ToList()
-
-        If adoptOrphans Then
-            For Each orphan In orphanFiles
-                Try
-                    Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, VaultRootPath)
-                    adopted.Notes = $"Adopted during vault rescan at {DateTime.Now:yyyy-MM-dd HH:mm}"
-                    Artifacts.Insert(0, adopted)
-                    _catalog.Artifacts.Insert(0, adopted)
-                    report.AdoptedFiles += 1
-                Catch
-                End Try
-            Next
-
-            If report.AdoptedFiles > 0 Then
-                Dim activity = New ActivityEntryModel With {
-                    .ActionText = $"Adopted {report.AdoptedFiles:N0} orphan file(s)",
-                    .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  vault rescan",
-                    .Icon = ""
-                }
-                Activities.Insert(0, activity)
-                _catalog.Activities.Insert(0, activity)
-            End If
-        End If
+        Dim orphanList = If(orphanFiles, FindOrphanStoredFiles(artifactList, vaultRootPath)).ToList()
+        report.OrphanFiles = orphanList.Count
+        report.OrphanSamples = orphanList.Select(Function(orphanPath) Path.GetFileName(orphanPath)).Take(3).ToList()
 
         Return report
     End Function
@@ -2413,6 +2523,76 @@ Public Class MainViewModel
     Public Function BuildVaultHealthReport() As VaultHealthReport
         Return BuildVaultHealthReport(Artifacts, VaultRootPath, _thumbnailService, _hashService)
     End Function
+
+    Private Function BuildRescanResult(artifactSnapshot As List(Of ArtifactModel), vaultRootPath As String) As VaultMaintenanceResult
+        Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRootPath, New ThumbnailService(), New HashService())
+        Dim orphanFiles = FindOrphanStoredFiles(artifactSnapshot, vaultRootPath).ToList()
+        Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRootPath, healthReport, orphanFiles)
+        Dim result As New VaultMaintenanceResult With {
+            .HealthReport = healthReport,
+            .RepairReport = repairReport
+        }
+
+        Dim missingThumbnailArtifacts = healthReport.Findings.
+            Where(Function(finding) String.Equals(finding.FindingType, "Missing thumbnail", StringComparison.OrdinalIgnoreCase)).
+            Select(Function(finding) artifactSnapshot.FirstOrDefault(Function(artifact) String.Equals(artifact.Name, finding.Subject, StringComparison.OrdinalIgnoreCase))).
+            Where(Function(artifact) artifact IsNot Nothing).
+            ToList()
+
+        For Each artifact In missingThumbnailArtifacts
+            Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, vaultRootPath)
+            result.ThumbnailUpdates.Add(New ThumbnailRepairUpdate With {
+                .Artifact = artifact,
+                .RelativePath = thumbnail.RelativePath,
+                .Status = thumbnail.Status
+            })
+
+            If String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase) Then
+                repairReport.RegeneratedThumbnails += 1
+            End If
+        Next
+
+        For Each orphan In orphanFiles
+            Try
+                Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, vaultRootPath)
+                adopted.Notes = $"Adopted during vault rescan at {DateTime.Now:yyyy-MM-dd HH:mm}"
+                result.AdoptedArtifacts.Add(adopted)
+                repairReport.AdoptedFiles += 1
+            Catch
+            End Try
+        Next
+
+        Return result
+    End Function
+
+    Private Sub ApplyThumbnailUpdates(updates As IEnumerable(Of ThumbnailRepairUpdate))
+        For Each update In If(updates, Enumerable.Empty(Of ThumbnailRepairUpdate)())
+            If update?.Artifact Is Nothing Then
+                Continue For
+            End If
+
+            update.Artifact.ThumbnailRelativePath = update.RelativePath
+            update.Artifact.ThumbnailStatus = update.Status
+        Next
+    End Sub
+
+    Private Sub ApplyAdoptedArtifacts(adoptedArtifacts As IEnumerable(Of ArtifactModel))
+        Dim adoptedList = If(adoptedArtifacts, Enumerable.Empty(Of ArtifactModel)()).ToList()
+        For Each adopted In adoptedList
+            Artifacts.Insert(0, adopted)
+            _catalog.Artifacts.Insert(0, adopted)
+        Next
+
+        If adoptedList.Count > 0 Then
+            Dim activity = New ActivityEntryModel With {
+                .ActionText = $"Adopted {adoptedList.Count:N0} orphan file(s)",
+                .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  vault rescan",
+                .Icon = ""
+            }
+            Activities.Insert(0, activity)
+            _catalog.Activities.Insert(0, activity)
+        End If
+    End Sub
 
     Private Sub PublishVaultHealthReport(report As VaultHealthReport)
         VaultHealthFindings.Clear()
@@ -2437,7 +2617,11 @@ Public Class MainViewModel
         Return $"{automatic.Count:N0} safe repair candidate(s) will be applied. {reviewOnly:N0} review-only candidate(s) will be skipped."
     End Function
 
-    Private Sub ApplySelectedRepairCandidates()
+    Private Async Function ApplySelectedRepairCandidatesAsync() As Task
+        If IsVaultMaintenanceRunning Then
+            Return
+        End If
+
         Dim selected = RepairCandidates.
             Where(Function(candidate) candidate.IsSelected).
             ToList()
@@ -2448,101 +2632,174 @@ Public Class MainViewModel
             Return
         End If
 
-        Dim applied = 0
-        Dim failed = 0
-        Dim skipped = 0
+        IsVaultMaintenanceRunning = True
+        VaultMaintenanceStatus = "Applying selected repairs"
+        VaultMaintenanceDetail = $"{selected.Count:N0} selected candidate(s)"
+        ActionStatus = "Applying selected repairs..."
 
-        For Each candidate In selected
-            If Not candidate.CanRepairAutomatically Then
-                skipped += 1
-                AppendRepairLog(candidate, "Skipped", "Review-only candidate requires manual action")
-            ElseIf ApplyRepairCandidate(candidate) Then
-                applied += 1
-                AppendRepairLog(candidate, "Applied", "Repair completed")
-            Else
-                failed += 1
-                AppendRepairLog(candidate, "Failed", "Repair could not be completed safely")
+        Try
+            Dim workItems = selected.
+                Select(Function(candidate) New RepairApplicationWorkItem With {
+                    .Candidate = candidate,
+                    .Artifact = FindArtifactForCandidate(candidate)
+                }).
+                ToList()
+            Dim vaultRoot = VaultRootPath
+            Dim results = Await Task.Run(Function()
+                                             Return workItems.Select(Function(workItem) BuildRepairApplicationResult(workItem, vaultRoot)).ToList()
+                                         End Function)
+            Dim applied = 0
+            Dim failed = 0
+            Dim skipped = 0
+
+            For Each result In results
+                If result.Skipped Then
+                    skipped += 1
+                    AppendRepairLog(result.Candidate, "Skipped", result.Detail)
+                ElseIf result.Succeeded Then
+                    ApplyRepairApplicationResult(result)
+                    applied += 1
+                    AppendRepairLog(result.Candidate, "Applied", "Repair completed")
+                Else
+                    failed += 1
+                    AppendRepairLog(result.Candidate, "Failed", result.Detail)
+                End If
+            Next
+
+            _catalog.Artifacts = Artifacts.ToList()
+            Dim activity = New ActivityEntryModel With {
+                .ActionText = $"Applied {applied:N0} repair(s)",
+                .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  {failed:N0} failed, {skipped:N0} skipped; repair log updated",
+                .Icon = "",
+                .IconBrush = "#51D88A",
+                .IconBackground = "#153F2C"
+            }
+            Activities.Insert(0, activity)
+            _catalog.Activities.Insert(0, activity)
+            _catalogService.Save(_catalog)
+            RefreshRepairHistory()
+            If SelectedArtifact IsNot Nothing Then
+                LoadPreviewForSelected()
             End If
-        Next
 
-        _catalog.Artifacts = Artifacts.ToList()
-        Dim activity = New ActivityEntryModel With {
-            .ActionText = $"Applied {applied:N0} repair(s)",
-            .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  {failed:N0} failed, {skipped:N0} skipped; repair log updated",
-            .Icon = "",
-            .IconBrush = "#51D88A",
-            .IconBackground = "#153F2C"
+            Dim artifactSnapshot = Artifacts.ToList()
+            Dim vaultRootSnapshot = VaultRootPath
+            Dim healthReport = Await Task.Run(Function() BuildVaultHealthReport(artifactSnapshot, vaultRootSnapshot, New ThumbnailService(), New HashService()))
+            PublishVaultHealthReport(healthReport)
+            RefreshDerivedUiState()
+            VaultMaintenanceStatus = "Repairs complete"
+            VaultMaintenanceDetail = healthReport.Summary
+            ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed; {skipped:N0} skipped"
+        Catch ex As Exception
+            VaultMaintenanceStatus = "Repair failed"
+            VaultMaintenanceDetail = ex.Message
+            ActionStatus = $"Repair failed: {ex.Message}"
+        Finally
+            IsVaultMaintenanceRunning = False
+        End Try
+    End Function
+
+    Private Function BuildRepairApplicationResult(workItem As RepairApplicationWorkItem, vaultRootPath As String) As RepairApplicationResult
+        Dim result As New RepairApplicationResult With {
+            .Candidate = workItem?.Candidate,
+            .Artifact = workItem?.Artifact,
+            .Detail = "Repair could not be completed safely"
         }
-        Activities.Insert(0, activity)
-        _catalog.Activities.Insert(0, activity)
-        _catalogService.Save(_catalog)
-        RefreshRepairHistory()
-        If SelectedArtifact IsNot Nothing Then
-            LoadPreviewForSelected()
-        End If
-        PublishVaultHealthReport(BuildVaultHealthReport())
-        RefreshDerivedUiState()
-        ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed; {skipped:N0} skipped"
-    End Sub
 
-    Private Function ApplyRepairCandidate(candidate As RepairCandidate) As Boolean
-        If candidate Is Nothing OrElse Not candidate.CanRepairAutomatically Then
-            Return False
+        If result.Candidate Is Nothing Then
+            result.Skipped = True
+            result.Detail = "Repair candidate was not available"
+            Return result
         End If
 
-        Dim artifact = FindArtifactForCandidate(candidate)
-        If artifact Is Nothing Then
-            Return False
+        If Not result.Candidate.CanRepairAutomatically Then
+            result.Skipped = True
+            result.Detail = "Review-only candidate requires manual action"
+            Return result
+        End If
+
+        If result.Artifact Is Nothing Then
+            result.Detail = "Catalog artifact was not found"
+            Return result
         End If
 
         Try
-            Select Case candidate.ActionType
+            Select Case result.Candidate.ActionType
                 Case "RegenerateThumbnail"
-                    If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
-                        Return False
+                    If String.IsNullOrWhiteSpace(result.Artifact.Path) OrElse Not File.Exists(result.Artifact.Path) Then
+                        result.Detail = "Retained file is missing"
+                        Return result
                     End If
 
-                    Dim thumbnail = _thumbnailService.GenerateForArtifact(artifact, VaultRootPath)
-                    artifact.ThumbnailRelativePath = thumbnail.RelativePath
-                    artifact.ThumbnailStatus = thumbnail.Status
-                    Return String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
+                    Dim thumbnail = _thumbnailService.GenerateForArtifact(result.Artifact, vaultRootPath)
+                    result.ThumbnailRelativePath = thumbnail.RelativePath
+                    result.ThumbnailStatus = thumbnail.Status
+                    result.Succeeded = String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
                 Case "RecomputeHash"
-                    If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
-                        Return False
+                    If String.IsNullOrWhiteSpace(result.Artifact.Path) OrElse Not File.Exists(result.Artifact.Path) Then
+                        result.Detail = "Retained file is missing"
+                        Return result
                     End If
 
-                    Dim hashes = _hashService.ComputeHashes(artifact.Path)
-                    artifact.Blake3 = hashes.Blake3
-                    artifact.Sha256 = hashes.Sha256
-                    artifact.HashStatus = "Verified"
-                    Return True
+                    Dim hashes = _hashService.ComputeHashes(result.Artifact.Path)
+                    result.Blake3 = hashes.Blake3
+                    result.Sha256 = hashes.Sha256
+                    result.HashStatus = "Verified"
+                    result.Succeeded = True
                 Case "ReExtractText"
-                    If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
-                        Return False
+                    If String.IsNullOrWhiteSpace(result.Artifact.Path) OrElse Not File.Exists(result.Artifact.Path) Then
+                        result.Detail = "Retained file is missing"
+                        Return result
                     End If
 
-                    Dim extraction = _ingestionService.ExtractTextForArtifact(artifact, VaultRootPath)
-                    artifact.ExtractedTextRelativePath = extraction.RelativePath
-                    artifact.ExtractedTextStatus = extraction.Status
-                    Return String.Equals(extraction.Status, "Extracted", StringComparison.OrdinalIgnoreCase) OrElse
+                    Dim extraction = _ingestionService.ExtractTextForArtifact(result.Artifact, vaultRootPath)
+                    result.ExtractedTextRelativePath = extraction.RelativePath
+                    result.ExtractedTextStatus = extraction.Status
+                    result.Succeeded = String.Equals(extraction.Status, "Extracted", StringComparison.OrdinalIgnoreCase) OrElse
                         String.Equals(extraction.Status, "Extracted (truncated)", StringComparison.OrdinalIgnoreCase)
                 Case "RebindPath"
-                    Dim resolvedPath = ResolveVaultRelativePath(VaultRootPath, artifact.RelativePath)
+                    Dim resolvedPath = ResolveVaultRelativePath(vaultRootPath, result.Artifact.RelativePath)
                     If String.IsNullOrWhiteSpace(resolvedPath) OrElse
-                        Not IsPathInsideDirectory(resolvedPath, VaultRootPath) OrElse
+                        Not IsPathInsideDirectory(resolvedPath, vaultRootPath) OrElse
                         Not File.Exists(resolvedPath) Then
-                        Return False
+                        result.Detail = "Vault-relative file could not be resolved"
+                        Return result
                     End If
 
-                    artifact.Path = resolvedPath
-                    Return True
+                    result.ResolvedPath = resolvedPath
+                    result.Succeeded = True
                 Case Else
-                    Return False
+                    result.Skipped = True
+                    result.Detail = "Review-only candidate requires manual action"
             End Select
-        Catch
-            Return False
+        Catch ex As Exception
+            result.Succeeded = False
+            result.Detail = ex.Message
         End Try
+
+        Return result
     End Function
+
+    Private Sub ApplyRepairApplicationResult(result As RepairApplicationResult)
+        If result Is Nothing OrElse Not result.Succeeded OrElse result.Artifact Is Nothing Then
+            Return
+        End If
+
+        Select Case result.Candidate?.ActionType
+            Case "RegenerateThumbnail"
+                result.Artifact.ThumbnailRelativePath = result.ThumbnailRelativePath
+                result.Artifact.ThumbnailStatus = result.ThumbnailStatus
+            Case "RecomputeHash"
+                result.Artifact.Blake3 = result.Blake3
+                result.Artifact.Sha256 = result.Sha256
+                result.Artifact.HashStatus = result.HashStatus
+            Case "ReExtractText"
+                result.Artifact.ExtractedTextRelativePath = result.ExtractedTextRelativePath
+                result.Artifact.ExtractedTextStatus = result.ExtractedTextStatus
+            Case "RebindPath"
+                result.Artifact.Path = result.ResolvedPath
+        End Select
+    End Sub
 
     Private Sub AppendRepairLog(candidate As RepairCandidate, result As String, detail As String)
         Try
@@ -2588,9 +2845,27 @@ Public Class MainViewModel
     End Function
 
     Private Sub RaiseRepairCandidateCommandState()
-        Dim command = TryCast(ApplySelectedRepairCandidatesCommand, RelayCommand)
-        If command IsNot Nothing Then
-            command.RaiseCanExecuteChanged()
+        RaiseCommandState(ApplySelectedRepairCandidatesCommand)
+    End Sub
+
+    Private Sub RaiseMaintenanceCommandState()
+        RaiseCommandState(RepairCatalogCommand)
+        RaiseCommandState(RescanVaultCommand)
+        RaiseCommandState(ApplySelectedRepairCandidatesCommand)
+        RaiseCommandState(HashCheckCommand)
+        RaiseCommandState(RefreshCommand)
+    End Sub
+
+    Private Shared Sub RaiseCommandState(command As ICommand)
+        Dim relay = TryCast(command, RelayCommand)
+        If relay IsNot Nothing Then
+            relay.RaiseCanExecuteChanged()
+            Return
+        End If
+
+        Dim asyncRelay = TryCast(command, AsyncRelayCommand)
+        If asyncRelay IsNot Nothing Then
+            asyncRelay.RaiseCanExecuteChanged()
         End If
     End Sub
 
@@ -2968,14 +3243,14 @@ Public Class MainViewModel
         Return status
     End Function
 
-    Private Function FindOrphanStoredFiles() As IEnumerable(Of String)
-        Dim itemsRoot = Path.Combine(VaultRootPath, "items")
+    Private Shared Function FindOrphanStoredFiles(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String) As IEnumerable(Of String)
+        Dim itemsRoot = Path.Combine(vaultRootPath, "items")
         If Not Directory.Exists(itemsRoot) Then
             Return Enumerable.Empty(Of String)()
         End If
 
         Dim knownPaths = New HashSet(Of String)(
-            Artifacts.
+            If(artifacts, Enumerable.Empty(Of ArtifactModel)()).
                 Where(Function(a) Not String.IsNullOrWhiteSpace(a.Path)).
                 Select(Function(a) Path.GetFullPath(a.Path)),
             StringComparer.OrdinalIgnoreCase)
@@ -2999,6 +3274,40 @@ Public Class MainViewModel
 
         Return candidate
     End Function
+
+    Private Class VaultMaintenanceResult
+        Public Property HealthReport As VaultHealthReport
+        Public Property RepairReport As VaultRepairReport
+        Public Property ThumbnailUpdates As New List(Of ThumbnailRepairUpdate)
+        Public Property AdoptedArtifacts As New List(Of ArtifactModel)
+    End Class
+
+    Private Class ThumbnailRepairUpdate
+        Public Property Artifact As ArtifactModel
+        Public Property RelativePath As String = ""
+        Public Property Status As String = ThumbnailService.NotApplicableStatus
+    End Class
+
+    Private Class RepairApplicationWorkItem
+        Public Property Candidate As RepairCandidate
+        Public Property Artifact As ArtifactModel
+    End Class
+
+    Private Class RepairApplicationResult
+        Public Property Candidate As RepairCandidate
+        Public Property Artifact As ArtifactModel
+        Public Property Succeeded As Boolean
+        Public Property Skipped As Boolean
+        Public Property Detail As String = ""
+        Public Property ThumbnailRelativePath As String = ""
+        Public Property ThumbnailStatus As String = ThumbnailService.NotApplicableStatus
+        Public Property Blake3 As String = ""
+        Public Property Sha256 As String = ""
+        Public Property HashStatus As String = ""
+        Public Property ExtractedTextRelativePath As String = ""
+        Public Property ExtractedTextStatus As String = ""
+        Public Property ResolvedPath As String = ""
+    End Class
 
     Private Shared Function FormatSize(bytes As Long) As String
         Dim units = {"B", "KB", "MB", "GB", "TB"}

@@ -262,5 +262,53 @@ Namespace FileCabinet.Tests
                 End If
             End Try
         End Sub
+
+        <TestMethod>
+        Sub RepairReportDerivesCountsFromExistingHealthReport()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim retainedPath = Path.Combine(itemRoot, "kept.png")
+            Dim orphanPath = Path.Combine(itemRoot, "orphan.bin")
+            File.WriteAllBytes(retainedPath, {0, 1, 2, 3})
+            File.WriteAllBytes(orphanPath, {4, 5, 6, 7})
+
+            Try
+                Dim artifacts = {
+                    New Global.FileCabinet.ArtifactModel With {
+                        .Name = "missing.iso",
+                        .Path = Path.Combine(itemRoot, "missing.iso"),
+                        .Sha256 = "same"
+                    },
+                    New Global.FileCabinet.ArtifactModel With {
+                        .Name = "kept.png",
+                        .Path = retainedPath,
+                        .Sha256 = "same",
+                        .ThumbnailStatus = Global.FileCabinet.ThumbnailService.GeneratedStatus,
+                        .ThumbnailRelativePath = Path.Combine("thumbnails", "missing.png")
+                    }
+                }
+                Dim healthReport = New Global.FileCabinet.VaultHealthReport()
+                healthReport.Findings.Add(New Global.FileCabinet.VaultHealthFinding With {
+                    .FindingType = "Missing thumbnail",
+                    .Subject = "kept.png"
+                })
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildRepairReport(artifacts, vaultRoot, healthReport, {orphanPath})
+
+                Assert.AreEqual(1, report.MissingFiles)
+                Assert.AreEqual(1, report.DuplicateHashGroups)
+                Assert.AreEqual(1, report.OrphanFiles)
+                Assert.AreEqual(1, report.MissingThumbnails)
+                CollectionAssert.Contains(report.MissingSamples, "missing.iso")
+                CollectionAssert.Contains(report.ThumbnailSamples, "kept.png")
+                CollectionAssert.Contains(report.OrphanSamples, "orphan.bin")
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
     End Class
 End Namespace

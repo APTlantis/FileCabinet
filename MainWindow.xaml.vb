@@ -5,7 +5,15 @@ Imports Microsoft.Win32
 Class MainWindow
     Public Sub New()
         InitializeComponent()
-        DataContext = New MainViewModel()
+        Dim viewModel = New MainViewModel()
+        DataContext = viewModel
+
+        Dim shellRequest = ShellIngestRequest.Parse(Environment.GetCommandLineArgs().Skip(1))
+        If shellRequest.HasPaths Then
+            AddHandler Loaded, Async Sub()
+                                   Await viewModel.IngestPathsAsync(shellRequest.Paths, shellRequest.Mode)
+                               End Sub
+        End If
     End Sub
 
     Private Sub TitleBar_MouseLeftButtonDown(sender As Object, e As MouseButtonEventArgs)

@@ -1,7 +1,7 @@
 param(
     [string]$Configuration = "Release",
     [string]$Runtime = "win-x64",
-    [string]$Version = "1.2.0.0"
+    [string]$Version = "1.3.1.0"
 )
 
 $ErrorActionPreference = "Stop"
@@ -64,6 +64,12 @@ $wxs = @"
             <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="FileCabinet" WorkingDirectory="INSTALLFOLDER" Icon="FileCabinetIcon" IconIndex="0" Advertise="no" />
           </File>
           <RegistryValue Root="HKCU" Key="Software\FileCabinet" Name="InstallFolder" Type="string" Value="[INSTALLFOLDER]" />
+          <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.CopyToFileCabinet" Name="MUIVerb" Type="string" Value="Copy to FileCabinet" />
+          <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.CopyToFileCabinet" Name="Icon" Type="string" Value="[#FileCabinetExe]" />
+          <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.CopyToFileCabinet\command" Type="string" Value="&quot;[#FileCabinetExe]&quot; --copy &quot;%1&quot;" />
+          <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.MoveToFileCabinet" Name="MUIVerb" Type="string" Value="Move to FileCabinet" />
+          <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.MoveToFileCabinet" Name="Icon" Type="string" Value="[#FileCabinetExe]" />
+          <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.MoveToFileCabinet\command" Type="string" Value="&quot;[#FileCabinetExe]&quot; --move &quot;%1&quot;" />
         </Component>
       </Directory>
     </StandardDirectory>

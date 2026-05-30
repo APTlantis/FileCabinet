@@ -1231,6 +1231,8 @@
                                     <StackPanel>
                                         <TextBlock Text="VAULT HEALTH" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
+                                        <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
+                                        <TextBlock Text="{Binding VaultMaintenanceDetail}" Style="{StaticResource SmallLabel}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" MaxWidth="520" />
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="Analyze" Command="{Binding RepairCatalogCommand}" ToolTip="Analyze vault health without mutating files" Style="{StaticResource ToolButton}" Height="30" />
                                 </Grid>

@@ -41,6 +41,8 @@ FileCabinet supports two intake modes:
 
 The active mode is shown directly inside the drop zone as **INTAKE MODE** so you can check it before dropping a batch of files. The mode button under **Ingest Options** toggles between move and copy.
 
+The Windows Explorer context menu also includes **Copy to FileCabinet** and **Move to FileCabinet** after installing the MSI. These commands open FileCabinet and ingest the selected file or folder using that one-time intake mode without changing the app's default drop-zone setting.
+
 When a file is ingested, FileCabinet:
 
 - places it under `items\yyyy\MM\`

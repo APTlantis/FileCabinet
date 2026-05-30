@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "tags": [
       "local-first",
       "desktop",
@@ -60,8 +60,8 @@
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.3.0.0-win-x64.msi",
-      "docs/FileCabinet v1.2.0 — Vault Reliability and Trust Release.md",
+      "artifacts/installer/FileCabinet-1.3.1.0-win-x64.msi",
+      "docs/FileCabinet v1.3.1 — Explorer Context Menu Patch.md",
       "Vault catalog JSON",
       "Vault thumbnail PNG assets",
       "Vault extracted text indexes",
@@ -115,27 +115,26 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.3.0.0",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.3.0.0-win-x64.msi to the GitHub v1.3.0 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.3.1.0",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.3.1.0-win-x64.msi to the GitHub v1.3.1 release.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.3.0 — Metadata and Recall Quality Release.md"
+      "Include release notes from docs/FileCabinet v1.3.1 — Explorer Context Menu Patch.md"
     ]
   },
   "notes": {
-    "release_name": "FileCabinet v1.3.0 — Metadata and Recall Quality Release",
-    "installer": "FileCabinet-1.3.0.0-win-x64.msi",
-    "installer_sha256": "A202C47803872CAD3C96C6EC6C3ABC319D890D5E4FF006BB1544E4A2658B91AE",
+    "release_name": "FileCabinet v1.3.1 — Explorer Context Menu Patch",
+    "installer": "FileCabinet-1.3.1.0-win-x64.msi",
+    "installer_sha256": "E4FBF366F06C18EDD5700D5F27BD0CB2891FFF31CF06468217FF66F7522A7D9E",
     "installer_size_bytes": 58941440,
-    "v1_3_highlights": [
-      "Structured operator metadata for retention reason, provenance, acquisition method, trust, priority, and archive status",
-      "Expanded deterministic relation scoring with inspectable recall reasons",
-      "Built-in discovery scopes for unverified, missing preview, repair needed, duplicate candidates, same source batch, and large artifacts",
-      "Search includes the new structured metadata fields",
-      "Installer and application version updated to 1.3.0"
+    "v1_3_1_highlights": [
+      "Windows Explorer context menu verbs for Copy to FileCabinet and Move to FileCabinet",
+      "Command-line shell intake parser for one-time copy or move ingest",
+      "Shell intake does not change the saved default drop-zone ingest mode",
+      "Installer and application version updated to 1.3.1"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -148,6 +147,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 38 tests on 2026-05-29; installer/build-installer.ps1 -Version 1.3.0.0 completed on 2026-05-29"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 41 tests on 2026-05-29; installer/build-installer.ps1 -Version 1.3.1.0 completed on 2026-05-29"
   }
 }
