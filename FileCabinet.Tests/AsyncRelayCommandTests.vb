@@ -28,5 +28,20 @@ Namespace FileCabinet.Tests
 
             Assert.IsTrue(command.CanExecute(Nothing))
         End Function
+
+        <TestMethod>
+        Public Async Function ExecuteAsyncCapturesExceptionsAndRestoresCanExecute() As Task
+            Dim observed As Exception = Nothing
+            Dim command = New Global.FileCabinet.AsyncRelayCommand(
+                Function(parameter) Task.FromException(New InvalidOperationException("boom")),
+                onException:=Sub(ex) observed = ex)
+
+            Await command.ExecuteAsync(Nothing)
+
+            Assert.IsTrue(command.CanExecute(Nothing))
+            Assert.IsNotNull(command.LastException)
+            Assert.IsNotNull(observed)
+            Assert.AreEqual("boom", observed.Message)
+        End Function
     End Class
 End Namespace

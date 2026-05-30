@@ -109,7 +109,17 @@ Public Class CatalogService
             Directory.CreateDirectory(catalogDirectory)
         End If
 
-        File.WriteAllText(CatalogPath, JsonSerializer.Serialize(catalog, CatalogOptions))
+        Dim json = JsonSerializer.Serialize(catalog, CatalogOptions)
+        Dim tempPath = $"{CatalogPath}.{Guid.NewGuid():N}.tmp"
+        Dim backupPath = $"{CatalogPath}.bak"
+
+        File.WriteAllText(tempPath, json)
+
+        If File.Exists(CatalogPath) Then
+            File.Replace(tempPath, CatalogPath, backupPath, ignoreMetadataErrors:=True)
+        Else
+            File.Move(tempPath, CatalogPath)
+        End If
     End Sub
 
     Public Function ExportSnapshot(catalog As CatalogData, exportsRoot As String) As String

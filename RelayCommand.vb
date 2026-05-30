@@ -31,18 +31,27 @@ Public Class AsyncRelayCommand
 
     Private ReadOnly _execute As Func(Of Object, Task)
     Private ReadOnly _canExecute As Predicate(Of Object)
+    Private ReadOnly _onException As Action(Of Exception)
     Private _isExecuting As Boolean
+    Private _lastException As Exception
 
     Public Event CanExecuteChanged As EventHandler Implements ICommand.CanExecuteChanged
 
-    Public Sub New(execute As Func(Of Object, Task), Optional canExecute As Predicate(Of Object) = Nothing)
+    Public Sub New(execute As Func(Of Object, Task), Optional canExecute As Predicate(Of Object) = Nothing, Optional onException As Action(Of Exception) = Nothing)
         _execute = execute
         _canExecute = canExecute
+        _onException = onException
     End Sub
 
     Public ReadOnly Property IsExecuting As Boolean
         Get
             Return _isExecuting
+        End Get
+    End Property
+
+    Public ReadOnly Property LastException As Exception
+        Get
+            Return _lastException
         End Get
     End Property
 
@@ -63,6 +72,11 @@ Public Class AsyncRelayCommand
             _isExecuting = True
             RaiseCanExecuteChanged()
             Await _execute(parameter)
+        Catch ex As Exception
+            _lastException = ex
+            If _onException IsNot Nothing Then
+                _onException(ex)
+            End If
         Finally
             _isExecuting = False
             RaiseCanExecuteChanged()

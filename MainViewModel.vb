@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Linq
 Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
+Imports System.Threading
 Imports System.Threading.Tasks
 Imports System.Windows
 Imports System.Windows.Data
@@ -60,6 +61,12 @@ Public Class MainViewModel
     Private _isVaultMaintenanceRunning As Boolean
     Private _vaultMaintenanceStatus As String = "Vault maintenance ready"
     Private _vaultMaintenanceDetail As String = ""
+    Private _quarantineCount As Integer
+    Private _quarantineCountVersion As Integer
+    Private _previewLoadVersion As Integer
+    Private _searchVersion As Integer
+    Private _searchExtractedTextMatches As HashSet(Of String)
+    Private _searchExtractedText As String = ""
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -133,17 +140,17 @@ Public Class MainViewModel
         OpenFileCommand = New RelayCommand(Sub(parameter) OpenSelectedFile(), Function(parameter) SelectedArtifact IsNot Nothing)
         RestoreArtifactCommand = New RelayCommand(Sub(parameter) RestoreSelectedArtifact(TryCast(parameter, String)), Function(parameter) SelectedArtifact IsNot Nothing)
         PermanentlyDeleteArtifactCommand = New RelayCommand(Sub(parameter) PermanentlyDeleteSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
-        HashCheckCommand = New AsyncRelayCommand(Function(parameter) CheckSelectedHashAsync(), Function(parameter) SelectedArtifact IsNot Nothing AndAlso Not IsVaultMaintenanceRunning)
-        RefreshCommand = New AsyncRelayCommand(Function(parameter) RefreshVaultStateAsync(), Function(parameter) Not IsVaultMaintenanceRunning)
+        HashCheckCommand = New AsyncRelayCommand(Function(parameter) CheckSelectedHashAsync(), Function(parameter) SelectedArtifact IsNot Nothing AndAlso Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
+        RefreshCommand = New AsyncRelayCommand(Function(parameter) RefreshVaultStateAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
         ToggleStarCommand = New RelayCommand(Sub(parameter) ToggleSelectedStar(), Function(parameter) SelectedArtifact IsNot Nothing)
         AddTagsCommand = New RelayCommand(Sub(parameter) FocusTagEditing(), Function(parameter) SelectedArtifact IsNot Nothing)
         ToggleIngestModeCommand = New RelayCommand(Sub(parameter) ToggleIngestMode())
         QuarantineCommand = New RelayCommand(Sub(parameter) QuarantineSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
         ShowSettingsCommand = New RelayCommand(Sub(parameter) ShowSettings())
         BackupCatalogCommand = New RelayCommand(Sub(parameter) BackupCatalog())
-        RepairCatalogCommand = New AsyncRelayCommand(Function(parameter) RepairCatalogAsync(), Function(parameter) Not IsVaultMaintenanceRunning)
-        RescanVaultCommand = New AsyncRelayCommand(Function(parameter) RescanVaultAsync(), Function(parameter) Not IsVaultMaintenanceRunning)
-        ApplySelectedRepairCandidatesCommand = New AsyncRelayCommand(Function(parameter) ApplySelectedRepairCandidatesAsync(), Function(parameter) Not IsVaultMaintenanceRunning AndAlso RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
+        RepairCatalogCommand = New AsyncRelayCommand(Function(parameter) RepairCatalogAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
+        RescanVaultCommand = New AsyncRelayCommand(Function(parameter) RescanVaultAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
+        ApplySelectedRepairCandidatesCommand = New AsyncRelayCommand(Function(parameter) ApplySelectedRepairCandidatesAsync(), Function(parameter) Not IsVaultMaintenanceRunning AndAlso RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically), AddressOf HandleAsyncCommandException)
         SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
@@ -186,7 +193,7 @@ Public Class MainViewModel
                 OnPropertyChanged(NameOf(SelectedBlake3Display))
                 OnPropertyChanged(NameOf(SelectedSha256Display))
                 ActionStatus = If(StoredFileExists(), "Stored file ready", "Stored file missing")
-                LoadPreviewForSelected()
+                LoadPreviewForSelectedAsync()
                 LoadEditorFromSelected()
                 RebuildRelatedArtifacts()
                 If String.Equals(ActiveScope, "Same source batch", StringComparison.OrdinalIgnoreCase) Then
@@ -228,7 +235,7 @@ Public Class MainViewModel
             If _searchText <> value Then
                 _searchText = If(value, "")
                 OnPropertyChanged()
-                RefreshFilters()
+                ScheduleSearchRefresh()
                 SaveUiPreferences()
             End If
         End Set
@@ -680,12 +687,7 @@ Public Class MainViewModel
 
     Public ReadOnly Property QuarantineCountText As String
         Get
-            Dim quarantineRoot = Path.Combine(VaultRootPath, "quarantine")
-            If Not Directory.Exists(quarantineRoot) Then
-                Return "0"
-            End If
-
-            Return Directory.EnumerateFiles(quarantineRoot, "*", SearchOption.AllDirectories).Count().ToString("N0")
+            Return _quarantineCount.ToString("N0")
         End Get
     End Property
 
@@ -1125,7 +1127,33 @@ Public Class MainViewModel
     End Sub
 
     Private Sub LoadPreviewForSelected()
-        SelectedPreview = _previewService.LoadPreview(SelectedArtifact)
+        LoadPreviewForSelectedAsync()
+    End Sub
+
+    Private Async Sub LoadPreviewForSelectedAsync()
+        Dim artifact = SelectedArtifact
+        Dim version = Interlocked.Increment(_previewLoadVersion)
+
+        If artifact Is Nothing Then
+            SelectedPreview = New ArtifactPreview With {.Kind = ArtifactPreviewKind.GenericFile, .Message = "No preview"}
+            Return
+        End If
+
+        Try
+            Dim preview = Await Task.Run(Function() _previewService.LoadPreview(artifact))
+            If version = _previewLoadVersion AndAlso ReferenceEquals(SelectedArtifact, artifact) Then
+                SelectedPreview = preview
+            End If
+        Catch ex As Exception
+            If version = _previewLoadVersion AndAlso ReferenceEquals(SelectedArtifact, artifact) Then
+                SelectedPreview = New ArtifactPreview With {
+                    .Kind = ArtifactPreviewKind.GenericFile,
+                    .Message = "Preview unavailable",
+                    .Title = "Preview Unavailable",
+                    .Detail = ex.Message
+                }
+            End If
+        End Try
     End Sub
 
     Private Sub SaveArtifactEdits()
@@ -1699,7 +1727,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(VaultRootPath))
         OnPropertyChanged(NameOf(CurrentVaultTitle))
         OnPropertyChanged(NameOf(StorageTotalText))
-        Dim refreshTask = RefreshVaultStateAsync()
+        RefreshVaultStateInBackground()
         ActionStatus = $"Vault set to {path}"
     End Sub
 
@@ -1727,8 +1755,16 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(VaultRootPath))
         OnPropertyChanged(NameOf(CurrentVaultTitle))
         OnPropertyChanged(NameOf(StorageTotalText))
-        Dim refreshTask = RefreshVaultStateAsync()
+        RefreshVaultStateInBackground()
         ActionStatus = $"Removed vault {removed.DisplayName}"
+    End Sub
+
+    Private Async Sub RefreshVaultStateInBackground()
+        Try
+            Await RefreshVaultStateAsync()
+        Catch ex As Exception
+            ActionStatus = $"Vault refresh failed: {ex.Message}"
+        End Try
     End Sub
 
     Private Shared Function ParseTags(tagsText As String) As List(Of String)
@@ -1835,12 +1871,72 @@ Public Class MainViewModel
     End Function
 
     Private Function ContainsExtractedText(artifact As ArtifactModel, needle As String) As Boolean
-        If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath) Then
+        If artifact Is Nothing OrElse _searchExtractedTextMatches Is Nothing OrElse
+            Not String.Equals(_searchExtractedText, needle, StringComparison.OrdinalIgnoreCase) Then
             Return False
         End If
 
+        Return _searchExtractedTextMatches.Contains(ArtifactSearchKey(artifact))
+    End Function
+
+    Private Sub ScheduleSearchRefresh(Optional preserveSelection As Boolean = False)
+        Dim needle = If(SearchText, "").Trim()
+        Dim version = Interlocked.Increment(_searchVersion)
+
+        If String.IsNullOrWhiteSpace(needle) Then
+            _searchExtractedText = ""
+            _searchExtractedTextMatches = Nothing
+            RefreshFilters(preserveSelection:=preserveSelection)
+            Return
+        End If
+
+        _searchExtractedText = needle
+        _searchExtractedTextMatches = Nothing
+        RefreshFilters(preserveSelection:=preserveSelection)
+
+        Dim artifactSnapshot = Artifacts.ToList()
+        Dim vaultRoot = VaultRootPath
+        Task.Run(Function() BuildExtractedTextSearchMatches(artifactSnapshot, vaultRoot, needle)).
+            ContinueWith(Sub(task)
+                             RunOnUiThread(Sub()
+                                               If version <> _searchVersion OrElse Not String.Equals(_searchExtractedText, needle, StringComparison.OrdinalIgnoreCase) Then
+                                                   Return
+                                               End If
+
+                                               If task.IsFaulted Then
+                                                   _searchExtractedTextMatches = New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+                                               Else
+                                                   _searchExtractedTextMatches = task.Result
+                                               End If
+
+                                               RefreshFilters(preserveSelection:=True)
+                                           End Sub)
+                         End Sub)
+    End Sub
+
+    Private Shared Function BuildExtractedTextSearchMatches(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, needle As String) As HashSet(Of String)
+        Dim matches As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
+        If String.IsNullOrWhiteSpace(needle) Then
+            Return matches
+        End If
+
+        For Each artifact In If(artifacts, Enumerable.Empty(Of ArtifactModel)())
+            If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath) Then
+                Continue For
+            End If
+
+            If ExtractedTextContains(artifact, vaultRootPath, needle) Then
+                matches.Add(ArtifactSearchKey(artifact))
+            End If
+        Next
+
+        Return matches
+    End Function
+
+    Private Shared Function ExtractedTextContains(artifact As ArtifactModel, vaultRootPath As String, needle As String) As Boolean
         Try
-            Dim extractedPath = Path.Combine(VaultRootPath, artifact.ExtractedTextRelativePath)
+            Dim extractedPath = If(Path.IsPathRooted(artifact.ExtractedTextRelativePath), artifact.ExtractedTextRelativePath, Path.Combine(vaultRootPath, artifact.ExtractedTextRelativePath))
             If Not File.Exists(extractedPath) Then
                 Return False
             End If
@@ -1850,6 +1946,18 @@ Public Class MainViewModel
         Catch
             Return False
         End Try
+    End Function
+
+    Private Shared Function ArtifactSearchKey(artifact As ArtifactModel) As String
+        If artifact Is Nothing Then
+            Return ""
+        End If
+
+        If Not String.IsNullOrWhiteSpace(artifact.Id) Then
+            Return artifact.Id
+        End If
+
+        Return If(artifact.Path, artifact.Name)
     End Function
 
     Private Function FilterTag(item As Object) As Boolean
@@ -1913,6 +2021,7 @@ Public Class MainViewModel
     End Sub
 
     Private Sub RefreshDerivedUiState()
+        RefreshQuarantineCountAsync()
         OnPropertyChanged(NameOf(CurrentVaultSummary))
         OnPropertyChanged(NameOf(StorageUsedText))
         OnPropertyChanged(NameOf(StorageTotalText))
@@ -1926,6 +2035,29 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(RecallStatusText))
         RebuildStats()
         RebuildRelatedArtifacts()
+    End Sub
+
+    Private Async Sub RefreshQuarantineCountAsync()
+        Dim version = Interlocked.Increment(_quarantineCountVersion)
+        Dim vaultRoot = VaultRootPath
+
+        Try
+            Dim count = Await Task.Run(Function()
+                                           Dim quarantineRoot = Path.Combine(vaultRoot, "quarantine")
+                                           If Not Directory.Exists(quarantineRoot) Then
+                                               Return 0
+                                           End If
+
+                                           Return Directory.EnumerateFiles(quarantineRoot, "*", SearchOption.AllDirectories).Count()
+                                       End Function)
+
+            If version = _quarantineCountVersion AndAlso _quarantineCount <> count Then
+                _quarantineCount = count
+                OnPropertyChanged(NameOf(QuarantineCountText))
+                RebuildStats()
+            End If
+        Catch
+        End Try
     End Sub
 
     Private Sub RebuildRelatedArtifacts()
@@ -2307,7 +2439,23 @@ Public Class MainViewModel
     End Function
 
     Private Function MatchesActiveScope(artifact As ArtifactModel) As Boolean
+        If String.Equals(NormalizeScope(ActiveScope), "Repair needed", StringComparison.OrdinalIgnoreCase) Then
+            Return HasPublishedRepairNeed(artifact)
+        End If
+
         Return ArtifactMatchesDiscoveryScope(artifact, ActiveScope, Artifacts, VaultRootPath, SelectedArtifact, _thumbnailService)
+    End Function
+
+    Private Function HasPublishedRepairNeed(artifact As ArtifactModel) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        If VaultHealthFindings.Count = 0 Then
+            Return HasCheapRepairNeed(artifact, VaultRootPath, _thumbnailService)
+        End If
+
+        Return VaultHealthFindings.Any(Function(finding) FindingMatchesArtifact(finding, artifact))
     End Function
 
     Public Shared Function ArtifactMatchesDiscoveryScope(artifact As ArtifactModel, scope As String, artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, Optional selectedArtifact As ArtifactModel = Nothing, Optional thumbnailService As ThumbnailService = Nothing) As Boolean
@@ -2328,7 +2476,7 @@ Public Class MainViewModel
             Case "Missing preview"
                 Return HasMissingPreview(artifact, vaultRootPath, thumbnailService)
             Case "Repair needed"
-                Return HasRepairNeed(artifact, vaultRootPath, thumbnailService)
+                Return HasCheapRepairNeed(artifact, vaultRootPath, thumbnailService)
             Case "Duplicate candidates"
                 Return IsDuplicateCandidate(artifact, artifacts)
             Case "Same source batch"
@@ -2373,13 +2521,48 @@ Public Class MainViewModel
             String.Equals(artifact.ThumbnailStatus, "Missing", StringComparison.OrdinalIgnoreCase)
     End Function
 
-    Private Shared Function HasRepairNeed(artifact As ArtifactModel, vaultRootPath As String, thumbnailService As ThumbnailService) As Boolean
+    Private Shared Function HasCheapRepairNeed(artifact As ArtifactModel, vaultRootPath As String, thumbnailService As ThumbnailService) As Boolean
         If artifact Is Nothing Then
             Return False
         End If
 
-        Dim report = BuildVaultHealthReport({artifact}, vaultRootPath, If(thumbnailService, New ThumbnailService()))
-        Return report.Findings.Count > 0
+        If String.IsNullOrWhiteSpace(artifact.Path) OrElse Not File.Exists(artifact.Path) Then
+            Return True
+        End If
+
+        If Not String.IsNullOrWhiteSpace(vaultRootPath) AndAlso Not IsPathInsideDirectory(artifact.Path, vaultRootPath) Then
+            Return True
+        End If
+
+        If String.IsNullOrWhiteSpace(artifact.Blake3) OrElse String.IsNullOrWhiteSpace(artifact.Sha256) Then
+            Return True
+        End If
+
+        If HasMissingPreview(artifact, vaultRootPath, thumbnailService) Then
+            Return True
+        End If
+
+        If Not String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath) Then
+            Dim extractedPath = ResolveVaultRelativePath(vaultRootPath, artifact.ExtractedTextRelativePath)
+            If String.IsNullOrWhiteSpace(extractedPath) OrElse Not File.Exists(extractedPath) Then
+                Return True
+            End If
+        End If
+
+        Return HasIncompleteMetadata(artifact)
+    End Function
+
+    Private Shared Function FindingMatchesArtifact(finding As VaultHealthFinding, artifact As ArtifactModel) As Boolean
+        If finding Is Nothing OrElse artifact Is Nothing Then
+            Return False
+        End If
+
+        Return String.Equals(finding.Subject, artifact.Name, StringComparison.OrdinalIgnoreCase) OrElse
+            String.Equals(finding.Subject, artifact.Id, StringComparison.OrdinalIgnoreCase) OrElse
+            String.Equals(finding.Subject, artifact.Sha256, StringComparison.OrdinalIgnoreCase) OrElse
+            String.Equals(finding.Subject, artifact.RelativePath, StringComparison.OrdinalIgnoreCase) OrElse
+            String.Equals(finding.Subject, artifact.ThumbnailRelativePath, StringComparison.OrdinalIgnoreCase) OrElse
+            String.Equals(finding.Subject, artifact.ExtractedTextRelativePath, StringComparison.OrdinalIgnoreCase)
     End Function
 
     Private Shared Function IsDuplicateCandidate(artifact As ArtifactModel, artifacts As IEnumerable(Of ArtifactModel)) As Boolean
@@ -2856,6 +3039,16 @@ Public Class MainViewModel
         RaiseCommandState(RefreshCommand)
     End Sub
 
+    Private Sub HandleAsyncCommandException(ex As Exception)
+        If ex Is Nothing Then
+            Return
+        End If
+
+        ActionStatus = $"Operation failed: {ex.Message}"
+        VaultMaintenanceStatus = "Operation failed"
+        VaultMaintenanceDetail = ex.Message
+    End Sub
+
     Private Shared Sub RaiseCommandState(command As ICommand)
         Dim relay = TryCast(command, RelayCommand)
         If relay IsNot Nothing Then
@@ -3074,6 +3267,10 @@ Public Class MainViewModel
     End Sub
 
     Private Shared Sub AddIncompleteMetadataFinding(report As VaultHealthReport, artifact As ArtifactModel)
+        If Not HasIncompleteMetadata(artifact) Then
+            Return
+        End If
+
         Dim missingFields As New List(Of String)
 
         If String.IsNullOrWhiteSpace(artifact.Id) Then
@@ -3143,6 +3340,26 @@ Public Class MainViewModel
             .TouchesRetainedFiles = False
         })
     End Sub
+
+    Private Shared Function HasIncompleteMetadata(artifact As ArtifactModel) As Boolean
+        If artifact Is Nothing Then
+            Return False
+        End If
+
+        Return String.IsNullOrWhiteSpace(artifact.Id) OrElse
+            String.IsNullOrWhiteSpace(artifact.Name) OrElse
+            String.IsNullOrWhiteSpace(artifact.Type) OrElse
+            String.IsNullOrWhiteSpace(artifact.TypeFamily) OrElse
+            String.IsNullOrWhiteSpace(artifact.Category) OrElse
+            String.IsNullOrWhiteSpace(artifact.Size) OrElse artifact.SizeBytes <= 0 OrElse
+            String.IsNullOrWhiteSpace(artifact.DateModified) OrElse
+            String.IsNullOrWhiteSpace(artifact.RelativePath) OrElse
+            String.IsNullOrWhiteSpace(artifact.Created) OrElse
+            String.IsNullOrWhiteSpace(artifact.IngestedAt) OrElse
+            String.IsNullOrWhiteSpace(artifact.HashStatus) OrElse
+            String.IsNullOrWhiteSpace(artifact.ThumbnailStatus) OrElse
+            String.IsNullOrWhiteSpace(artifact.ExtractedTextStatus)
+    End Function
 
     Private Shared Function HasRebindCandidate(artifact As ArtifactModel, vaultRootPath As String) As Boolean
         If artifact Is Nothing OrElse String.IsNullOrWhiteSpace(vaultRootPath) OrElse String.IsNullOrWhiteSpace(artifact.RelativePath) Then

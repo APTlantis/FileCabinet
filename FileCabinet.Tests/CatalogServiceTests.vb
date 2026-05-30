@@ -89,6 +89,35 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub SaveReplacesCatalogAtomicallyAndKeepsLastGoodBackup()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim catalogPath = Path.Combine(workspace, "appdata", "catalog.json")
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+
+            Try
+                Dim service As New Global.FileCabinet.CatalogService(catalogPath, vaultRoot)
+                Dim catalog = service.LoadOrCreate()
+                catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {.Id = "first", .Name = "first.txt"})
+                service.Save(catalog)
+
+                catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {.Id = "second", .Name = "second.txt"})
+                service.Save(catalog)
+
+                Dim reloaded = service.LoadOrCreate()
+                Dim backupPath = $"{catalogPath}.bak"
+
+                Assert.AreEqual(2, reloaded.Artifacts.Count)
+                Assert.IsTrue(File.Exists(backupPath))
+                StringAssert.Contains(File.ReadAllText(backupPath), "first.txt")
+                Assert.IsFalse(Directory.EnumerateFiles(Path.GetDirectoryName(catalogPath), "*.tmp").Any())
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub ValidateBackupRejectsCorruptOrIncompleteBackup()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim backupPath = Path.Combine(workspace, "exports", "catalog-backup-corrupt.json")
