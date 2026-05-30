@@ -1,4 +1,5 @@
 Imports System.IO
+Imports System.IO.Compression
 Imports System.Text
 Imports System.Text.Json
 
@@ -41,6 +42,34 @@ End Class
 Public Class HeadlessRepairPreviewResult
     Public Property HealthReport As VaultHealthReport
     Public Property RepairCandidates As New List(Of RepairCandidate)
+End Class
+
+Public Class HeadlessRepairApplyResult
+    Public Property Applied As Boolean
+    Public Property Candidates As New List(Of RepairCandidate)
+    Public Property AppliedCount As Integer
+    Public Property FailedCount As Integer
+    Public Property SkippedCount As Integer
+End Class
+
+Public Class HeadlessRescanResult
+    Public Property Applied As Boolean
+    Public Property OrphanFiles As New List(Of String)
+    Public Property AdoptedArtifacts As New List(Of ArtifactModel)
+End Class
+
+Public Class HeadlessThumbnailRebuildResult
+    Public Property Applied As Boolean
+    Public Property CandidateCount As Integer
+    Public Property RebuiltCount As Integer
+    Public Property FailedCount As Integer
+End Class
+
+Public Class HeadlessPackageResult
+    Public Property OutputPath As String = ""
+    Public Property ArtifactCount As Integer
+    Public Property FileCount As Integer
+    Public Property IsZip As Boolean
 End Class
 
 Public Class VaultHeadlessService
@@ -159,6 +188,174 @@ Public Class VaultHeadlessService
         }
     End Function
 
+    Public Function Repair(apply As Boolean) As HeadlessRepairApplyResult
+        Dim catalog = LoadCatalog()
+        Dim preview = RepairPreview()
+        Dim result As New HeadlessRepairApplyResult With {
+            .Applied = apply,
+            .Candidates = preview.RepairCandidates
+        }
+
+        If Not apply Then
+            result.SkippedCount = result.Candidates.Count
+            Return result
+        End If
+
+        Dim logService As New RepairLogService()
+        For Each candidate In result.Candidates
+            If Not candidate.CanRepairAutomatically Then
+                result.SkippedCount += 1
+                AppendRepairLog(logService, catalog.VaultRootPath, candidate, "Skipped", "Review-only candidate requires manual action")
+                Continue For
+            End If
+
+            Dim artifact = FindArtifactForCandidate(catalog.Artifacts, candidate)
+            If artifact Is Nothing OrElse Not ApplyRepairCandidate(catalog.VaultRootPath, artifact, candidate) Then
+                result.FailedCount += 1
+                AppendRepairLog(logService, catalog.VaultRootPath, candidate, "Failed", "Repair could not be completed safely")
+            Else
+                result.AppliedCount += 1
+                AppendRepairLog(logService, catalog.VaultRootPath, candidate, "Applied", "Repair completed")
+            End If
+        Next
+
+        If result.AppliedCount > 0 Then
+            _catalogService.Save(catalog)
+        End If
+
+        Return result
+    End Function
+
+    Public Function Rescan(apply As Boolean) As HeadlessRescanResult
+        Dim catalog = LoadCatalog()
+        Dim result As New HeadlessRescanResult With {.Applied = apply}
+        result.OrphanFiles = FindOrphanStoredFiles(catalog.Artifacts, catalog.VaultRootPath).ToList()
+
+        If Not apply Then
+            Return result
+        End If
+
+        For Each orphan In result.OrphanFiles
+            Try
+                Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, catalog.VaultRootPath)
+                adopted.Notes = $"Adopted during CLI vault rescan at {DateTime.Now:yyyy-MM-dd HH:mm}"
+                catalog.Artifacts.Insert(0, adopted)
+                result.AdoptedArtifacts.Add(adopted)
+            Catch
+            End Try
+        Next
+
+        If result.AdoptedArtifacts.Count > 0 Then
+            catalog.Activities.Insert(0, New ActivityEntryModel With {
+                .ActionText = $"CLI adopted {result.AdoptedArtifacts.Count:N0} orphan file(s)",
+                .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  vault rescan",
+                .Icon = "CLI"
+            })
+            RefreshDerivedCatalogLists(catalog)
+            _catalogService.Save(catalog)
+        End If
+
+        Return result
+    End Function
+
+    Public Function RebuildThumbnails(apply As Boolean) As HeadlessThumbnailRebuildResult
+        Dim catalog = LoadCatalog()
+        Dim thumbnailService As New ThumbnailService()
+        Dim candidates = catalog.Artifacts.
+            Where(Function(artifact) artifact IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(artifact.Path) AndAlso File.Exists(artifact.Path)).
+            ToList()
+        Dim result As New HeadlessThumbnailRebuildResult With {
+            .Applied = apply,
+            .CandidateCount = candidates.Count
+        }
+
+        If Not apply Then
+            Return result
+        End If
+
+        For Each artifact In candidates
+            Dim thumbnail = thumbnailService.GenerateForArtifact(artifact, catalog.VaultRootPath)
+            If String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase) Then
+                artifact.ThumbnailRelativePath = thumbnail.RelativePath
+                artifact.ThumbnailStatus = thumbnail.Status
+                result.RebuiltCount += 1
+            ElseIf String.Equals(thumbnail.Status, ThumbnailService.GenerationFailedStatus, StringComparison.OrdinalIgnoreCase) Then
+                result.FailedCount += 1
+            End If
+        Next
+
+        If result.RebuiltCount > 0 Then
+            _catalogService.Save(catalog)
+        End If
+
+        Return result
+    End Function
+
+    Public Function CreatePackage(outputPath As String, zipPackage As Boolean) As HeadlessPackageResult
+        Dim catalog = LoadCatalog()
+        Dim normalizedOutput = If(outputPath, "")
+        Dim packageRoot = If(String.IsNullOrWhiteSpace(normalizedOutput), Path.Combine(catalog.VaultRootPath, "exports", $"filecabinet-package-{DateTime.Now:yyyyMMdd-HHmmss}"), normalizedOutput)
+        Dim workingRoot = If(zipPackage, Path.Combine(Path.GetTempPath(), $"filecabinet-package-{Guid.NewGuid():N}"), packageRoot)
+        Dim result As New HeadlessPackageResult With {
+            .ArtifactCount = catalog.Artifacts.Count,
+            .IsZip = zipPackage
+        }
+
+        Directory.CreateDirectory(workingRoot)
+        Directory.CreateDirectory(Path.Combine(workingRoot, "catalog"))
+        Directory.CreateDirectory(Path.Combine(workingRoot, "integrity"))
+        Directory.CreateDirectory(Path.Combine(workingRoot, "items"))
+        Directory.CreateDirectory(Path.Combine(workingRoot, "thumbnails"))
+        Directory.CreateDirectory(Path.Combine(workingRoot, "extracted-text"))
+        Directory.CreateDirectory(Path.Combine(workingRoot, "repair-logs"))
+
+        File.WriteAllText(Path.Combine(workingRoot, "manifest.json"), JsonSerializer.Serialize(New With {
+            .format = "FileCabinet deterministic vault package",
+            .version = 1,
+            .createdAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            .vaultRoot = catalog.VaultRootPath,
+            .artifactCount = catalog.Artifacts.Count
+        }, JsonOptions))
+        File.WriteAllText(Path.Combine(workingRoot, "catalog", "catalog.json"), JsonSerializer.Serialize(catalog, JsonOptions))
+        File.WriteAllLines(Path.Combine(workingRoot, "catalog", "catalog.jsonl"), catalog.Artifacts.Select(Function(artifact) JsonSerializer.Serialize(artifact, JsonLineOptions)))
+
+        Dim verifyResult = Verify("any")
+        File.WriteAllText(Path.Combine(workingRoot, "integrity", "vault-health.json"), JsonSerializer.Serialize(New With {
+            .summary = verifyResult.HealthReport.Summary,
+            .findings = verifyResult.HealthReport.Findings,
+            .repair = verifyResult.RepairReport
+        }, JsonOptions))
+
+        CopyFolderIfExists(Path.Combine(catalog.VaultRootPath, "items"), Path.Combine(workingRoot, "items"), result)
+        CopyFolderIfExists(Path.Combine(catalog.VaultRootPath, "thumbnails"), Path.Combine(workingRoot, "thumbnails"), result)
+        CopyFolderIfExists(Path.Combine(catalog.VaultRootPath, "extracted-text"), Path.Combine(workingRoot, "extracted-text"), result)
+        CopyFileIfExists(Path.Combine(catalog.VaultRootPath, "catalog", "repair-log.jsonl"), Path.Combine(workingRoot, "repair-logs", "repair-log.jsonl"), result)
+
+        If zipPackage Then
+            Dim zipPath = If(normalizedOutput.EndsWith(".zip", StringComparison.OrdinalIgnoreCase), normalizedOutput, $"{normalizedOutput}.zip")
+            If String.IsNullOrWhiteSpace(normalizedOutput) Then
+                zipPath = $"{packageRoot}.zip"
+            End If
+
+            Dim zipDirectory = Path.GetDirectoryName(zipPath)
+            If Not String.IsNullOrWhiteSpace(zipDirectory) Then
+                Directory.CreateDirectory(zipDirectory)
+            End If
+
+            If File.Exists(zipPath) Then
+                File.Delete(zipPath)
+            End If
+
+            ZipFile.CreateFromDirectory(workingRoot, zipPath)
+            Directory.Delete(workingRoot, recursive:=True)
+            result.OutputPath = zipPath
+        Else
+            result.OutputPath = workingRoot
+        End If
+
+        Return result
+    End Function
+
     Private Shared Function ParseIngestMode(value As String) As IngestMode
         Dim parsed As IngestMode
         If [Enum].TryParse(value, ignoreCase:=True, result:=parsed) Then
@@ -201,6 +398,146 @@ Public Class VaultHeadlessService
             ToList()
     End Sub
 
+    Private Shared Function FindArtifactForCandidate(artifacts As IEnumerable(Of ArtifactModel), candidate As RepairCandidate) As ArtifactModel
+        If candidate Is Nothing Then
+            Return Nothing
+        End If
+
+        Return If(artifacts, Enumerable.Empty(Of ArtifactModel)()).
+            FirstOrDefault(Function(artifact) artifact IsNot Nothing AndAlso String.Equals(artifact.Name, candidate.Subject, StringComparison.OrdinalIgnoreCase))
+    End Function
+
+    Private Function ApplyRepairCandidate(vaultRootPath As String, artifact As ArtifactModel, candidate As RepairCandidate) As Boolean
+        Try
+            Select Case candidate.ActionType
+                Case "RegenerateThumbnail"
+                    Dim thumbnail = New ThumbnailService().GenerateForArtifact(artifact, vaultRootPath)
+                    artifact.ThumbnailRelativePath = thumbnail.RelativePath
+                    artifact.ThumbnailStatus = thumbnail.Status
+                    Return String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
+                Case "RecomputeHash"
+                    Dim hashes = New HashService().ComputeHashes(artifact.Path)
+                    artifact.Blake3 = hashes.Blake3
+                    artifact.Sha256 = hashes.Sha256
+                    artifact.HashStatus = "Verified"
+                    Return True
+                Case "ReExtractText"
+                    Dim extraction = _ingestionService.ExtractTextForArtifact(artifact, vaultRootPath)
+                    artifact.ExtractedTextRelativePath = extraction.RelativePath
+                    artifact.ExtractedTextStatus = extraction.Status
+                    Return String.Equals(extraction.Status, "Extracted", StringComparison.OrdinalIgnoreCase) OrElse
+                        String.Equals(extraction.Status, "Extracted (truncated)", StringComparison.OrdinalIgnoreCase)
+                Case "RebindPath"
+                    Dim resolvedPath = ResolveVaultRelativePath(vaultRootPath, artifact.RelativePath)
+                    If String.IsNullOrWhiteSpace(resolvedPath) OrElse Not IsPathInsideDirectory(resolvedPath, vaultRootPath) OrElse Not File.Exists(resolvedPath) Then
+                        Return False
+                    End If
+
+                    artifact.Path = resolvedPath
+                    Return True
+                Case Else
+                    Return False
+            End Select
+        Catch
+            Return False
+        End Try
+    End Function
+
+    Private Shared Sub AppendRepairLog(logService As RepairLogService, vaultRootPath As String, candidate As RepairCandidate, result As String, detail As String)
+        Try
+            logService.Append(vaultRootPath, New RepairLogEntry With {
+                .Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                .ActionType = If(candidate?.ActionType, ""),
+                .FindingType = If(candidate?.FindingType, ""),
+                .Subject = If(candidate?.Subject, ""),
+                .ProposedAction = If(candidate?.ProposedAction, ""),
+                .Result = result,
+                .Detail = detail,
+                .MutatesCatalog = candidate IsNot Nothing AndAlso candidate.MutatesCatalog,
+                .TouchesRetainedFiles = candidate IsNot Nothing AndAlso candidate.TouchesRetainedFiles
+            })
+        Catch
+        End Try
+    End Sub
+
+    Private Shared Function FindOrphanStoredFiles(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String) As IEnumerable(Of String)
+        Dim itemsRoot = Path.Combine(vaultRootPath, "items")
+        If Not Directory.Exists(itemsRoot) Then
+            Return Enumerable.Empty(Of String)()
+        End If
+
+        Dim knownPaths = New HashSet(Of String)(
+            If(artifacts, Enumerable.Empty(Of ArtifactModel)()).
+                Where(Function(artifact) Not String.IsNullOrWhiteSpace(artifact.Path)).
+                Select(Function(artifact) Path.GetFullPath(artifact.Path)),
+            StringComparer.OrdinalIgnoreCase)
+
+        Return Directory.EnumerateFiles(itemsRoot, "*", SearchOption.AllDirectories).
+            Where(Function(candidatePath) Not knownPaths.Contains(Path.GetFullPath(candidatePath))).
+            ToList()
+    End Function
+
+    Private Shared Function ResolveVaultRelativePath(vaultRootPath As String, relativePath As String) As String
+        If String.IsNullOrWhiteSpace(relativePath) Then
+            Return ""
+        End If
+
+        If Path.IsPathRooted(relativePath) Then
+            Return relativePath
+        End If
+
+        If String.IsNullOrWhiteSpace(vaultRootPath) Then
+            Return ""
+        End If
+
+        Return Path.Combine(vaultRootPath, relativePath)
+    End Function
+
+    Private Shared Function IsPathInsideDirectory(candidatePath As String, directoryPath As String) As Boolean
+        If String.IsNullOrWhiteSpace(candidatePath) OrElse String.IsNullOrWhiteSpace(directoryPath) Then
+            Return False
+        End If
+
+        Try
+            Dim fullPath = Path.GetFullPath(candidatePath)
+            Dim fullDirectory = Path.GetFullPath(directoryPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+
+            If String.Equals(fullPath, fullDirectory, StringComparison.OrdinalIgnoreCase) Then
+                Return True
+            End If
+
+            fullDirectory &= Path.DirectorySeparatorChar
+            Return fullPath.StartsWith(fullDirectory, StringComparison.OrdinalIgnoreCase)
+        Catch
+            Return False
+        End Try
+    End Function
+
+    Private Shared Sub CopyFolderIfExists(sourceRoot As String, destinationRoot As String, result As HeadlessPackageResult)
+        If Not Directory.Exists(sourceRoot) Then
+            Return
+        End If
+
+        For Each sourcePath In Directory.EnumerateFiles(sourceRoot, "*", SearchOption.AllDirectories)
+            Dim relativePath = Path.GetRelativePath(sourceRoot, sourcePath)
+            CopyFileIfExists(sourcePath, Path.Combine(destinationRoot, relativePath), result)
+        Next
+    End Sub
+
+    Private Shared Sub CopyFileIfExists(sourcePath As String, destinationPath As String, result As HeadlessPackageResult)
+        If Not File.Exists(sourcePath) Then
+            Return
+        End If
+
+        Dim destinationDirectory = Path.GetDirectoryName(destinationPath)
+        If Not String.IsNullOrWhiteSpace(destinationDirectory) Then
+            Directory.CreateDirectory(destinationDirectory)
+        End If
+
+        File.Copy(sourcePath, destinationPath, overwrite:=True)
+        result.FileCount += 1
+    End Sub
+
     Private Shared Function BuildDefaultReportPath(vaultRootPath As String, format As String) As String
         Dim extension = If(String.Equals(format, "json", StringComparison.OrdinalIgnoreCase), "json", "txt")
         Return Path.Combine(vaultRootPath, "exports", $"vault-health-{DateTime.Now:yyyyMMdd-HHmmss}.{extension}")
@@ -228,4 +565,6 @@ Public Class VaultHeadlessService
     Private Shared ReadOnly JsonOptions As New JsonSerializerOptions With {
         .WriteIndented = True
     }
+
+    Private Shared ReadOnly JsonLineOptions As New JsonSerializerOptions()
 End Class

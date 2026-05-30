@@ -17,6 +17,9 @@ Public Class CliCommand
     Public Property Quiet As Boolean
     Public Property Help As Boolean
     Public Property Version As Boolean
+    Public Property Apply As Boolean
+    Public Property Yes As Boolean
+    Public Property Zip As Boolean
     Public Property Mode As IngestMode?
     Public Property Errors As New List(Of String)
 

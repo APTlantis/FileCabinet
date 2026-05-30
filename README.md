@@ -202,9 +202,15 @@ FileCabinet.Cli.exe search "firmware manifest" --scope all
 FileCabinet.Cli.exe export --output K:\FileCabinet\exports
 FileCabinet.Cli.exe report --format json --output K:\FileCabinet\exports\health.json
 FileCabinet.Cli.exe repair-preview --json
+FileCabinet.Cli.exe repair --apply --yes
+FileCabinet.Cli.exe rescan --apply --yes
+FileCabinet.Cli.exe rebuild-thumbnails --apply --yes
+FileCabinet.Cli.exe package --output K:\FileCabinet\exports\FileCabinetPackage --zip
 ```
 
-The CLI writes real stdout/stderr and returns script-friendly exit codes: `0` for success, `1` for command/runtime failure, `2` when verification findings meet the requested threshold, and `3` for partial ingest. The first CLI release intentionally keeps repair execution read-only through `repair-preview`; use the desktop app for operator-approved repair application.
+The CLI writes real stdout/stderr and returns script-friendly exit codes: `0` for success, `1` for command/runtime failure, `2` when verification findings meet the requested threshold, and `3` for partial ingest or partial repair/rebuild. Mutating repair, rescan, and thumbnail rebuild commands require both `--apply` and `--yes`; without `--apply`, they report what would happen.
+
+The `package` command writes a deterministic vault export containing catalog JSON, catalog JSONL, retained items, extracted text, thumbnails, repair logs, and a vault-health report. Use `--zip` for a single cold-storage archive.
 
 ## Design Boundaries
 

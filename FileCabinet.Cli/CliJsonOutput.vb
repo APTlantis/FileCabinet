@@ -86,4 +86,46 @@ Public Class CliJsonOutput
             }).ToList()
         })
     End Function
+
+    Public Shared Function Repair(result As HeadlessRepairApplyResult) As String
+        Return Serialize(New With {
+            .command = "repair",
+            .applied = result.Applied,
+            .appliedCount = result.AppliedCount,
+            .failedCount = result.FailedCount,
+            .skippedCount = result.SkippedCount,
+            .candidates = result.Candidates
+        })
+    End Function
+
+    Public Shared Function Rescan(result As HeadlessRescanResult) As String
+        Return Serialize(New With {
+            .command = "rescan",
+            .applied = result.Applied,
+            .orphanCount = result.OrphanFiles.Count,
+            .adoptedCount = result.AdoptedArtifacts.Count,
+            .orphans = result.OrphanFiles,
+            .adopted = result.AdoptedArtifacts.Select(Function(artifact) New With {.id = artifact.Id, .name = artifact.Name, .path = artifact.Path}).ToList()
+        })
+    End Function
+
+    Public Shared Function RebuildThumbnails(result As HeadlessThumbnailRebuildResult) As String
+        Return Serialize(New With {
+            .command = "rebuild-thumbnails",
+            .applied = result.Applied,
+            .candidateCount = result.CandidateCount,
+            .rebuiltCount = result.RebuiltCount,
+            .failedCount = result.FailedCount
+        })
+    End Function
+
+    Public Shared Function Package(result As HeadlessPackageResult) As String
+        Return Serialize(New With {
+            .command = "package",
+            .outputPath = result.OutputPath,
+            .artifactCount = result.ArtifactCount,
+            .fileCount = result.FileCount,
+            .isZip = result.IsZip
+        })
+    End Function
 End Class

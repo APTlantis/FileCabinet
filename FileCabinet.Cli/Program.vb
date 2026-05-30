@@ -64,6 +64,22 @@ Public Module Program
                     Dim result = service.RepairPreview()
                     WriteOutput(command, output, CliJsonOutput.RepairPreview(result), CliTextOutput.RepairPreview(result))
                     Return 0
+                Case "repair"
+                    Dim result = service.Repair(command.Apply)
+                    WriteOutput(command, output, CliJsonOutput.Repair(result), CliTextOutput.Repair(result))
+                    Return If(result.FailedCount > 0, 3, 0)
+                Case "rescan"
+                    Dim result = service.Rescan(command.Apply)
+                    WriteOutput(command, output, CliJsonOutput.Rescan(result), CliTextOutput.Rescan(result))
+                    Return 0
+                Case "rebuild-thumbnails"
+                    Dim result = service.RebuildThumbnails(command.Apply)
+                    WriteOutput(command, output, CliJsonOutput.RebuildThumbnails(result), CliTextOutput.RebuildThumbnails(result))
+                    Return If(result.FailedCount > 0, 3, 0)
+                Case "package"
+                    Dim result = service.CreatePackage(command.OutputPath, command.Zip)
+                    WriteOutput(command, output, CliJsonOutput.Package(result), CliTextOutput.Package(result))
+                    Return 0
                 Case Else
                     errorOutput.WriteLine($"Unknown command: {command.CommandName}")
                     Return 1

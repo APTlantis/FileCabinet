@@ -35,5 +35,17 @@ Namespace FileCabinet.Tests
             Assert.IsFalse(command.IsValid)
             Assert.IsTrue(command.Errors.Any(Function(message) message.Contains("Unknown command")))
         End Sub
+
+        <TestMethod>
+        Sub ParseMutatingCommandRequiresApplyAndYesTogether()
+            Dim missingApproval = Global.CliParser.Parse({"repair", "--apply"})
+            Dim approved = Global.CliParser.Parse({"repair", "--apply", "--yes"})
+
+            Assert.IsFalse(missingApproval.IsValid)
+            Assert.IsTrue(missingApproval.Errors.Any(Function(message) message.Contains("--yes")))
+            Assert.IsTrue(approved.IsValid)
+            Assert.IsTrue(approved.Apply)
+            Assert.IsTrue(approved.Yes)
+        End Sub
     End Class
 End Namespace

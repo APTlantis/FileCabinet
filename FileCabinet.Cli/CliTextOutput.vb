@@ -13,6 +13,10 @@ Public Class CliTextOutput
             "  export [--output <folder>] [--catalog <path>] [--json]",
             "  report [--output <path>] [--format text|json] [--vault <path>] [--catalog <path>]",
             "  repair-preview [--json]",
+            "  repair [--apply --yes] [--json]",
+            "  rescan [--apply --yes] [--json]",
+            "  rebuild-thumbnails [--apply --yes] [--json]",
+            "  package [--output <folder>] [--zip] [--json]",
             "",
             "Global options: --help, --version, --catalog <path>, --vault <path>, --json, --quiet"
         })
@@ -68,5 +72,21 @@ Public Class CliTextOutput
             builder.AppendLine($"- {candidate.ActionType}: {candidate.Subject} ({candidate.FindingType})")
         Next
         Return builder.ToString().TrimEnd()
+    End Function
+
+    Public Shared Function Repair(result As HeadlessRepairApplyResult) As String
+        Return $"Repair {If(result.Applied, "applied", "preview")}: {result.AppliedCount:N0} applied, {result.FailedCount:N0} failed, {result.SkippedCount:N0} skipped."
+    End Function
+
+    Public Shared Function Rescan(result As HeadlessRescanResult) As String
+        Return $"Rescan {If(result.Applied, "applied", "preview")}: {result.OrphanFiles.Count:N0} orphan file(s), {result.AdoptedArtifacts.Count:N0} adopted."
+    End Function
+
+    Public Shared Function RebuildThumbnails(result As HeadlessThumbnailRebuildResult) As String
+        Return $"Thumbnail rebuild {If(result.Applied, "applied", "preview")}: {result.CandidateCount:N0} candidate(s), {result.RebuiltCount:N0} rebuilt, {result.FailedCount:N0} failed."
+    End Function
+
+    Public Shared Function Package(result As HeadlessPackageResult) As String
+        Return $"Package written: {result.OutputPath}"
     End Function
 End Class

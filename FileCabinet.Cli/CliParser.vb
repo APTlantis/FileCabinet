@@ -21,6 +21,15 @@ Public Class CliParser
             ElseIf String.Equals(token, "--quiet", StringComparison.OrdinalIgnoreCase) Then
                 command.Quiet = True
                 index += 1
+            ElseIf String.Equals(token, "--apply", StringComparison.OrdinalIgnoreCase) Then
+                command.Apply = True
+                index += 1
+            ElseIf String.Equals(token, "--yes", StringComparison.OrdinalIgnoreCase) Then
+                command.Yes = True
+                index += 1
+            ElseIf String.Equals(token, "--zip", StringComparison.OrdinalIgnoreCase) Then
+                command.Zip = True
+                index += 1
             ElseIf IsValueOption(token) Then
                 ApplyValueOption(command, token, ReadValue(tokens, index, command))
                 index += 2
@@ -135,13 +144,17 @@ Public Class CliParser
                 If String.IsNullOrWhiteSpace(command.Query) Then
                     command.Errors.Add("search requires a query.")
                 End If
-            Case "export", "report", "repair-preview"
+            Case "export", "report", "repair-preview", "repair", "rescan", "rebuild-thumbnails", "package"
             Case Else
                 command.Errors.Add($"Unknown command: {command.CommandName}")
         End Select
 
         If command.CommandName = "report" AndAlso Not {"text", "json"}.Contains(If(command.Format, "").ToLowerInvariant()) Then
             command.Errors.Add("--format must be text or json.")
+        End If
+
+        If {"repair", "rescan", "rebuild-thumbnails"}.Contains(command.CommandName) AndAlso command.Apply AndAlso Not command.Yes Then
+            command.Errors.Add($"{command.CommandName} --apply requires --yes.")
         End If
     End Sub
 End Class

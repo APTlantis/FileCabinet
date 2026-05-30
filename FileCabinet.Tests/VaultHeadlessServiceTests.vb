@@ -149,6 +149,81 @@ Namespace FileCabinet.Tests
             End Try
         End Sub
 
+        <TestMethod>
+        Sub RepairApplyRecomputesMissingHashesWithExplicitApproval()
+            Dim workspace = TestWorkspace()
+
+            Try
+                Dim catalogService = CreateCatalogService(workspace)
+                Dim catalog = catalogService.LoadOrCreate()
+                Dim storedPath = Path.Combine(workspace, "vault", "items", "needs-hash.txt")
+                Directory.CreateDirectory(Path.GetDirectoryName(storedPath))
+                File.WriteAllText(storedPath, "needs hash")
+                catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {
+                    .Name = "needs-hash.txt",
+                    .Path = storedPath,
+                    .RelativePath = Path.GetRelativePath(catalog.VaultRootPath, storedPath)
+                })
+                catalogService.Save(catalog)
+
+                Dim result = CreateService(workspace).Repair(apply:=True)
+                Dim reloaded = catalogService.LoadOrCreate()
+
+                Assert.AreEqual(1, result.AppliedCount)
+                Assert.IsFalse(String.IsNullOrWhiteSpace(reloaded.Artifacts(0).Sha256))
+                Assert.AreEqual("Verified", reloaded.Artifacts(0).HashStatus)
+            Finally
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub RescanPreviewAndApplyAdoptsOrphanStoredFile()
+            Dim workspace = TestWorkspace()
+
+            Try
+                Dim service = CreateService(workspace)
+                Dim catalog = service.LoadCatalog()
+                Dim orphanPath = Path.Combine(catalog.VaultRootPath, "items", "2026", "05", "orphan.txt")
+                Directory.CreateDirectory(Path.GetDirectoryName(orphanPath))
+                File.WriteAllText(orphanPath, "orphan")
+
+                Dim preview = service.Rescan(apply:=False)
+                Dim applied = service.Rescan(apply:=True)
+                Dim reloaded = service.LoadCatalog()
+
+                Assert.AreEqual(1, preview.OrphanFiles.Count)
+                Assert.AreEqual(1, applied.AdoptedArtifacts.Count)
+                Assert.AreEqual(1, reloaded.Artifacts.Count)
+            Finally
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub PackageWritesStandardizedExportFolder()
+            Dim workspace = TestWorkspace()
+            Dim source = Path.Combine(workspace, "package-source.txt")
+            File.WriteAllText(source, "package me")
+
+            Try
+                Dim service = CreateService(workspace)
+                service.Ingest({source}, Global.FileCabinet.IngestMode.Copy)
+                Dim output = Path.Combine(workspace, "package")
+
+                Dim result = service.CreatePackage(output, zipPackage:=False)
+
+                Assert.AreEqual(output, result.OutputPath)
+                Assert.IsTrue(File.Exists(Path.Combine(output, "manifest.json")))
+                Assert.IsTrue(File.Exists(Path.Combine(output, "catalog", "catalog.json")))
+                Assert.IsTrue(File.Exists(Path.Combine(output, "catalog", "catalog.jsonl")))
+                Assert.IsTrue(File.Exists(Path.Combine(output, "integrity", "vault-health.json")))
+                Assert.IsTrue(result.FileCount > 0)
+            Finally
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
         Private Shared Function CreateService(workspace As String) As Global.FileCabinet.VaultHeadlessService
             Return New Global.FileCabinet.VaultHeadlessService(New Global.FileCabinet.HeadlessOptions With {
                 .CatalogPath = Path.Combine(workspace, "catalog.json"),
