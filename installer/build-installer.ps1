@@ -1,13 +1,14 @@
 param(
     [string]$Configuration = "Release",
     [string]$Runtime = "win-x64",
-    [string]$Version = "1.3.1.0"
+    [string]$Version = "1.4.1.0"
 )
 
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $projectPath = Join-Path $repoRoot "FileCabinet.vbproj"
+$cliProjectPath = Join-Path $repoRoot "FileCabinet.Cli\FileCabinet.Cli.vbproj"
 $iconPath = Join-Path $repoRoot "Assets\FileCabinet.ico"
 $publishDir = Join-Path $repoRoot "artifacts\publish\$Runtime"
 $installerDir = Join-Path $repoRoot "artifacts\installer"
@@ -39,12 +40,29 @@ dotnet publish $projectPath `
     -p:DebugSymbols=false `
     -o $publishDir
 
+dotnet publish $cliProjectPath `
+    -c $Configuration `
+    -r $Runtime `
+    --self-contained true `
+    -p:PublishSingleFile=true `
+    -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:EnableCompressionInSingleFile=true `
+    -p:DebugType=None `
+    -p:DebugSymbols=false `
+    -o $publishDir
+
 $exePath = Join-Path $publishDir "FileCabinet.exe"
 if (-not (Test-Path $exePath)) {
     throw "Published executable was not found at $exePath"
 }
 
+$cliExePath = Join-Path $publishDir "FileCabinet.Cli.exe"
+if (-not (Test-Path $cliExePath)) {
+    throw "Published CLI executable was not found at $cliExePath"
+}
+
 $escapedExePath = ConvertTo-XmlAttributeValue (Resolve-Path $exePath).Path
+$escapedCliExePath = ConvertTo-XmlAttributeValue (Resolve-Path $cliExePath).Path
 $escapedIconPath = ConvertTo-XmlAttributeValue (Resolve-Path $iconPath).Path
 
 $wxs = @"
@@ -63,6 +81,7 @@ $wxs = @"
             <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="FileCabinet" WorkingDirectory="INSTALLFOLDER" Icon="FileCabinetIcon" IconIndex="0" Advertise="no" />
             <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="FileCabinet" WorkingDirectory="INSTALLFOLDER" Icon="FileCabinetIcon" IconIndex="0" Advertise="no" />
           </File>
+          <File Id="FileCabinetCliExe" Source="$escapedCliExePath" Name="FileCabinet.Cli.exe" />
           <RegistryValue Root="HKCU" Key="Software\FileCabinet" Name="InstallFolder" Type="string" Value="[INSTALLFOLDER]" />
           <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.CopyToFileCabinet" Name="MUIVerb" Type="string" Value="Copy to FileCabinet" />
           <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.CopyToFileCabinet" Name="Icon" Type="string" Value="[#FileCabinetExe]" />

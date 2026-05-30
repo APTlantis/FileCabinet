@@ -212,6 +212,19 @@ The CLI writes real stdout/stderr and returns script-friendly exit codes: `0` fo
 
 The `package` command writes a deterministic vault export containing catalog JSON, catalog JSONL, retained items, extracted text, thumbnails, repair logs, and a vault-health report. Use `--zip` for a single cold-storage archive.
 
+## Preservation Docs
+
+FileCabinet's preservation model is documented in:
+
+- [The Art of Deliberate Retention](docs/TheArtofDeliberateRetention.md)
+- [Vault Lifecycle](docs/FileCabinet%20%E2%80%94%20Vault%20Lifecycle.md)
+- [Trust and Verification Model](docs/FileCabinet%20%E2%80%94%20Trust%20and%20Verification%20Model.md)
+- [Why Determinism Matters](docs/FileCabinet%20%E2%80%94%20Why%20Determinism%20Matters.md)
+- [Local-First Artifact Preservation](docs/FileCabinet%20%E2%80%94%20Local-First%20Artifact%20Preservation.md)
+- [Repair and Recovery Guide](docs/FileCabinet%20%E2%80%94%20Repair%20and%20Recovery%20Guide.md)
+- [Designing for Context Preservation](docs/FileCabinet%20%E2%80%94%20Designing%20for%20Context%20Preservation.md)
+- [Why VB.NET and WPF](docs/FileCabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
+
 ## Design Boundaries
 
 FileCabinet is intentionally focused on deliberate curation rather than automatic inference.

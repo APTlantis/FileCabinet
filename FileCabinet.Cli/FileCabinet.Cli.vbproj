@@ -6,6 +6,9 @@
     <RootNamespace></RootNamespace>
     <AssemblyName>FileCabinet.Cli</AssemblyName>
     <LangVersion>latest</LangVersion>
+    <Version>1.4.1</Version>
+    <FileVersion>1.4.1.0</FileVersion>
+    <AssemblyVersion>1.4.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
