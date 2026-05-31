@@ -2,7 +2,7 @@
 
 ## Strategic Direction
 
-FileCabinet should continue evolving as a:
+The central direction remains:
 
 * local-first
 * deterministic
@@ -27,6 +27,14 @@ The next phase should focus on strengthening reliability, portability, documenta
 ---
 
 # Priority 1 — Vault Reliability & Trust
+
+## Principle
+
+The vault should be able to prove that retained files, catalog records, generated assets, and repair evidence still agree.
+
+Reliability work should make recovery safer without hiding uncertainty from the operator.
+
+---
 
 ## 1. Backup / Restore Validation
 
@@ -114,6 +122,14 @@ Portable “cold archive vaults”:
 ---
 
 # Priority 2 — Metadata & Recall Quality
+
+## Principle
+
+Recall should improve through deterministic context, not opaque ranking.
+
+Metadata, notes, relations, and discovery scopes should help the operator understand why artifacts matter and why they appear together.
+
+---
 
 ## 4. Relation Engine Expansion
 
@@ -203,6 +219,14 @@ Operator “collections”:
 
 # Priority 3 — Preview & Inspection
 
+## Principle
+
+Inspection should make retained artifacts understandable without pretending every format can be rendered the same way.
+
+Previews, extracted text, and generated assets should remain local, deterministic, cached, and rebuildable.
+
+---
+
 ## 7. Preview Pipeline Maturity
 
 Preview support is already good because unsupported formats are handled honestly instead of pretending everything is renderable.
@@ -260,6 +284,14 @@ without requiring opaque ranking or generated classifications.
 
 # Priority 4 — Ecosystem & Operator Tooling
 
+## Principle
+
+Operator workflows should be scriptable, reportable, and portable while preserving the same cautious semantics as the desktop app.
+
+Automation should expose vault state clearly instead of bypassing review.
+
+---
+
 ## 9. CLI / Headless Operations
 
 This feels like a natural evolution point.
@@ -315,6 +347,14 @@ This could become:
 ---
 
 # Priority 5 — Documentation & Philosophy
+
+## Principle
+
+FileCabinet's design philosophy should be explicit enough that future work can preserve the product's boundaries.
+
+Documentation should explain not only what the vault does, but why it avoids cloud dependence, automatic inference, and hidden state.
+
+---
 
 ## 11. Preservation-Oriented Documentation
 
