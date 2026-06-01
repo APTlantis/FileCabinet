@@ -98,6 +98,8 @@ Namespace FileCabinet.Cli
                     End If
                 Case "--fail-on"
                     command.FailOn = value
+                Case Else
+                    command.Errors.Add($"Unknown option: {optionName}")
             End Select
         End Sub
 

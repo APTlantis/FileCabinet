@@ -32,6 +32,29 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub LoadOrCreateReplacesUnreadableCatalog()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim catalogPath = Path.Combine(workspace, "appdata", "catalog.json")
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Directory.CreateDirectory(Path.GetDirectoryName(catalogPath))
+            File.WriteAllText(catalogPath, "{not json")
+
+            Try
+                Dim service As New Global.FileCabinet.CatalogService(catalogPath, vaultRoot)
+
+                Dim catalog = service.LoadOrCreate()
+
+                Assert.AreEqual(1, catalog.SchemaVersion)
+                Assert.AreEqual(0, catalog.Artifacts.Count)
+                Assert.IsTrue(File.Exists(catalogPath))
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub ExportSnapshotWritesPortableCatalogCopy()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim catalogPath = Path.Combine(workspace, "appdata", "catalog.json")

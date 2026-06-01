@@ -1,3 +1,4 @@
+Imports System.Diagnostics
 Imports System.IO
 Imports System.Text.Json
 
@@ -40,7 +41,8 @@ Public Class CatalogService
                     Return loaded
                 End If
             End If
-        Catch
+        Catch ex As Exception
+            Debug.WriteLine($"Catalog load failed; creating a new catalog. {ex.Message}")
         End Try
 
         Dim created = CreateEmptyCatalog()

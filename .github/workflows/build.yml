@@ -74,7 +74,7 @@ jobs:
             /k:"APTlantis_FileCabinet" `
             /o:"aptlantis" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="FileCabinet.Tests\TestResults\coverage.opencover.xml" `
+            /d:sonar.vbnet.opencover.reportsPaths="FileCabinet.Tests\TestResults\coverage.opencover.xml" `
             /d:sonar.token="$env:SONAR_TOKEN"
 
           dotnet build FileCabinet.slnx --configuration Release --no-restore --no-incremental

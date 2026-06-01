@@ -1,3 +1,4 @@
+Imports System.Diagnostics
 Imports System.IO
 Imports System.IO.Compression
 Imports System.Text
@@ -112,7 +113,8 @@ Public Class IngestionService
             ElseIf Directory.Exists(inputPath) Then
                 Try
                     files.AddRange(Directory.EnumerateFiles(inputPath, "*", SearchOption.AllDirectories))
-                Catch
+                Catch ex As Exception
+                    Debug.WriteLine($"Failed to enumerate files under '{inputPath}'. {ex.Message}")
                 End Try
             End If
         Next

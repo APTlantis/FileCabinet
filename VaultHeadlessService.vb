@@ -1,3 +1,4 @@
+Imports System.Diagnostics
 Imports System.IO
 Imports System.IO.Compression
 Imports System.Text
@@ -241,7 +242,8 @@ Public Class VaultHeadlessService
                 adopted.Notes = $"Adopted during CLI vault rescan at {DateTime.Now:yyyy-MM-dd HH:mm}"
                 catalog.Artifacts.Insert(0, adopted)
                 result.AdoptedArtifacts.Add(adopted)
-            Catch
+            Catch ex As Exception
+                Debug.WriteLine($"Failed to adopt orphan file '{orphan}'. {ex.Message}")
             End Try
         Next
 

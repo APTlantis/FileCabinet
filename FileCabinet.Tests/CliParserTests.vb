@@ -1,4 +1,5 @@
 Imports Microsoft.VisualStudio.TestTools.UnitTesting
+Imports System.Reflection
 
 Namespace FileCabinet.Tests
     <TestClass>
@@ -69,6 +70,17 @@ Namespace FileCabinet.Tests
 
             Assert.IsFalse(command.IsValid)
             Assert.IsTrue(command.Errors.Any(Function(message) message.Contains("--limit requires a value.")))
+        End Sub
+
+        <TestMethod>
+        Sub ApplyValueOptionReportsUnexpectedOption()
+            Dim command As New Global.FileCabinet.Cli.CliCommand()
+            Dim method = GetType(Global.FileCabinet.Cli.CliParser).GetMethod("ApplyValueOption", BindingFlags.NonPublic Or BindingFlags.Static)
+
+            method.Invoke(Nothing, {command, "--mystery", "value"})
+
+            Assert.IsFalse(command.IsValid)
+            Assert.IsTrue(command.Errors.Any(Function(message) message.Contains("Unknown option: --mystery")))
         End Sub
     End Class
 End Namespace

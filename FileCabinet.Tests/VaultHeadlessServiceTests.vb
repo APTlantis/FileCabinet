@@ -201,6 +201,32 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub RescanApplySkipsOrphanWhenStoredFileCannotBeRead()
+            Dim workspace = TestWorkspace()
+            Dim lockStream As FileStream = Nothing
+
+            Try
+                Dim service = CreateService(workspace)
+                Dim catalog = service.LoadCatalog()
+                Dim orphanPath = Path.Combine(catalog.VaultRootPath, "items", "2026", "05", "locked.txt")
+                Directory.CreateDirectory(Path.GetDirectoryName(orphanPath))
+                File.WriteAllText(orphanPath, "locked")
+                lockStream = New FileStream(orphanPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
+
+                Dim applied = service.Rescan(apply:=True)
+
+                Assert.AreEqual(1, applied.OrphanFiles.Count)
+                Assert.AreEqual(0, applied.AdoptedArtifacts.Count)
+            Finally
+                If lockStream IsNot Nothing Then
+                    lockStream.Dispose()
+                End If
+
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub PackageWritesStandardizedExportFolder()
             Dim workspace = TestWorkspace()
             Dim source = Path.Combine(workspace, "package-source.txt")
