@@ -74,10 +74,16 @@ jobs:
             /k:"APTlantis_FileCabinet" `
             /o:"aptlantis" `
             /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.cs.opencover.reportsPaths="FileCabinet.Tests\TestResults\coverage.opencover.xml" `
             /d:sonar.token="$env:SONAR_TOKEN"
 
           dotnet build FileCabinet.slnx --configuration Release --no-restore --no-incremental
-          dotnet test FileCabinet.Tests\FileCabinet.Tests.vbproj --configuration Release --no-restore
+          dotnet test FileCabinet.Tests\FileCabinet.Tests.vbproj `
+            --configuration Release `
+            --no-restore `
+            /p:CollectCoverage=true `
+            /p:CoverletOutput=TestResults\ `
+            /p:CoverletOutputFormat=opencover
 
           & "${{ runner.temp }}\scanner\dotnet-sonarscanner" end `
             /d:sonar.token="$env:SONAR_TOKEN"

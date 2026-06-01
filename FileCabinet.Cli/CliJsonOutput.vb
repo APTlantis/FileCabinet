@@ -1,16 +1,17 @@
 Imports System.Text.Json
 Imports FileCabinet
 
-Public Class CliJsonOutput
-    Private Shared ReadOnly Options As New JsonSerializerOptions With {
-        .WriteIndented = True
-    }
+Namespace FileCabinet.Cli
+    Public Class CliJsonOutput
+        Private Shared ReadOnly Options As New JsonSerializerOptions With {
+            .WriteIndented = True
+        }
 
-    Public Shared Function Serialize(value As Object) As String
-        Return JsonSerializer.Serialize(value, Options)
-    End Function
+        Public Shared Function Serialize(value As Object) As String
+            Return JsonSerializer.Serialize(value, Options)
+        End Function
 
-    Public Shared Function Ingest(result As HeadlessIngestResult) As String
+        Public Shared Function Ingest(result As HeadlessIngestResult) As String
         Return Serialize(New With {
             .command = "ingest",
             .mode = result.Mode.ToString(),
@@ -24,9 +25,9 @@ Public Class CliJsonOutput
                 .blake3 = artifact.Blake3
             }).ToList()
         })
-    End Function
+        End Function
 
-    Public Shared Function Verify(result As HeadlessVerifyResult) As String
+        Public Shared Function Verify(result As HeadlessVerifyResult) As String
         Return Serialize(New With {
             .command = "verify",
             .exitCode = result.ExitCode,
@@ -34,9 +35,9 @@ Public Class CliJsonOutput
             .findings = result.HealthReport.Findings,
             .repair = result.RepairReport
         })
-    End Function
+        End Function
 
-    Public Shared Function Search(results As List(Of ArtifactModel)) As String
+        Public Shared Function Search(results As List(Of ArtifactModel)) As String
         Return Serialize(New With {
             .command = "search",
             .count = results.Count,
@@ -52,27 +53,27 @@ Public Class CliJsonOutput
                 .blake3 = artifact.Blake3
             }).ToList()
         })
-    End Function
+        End Function
 
-    Public Shared Function ExportSnapshot(result As HeadlessExportResult) As String
+        Public Shared Function ExportSnapshot(result As HeadlessExportResult) As String
         Return Serialize(New With {
             .command = "export",
             .backupPath = result.Validation.BackupPath,
             .isValid = result.Validation.IsValid,
             .detail = result.Validation.Detail
         })
-    End Function
+        End Function
 
-    Public Shared Function Report(result As HeadlessReportResult) As String
+        Public Shared Function Report(result As HeadlessReportResult) As String
         Return Serialize(New With {
             .command = "report",
             .outputPath = result.OutputPath,
             .summary = result.HealthReport.Summary,
             .findingCount = result.HealthReport.FindingCount
         })
-    End Function
+        End Function
 
-    Public Shared Function RepairPreview(result As HeadlessRepairPreviewResult) As String
+        Public Shared Function RepairPreview(result As HeadlessRepairPreviewResult) As String
         Return Serialize(New With {
             .command = "repair-preview",
             .summary = result.HealthReport.Summary,
@@ -85,9 +86,9 @@ Public Class CliJsonOutput
                 .proposedAction = candidate.ProposedAction
             }).ToList()
         })
-    End Function
+        End Function
 
-    Public Shared Function Repair(result As HeadlessRepairApplyResult) As String
+        Public Shared Function Repair(result As HeadlessRepairApplyResult) As String
         Return Serialize(New With {
             .command = "repair",
             .applied = result.Applied,
@@ -96,9 +97,9 @@ Public Class CliJsonOutput
             .skippedCount = result.SkippedCount,
             .candidates = result.Candidates
         })
-    End Function
+        End Function
 
-    Public Shared Function Rescan(result As HeadlessRescanResult) As String
+        Public Shared Function Rescan(result As HeadlessRescanResult) As String
         Return Serialize(New With {
             .command = "rescan",
             .applied = result.Applied,
@@ -107,9 +108,9 @@ Public Class CliJsonOutput
             .orphans = result.OrphanFiles,
             .adopted = result.AdoptedArtifacts.Select(Function(artifact) New With {.id = artifact.Id, .name = artifact.Name, .path = artifact.Path}).ToList()
         })
-    End Function
+        End Function
 
-    Public Shared Function RebuildThumbnails(result As HeadlessThumbnailRebuildResult) As String
+        Public Shared Function RebuildThumbnails(result As HeadlessThumbnailRebuildResult) As String
         Return Serialize(New With {
             .command = "rebuild-thumbnails",
             .applied = result.Applied,
@@ -117,9 +118,9 @@ Public Class CliJsonOutput
             .rebuiltCount = result.RebuiltCount,
             .failedCount = result.FailedCount
         })
-    End Function
+        End Function
 
-    Public Shared Function Package(result As HeadlessPackageResult) As String
+        Public Shared Function Package(result As HeadlessPackageResult) As String
         Return Serialize(New With {
             .command = "package",
             .outputPath = result.OutputPath,
@@ -127,5 +128,6 @@ Public Class CliJsonOutput
             .fileCount = result.FileCount,
             .isZip = result.IsZip
         })
-    End Function
-End Class
+        End Function
+    End Class
+End Namespace

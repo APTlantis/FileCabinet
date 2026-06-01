@@ -214,7 +214,7 @@ Public Class PreviewService
             Case normalizedExtension = ".pdf"
                 Return "PDF Retained"
             Case Else
-                Return $"{artifact.Type} Retained"
+                Return $"{If(artifact?.Type, "File")} Retained"
         End Select
     End Function
 

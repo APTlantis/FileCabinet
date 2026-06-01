@@ -1,5 +1,6 @@
 Imports Microsoft.VisualStudio.TestTools.UnitTesting
 Imports System.IO
+Imports System.Reflection
 
 Namespace FileCabinet.Tests
     <TestClass>
@@ -93,6 +94,15 @@ Namespace FileCabinet.Tests
             Assert.AreEqual("Archive Retained", preview.Title)
             Assert.AreEqual("TAR", preview.BadgeText)
             StringAssert.Contains(preview.Detail, "extract contents")
+        End Sub
+
+        <TestMethod>
+        Sub ResolvePreviewTitleHandlesMissingArtifact()
+            Dim method = GetType(Global.FileCabinet.PreviewService).GetMethod("ResolvePreviewTitle", BindingFlags.NonPublic Or BindingFlags.Static)
+
+            Dim title = DirectCast(method.Invoke(Nothing, {Nothing, ".bin"}), String)
+
+            Assert.AreEqual("File Retained", title)
         End Sub
 
         Private Shared Function LoadPreviewFor(fileName As String, typeName As String, category As String) As Global.FileCabinet.ArtifactPreview
