@@ -18,7 +18,7 @@ Namespace FileCabinet.Tests
                 Assert.AreEqual(1, catalog.SchemaVersion)
                 Assert.AreEqual(vaultRoot, catalog.VaultRootPath)
                 Assert.AreEqual("Move", catalog.DefaultIngestMode)
-                Assert.AreEqual(0, catalog.Artifacts.Count)
+                Assert.IsEmpty(catalog.Artifacts)
                 Assert.IsTrue(File.Exists(catalogPath))
                 Assert.IsTrue(Directory.Exists(Path.Combine(vaultRoot, "items")))
                 Assert.IsTrue(Directory.Exists(Path.Combine(vaultRoot, "quarantine")))
@@ -45,7 +45,7 @@ Namespace FileCabinet.Tests
                 Dim catalog = service.LoadOrCreate()
 
                 Assert.AreEqual(1, catalog.SchemaVersion)
-                Assert.AreEqual(0, catalog.Artifacts.Count)
+                Assert.IsEmpty(catalog.Artifacts)
                 Assert.IsTrue(File.Exists(catalogPath))
             Finally
                 If Directory.Exists(workspace) Then

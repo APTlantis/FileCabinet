@@ -8,8 +8,8 @@ Namespace FileCabinet.Tests
             Dim help = Global.FileCabinet.Cli.CliTextOutput.Help()
             Dim version = Global.FileCabinet.Cli.CliTextOutput.Version()
 
-            StringAssert.Contains(help, "FileCabinet CLI")
-            StringAssert.Contains(help, "Global options")
+            Assert.Contains("FileCabinet CLI", help)
+            Assert.Contains("Global options", help)
             Assert.AreEqual("FileCabinet.Cli 1.4.1", version)
         End Sub
 
@@ -24,9 +24,9 @@ Namespace FileCabinet.Tests
                 }
             })
 
-            StringAssert.Contains(json, """command"": ""search""")
-            StringAssert.Contains(json, """count"": 1")
-            StringAssert.Contains(json, """name"": ""firmware.bin""")
+            Assert.Contains("""command"": ""search""", json)
+            Assert.Contains("""count"": 1", json)
+            Assert.Contains("""name"": ""firmware.bin""", json)
         End Sub
     End Class
 End Namespace

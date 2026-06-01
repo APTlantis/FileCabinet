@@ -4,6 +4,13 @@ Imports System.Reflection
 Namespace FileCabinet.Tests
     <TestClass>
     Public Class CliParserTests
+        Private Shared ReadOnly HelpArgs As String() = {"-h"}
+        Private Shared ReadOnly VersionArgs As String() = {"--version"}
+        Private Shared ReadOnly QuietZipPackageArgs As String() = {"package", "--quiet", "--zip"}
+        Private Shared ReadOnly MissingLimitValueArgs As String() = {"search", "firmware", "--limit"}
+        Private Shared ReadOnly MysteryValueOptionName As String = "--mystery"
+        Private Shared ReadOnly MysteryValueOptionValue As String = "value"
+
         <TestMethod>
         Sub ParseIngestCommandWithGlobalOptionsAndMode()
             Dim command = Global.FileCabinet.Cli.CliParser.Parse({"ingest", "--copy", "--catalog", "C:\Temp\catalog.json", "--vault", "K:\Vault", "C:\Temp\a.txt"})
@@ -13,7 +20,7 @@ Namespace FileCabinet.Tests
             Assert.AreEqual(Global.FileCabinet.IngestMode.Copy, command.Mode.Value)
             Assert.AreEqual("C:\Temp\catalog.json", command.CatalogPath)
             Assert.AreEqual("K:\Vault", command.VaultRootPath)
-            Assert.AreEqual(1, command.Paths.Count)
+            Assert.HasCount(1, command.Paths)
         End Sub
 
         <TestMethod>
@@ -51,9 +58,9 @@ Namespace FileCabinet.Tests
 
         <TestMethod>
         Sub ParseHelpVersionQuietAndZipSwitches()
-            Dim help = Global.FileCabinet.Cli.CliParser.Parse({"-h"})
-            Dim version = Global.FileCabinet.Cli.CliParser.Parse({"--version"})
-            Dim package = Global.FileCabinet.Cli.CliParser.Parse({"package", "--quiet", "--zip"})
+            Dim help = Global.FileCabinet.Cli.CliParser.Parse(HelpArgs)
+            Dim version = Global.FileCabinet.Cli.CliParser.Parse(VersionArgs)
+            Dim package = Global.FileCabinet.Cli.CliParser.Parse(QuietZipPackageArgs)
 
             Assert.IsTrue(help.Help)
             Assert.IsTrue(help.IsValid)
@@ -66,7 +73,7 @@ Namespace FileCabinet.Tests
 
         <TestMethod>
         Sub ParseValueOptionRequiresValue()
-            Dim command = Global.FileCabinet.Cli.CliParser.Parse({"search", "firmware", "--limit"})
+            Dim command = Global.FileCabinet.Cli.CliParser.Parse(MissingLimitValueArgs)
 
             Assert.IsFalse(command.IsValid)
             Assert.IsTrue(command.Errors.Any(Function(message) message.Contains("--limit requires a value.")))
@@ -77,7 +84,7 @@ Namespace FileCabinet.Tests
             Dim command As New Global.FileCabinet.Cli.CliCommand()
             Dim method = GetType(Global.FileCabinet.Cli.CliParser).GetMethod("ApplyValueOption", BindingFlags.NonPublic Or BindingFlags.Static)
 
-            method.Invoke(Nothing, {command, "--mystery", "value"})
+            method.Invoke(Nothing, {command, MysteryValueOptionName, MysteryValueOptionValue})
 
             Assert.IsFalse(command.IsValid)
             Assert.IsTrue(command.Errors.Any(Function(message) message.Contains("Unknown option: --mystery")))

@@ -215,8 +215,8 @@ Namespace FileCabinet.Tests
 
                 Dim applied = service.Rescan(apply:=True)
 
-                Assert.AreEqual(1, applied.OrphanFiles.Count)
-                Assert.AreEqual(0, applied.AdoptedArtifacts.Count)
+                Assert.HasCount(1, applied.OrphanFiles)
+                Assert.IsEmpty(applied.AdoptedArtifacts)
             Finally
                 If lockStream IsNot Nothing Then
                     lockStream.Dispose()

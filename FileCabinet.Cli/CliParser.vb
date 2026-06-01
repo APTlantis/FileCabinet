@@ -16,7 +16,7 @@ Namespace FileCabinet.Cli
                 ElseIf IsValueOption(token) Then
                     ApplyValueOption(command, token, ReadValue(tokens, index, command))
                     index += 2
-                ElseIf token.StartsWith("-", StringComparison.Ordinal) Then
+                ElseIf token.StartsWith("-"c) Then
                     ApplyFlagOption(command, token)
                     index += 1
                 ElseIf String.IsNullOrWhiteSpace(command.CommandName) Then
@@ -65,7 +65,7 @@ Namespace FileCabinet.Cli
         End Function
 
         Private Shared Function ReadValue(tokens As List(Of String), index As Integer, command As CliCommand) As String
-            If index + 1 >= tokens.Count OrElse tokens(index + 1).StartsWith("-", StringComparison.Ordinal) Then
+            If index + 1 >= tokens.Count OrElse tokens(index + 1).StartsWith("-"c) Then
                 command.Errors.Add($"{tokens(index)} requires a value.")
                 Return ""
             End If
