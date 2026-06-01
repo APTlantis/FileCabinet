@@ -7,18 +7,43 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies and build project
+          name: Install .NET SDK and SonarScanner
           command: |
+            # Install .NET SDK locally (non-root) to $HOME/.dotnet
             curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
             chmod +x dotnet-install.sh
             ./dotnet-install.sh --channel 10.0 --install-dir "$HOME/.dotnet"
-            export PATH="$HOME/.dotnet:$PATH"
-            dotnet restore FileCabinet.slnx /p:EnableWindowsTargeting=true
-            dotnet build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
-      - sonarcloud/scan
+            # Ensure both the SDK and user tools are on PATH
+            export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
+            # Install SonarScanner for .NET (idempotent in CI)
+            dotnet tool install --global dotnet-sonarscanner || true
+      - run:
+          name: Restore, Build, and Analyze with SonarCloud
+          command: |
+            set -euo pipefail
+            export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
 
-orbs:
-  sonarcloud: sonarsource/sonarcloud@2.0.0
+            # Always restore before analysis/build
+            dotnet restore FileCabinet.slnx /p:EnableWindowsTargeting=true
+
+            if [ -n "${SONAR_TOKEN:-}" ]; then
+              echo "Running SonarCloud analysis with Scanner for .NET"
+              dotnet sonarscanner begin \
+                /k:"APTlantis_FileCabinet" \
+                /o:"aptlantis" \
+                /d:sonar.host.url="https://sonarcloud.io" \
+                /d:sonar.token="${SONAR_TOKEN}"
+
+              dotnet build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
+
+              dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+            else
+              echo "SONAR_TOKEN is not set. Skipping SonarCloud analysis to avoid failing builds on forks/external PRs."
+              # Perform a regular build so the job remains useful
+              dotnet build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
+            fi
+
+orbs: {}
 
 workflows:
   main:
