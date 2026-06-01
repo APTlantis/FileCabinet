@@ -207,6 +207,7 @@ Public Class MainViewModel
                 LoadPreviewForSelectedAsync()
                 LoadEditorFromSelected()
                 RebuildRelatedArtifacts()
+                RaiseSelectedArtifactCommandState()
                 If String.Equals(ActiveScope, "Same source batch", StringComparison.OrdinalIgnoreCase) Then
                     InvalidateDiscoveryScopeCache()
                     If Not _isRefreshingFilters Then
@@ -1220,7 +1221,7 @@ Public Class MainViewModel
         PersistDerivedCatalogLists()
         _catalog.Artifacts = Artifacts.ToList()
         _catalogService.Save(_catalog)
-        FilteredArtifacts.Refresh()
+        RefreshFilters(preserveSelection:=True)
         EditStatus = $"Saved {SelectedArtifact.Name} at {DateTime.Now:HH:mm:ss}"
         OnPropertyChanged(NameOf(CategoryNames))
         RefreshDerivedUiState()
@@ -3224,6 +3225,19 @@ Public Class MainViewModel
         RaiseCommandState(ApplySelectedRepairCandidatesCommand)
         RaiseCommandState(HashCheckCommand)
         RaiseCommandState(RefreshCommand)
+    End Sub
+
+    Private Sub RaiseSelectedArtifactCommandState()
+        RaiseCommandState(SaveArtifactCommand)
+        RaiseCommandState(RevertArtifactCommand)
+        RaiseCommandState(OpenLocationCommand)
+        RaiseCommandState(OpenFileCommand)
+        RaiseCommandState(RestoreArtifactCommand)
+        RaiseCommandState(PermanentlyDeleteArtifactCommand)
+        RaiseCommandState(HashCheckCommand)
+        RaiseCommandState(ToggleStarCommand)
+        RaiseCommandState(AddTagsCommand)
+        RaiseCommandState(QuarantineCommand)
     End Sub
 
     Private Sub HandleAsyncCommandException(ex As Exception)

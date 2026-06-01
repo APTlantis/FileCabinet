@@ -1040,13 +1040,13 @@
                                     <TextBlock Text="{Binding SelectedArtifact.SummaryText}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,22" />
 
                                     <TextBlock Text="Editable Metadata" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
-                                    <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" />
-                                    <ComboBox Text="{Binding EditCategory, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox Text="{Binding EditName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" />
+                                    <ComboBox Text="{Binding EditCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               ItemsSource="{Binding CategoryNames}"
                                               IsEditable="True"
                                               Style="{StaticResource EditorComboBox}"
                                               Margin="0,0,0,8" />
-                                    <TextBox Text="{Binding EditTagsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Comma-separated tags" />
+                                    <TextBox Text="{Binding EditTagsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Comma-separated tags" />
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="62" />
@@ -1058,13 +1058,13 @@
 
                                     <TextBlock Text="Operator Context" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
                                     <TextBlock Text="Retention reason" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
-                                    <TextBox Text="{Binding EditRetentionReason, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Retention reason" />
+                                    <TextBox Text="{Binding EditRetentionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Retention reason" />
                                     <TextBlock Text="Why this matters" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
-                                    <TextBox Text="{Binding EditWhyThisMatters, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Why this matters" />
+                                    <TextBox Text="{Binding EditWhyThisMatters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Why this matters" />
                                     <TextBlock Text="Source provenance" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
-                                    <TextBox Text="{Binding EditSourceProvenance, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Source or provenance" />
+                                    <TextBox Text="{Binding EditSourceProvenance, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Source or provenance" />
                                     <TextBlock Text="Acquisition method" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
-                                    <TextBox Text="{Binding EditAcquisitionMethod, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Acquisition method" />
+                                    <TextBox Text="{Binding EditAcquisitionMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Acquisition method" />
                                     <Grid Margin="0,0,0,4">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -1186,7 +1186,7 @@
                                     </Grid>
 
                                     <TextBlock Text="Notes" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
-                                    <TextBox Text="{Binding EditNotes, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox Text="{Binding EditNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource EditorTextBox}"
                                              AcceptsReturn="True"
                                              TextWrapping="Wrap"
