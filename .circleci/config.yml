@@ -7,18 +7,44 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies and build project
+          name: Install .NET 10 SDK
           command: |
             curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
             chmod +x dotnet-install.sh
             ./dotnet-install.sh --channel 10.0 --install-dir "$HOME/.dotnet"
-            export PATH="$HOME/.dotnet:$PATH"
-            dotnet restore FileCabinet.slnx /p:EnableWindowsTargeting=true
-            dotnet build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
-      - sonarcloud/scan
+            echo 'export PATH="$HOME/.dotnet:$PATH"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+      - run:
+          name: Install SonarScanner for .NET
+          command: |
+            mkdir -p "$HOME/.sonarscanner"
+            "$HOME/.dotnet/dotnet" tool update dotnet-sonarscanner --tool-path "$HOME/.sonarscanner"
+      - run:
+          name: Build and SonarCloud Analysis
+          command: |
+            source "$BASH_ENV"
+            if [ -z "${SONAR_TOKEN:-}" ]; then
+              echo "SONAR_TOKEN not set. Configure it in the 'SonarCloud' context." >&2
+              exit 1
+            fi
 
-orbs:
-  sonarcloud: sonarsource/sonarcloud@2.0.0
+            SCANNER="$HOME/.sonarscanner/dotnet-sonarscanner"
+
+            # Begin analysis session
+            "$SCANNER" begin \
+              /k:"APTlantis_FileCabinet" \
+              /o:"aptlantis" \
+              /d:sonar.host.url="https://sonarcloud.io" \
+              /d:sonar.token="$SONAR_TOKEN"
+
+            # Restore and build (Windows targeting enabled for cross-OS build)
+            "$HOME/.dotnet/dotnet" restore FileCabinet.slnx /p:EnableWindowsTargeting=true
+            "$HOME/.dotnet/dotnet" build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
+
+            # End analysis session
+            "$SCANNER" end /d:sonar.token="$SONAR_TOKEN"
+
+orbs: {}
 
 workflows:
   main:
