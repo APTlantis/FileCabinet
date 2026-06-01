@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "tags": [
       "local-first",
       "desktop",
@@ -20,8 +20,8 @@
   },
   "metadata": {
     "created": "2026-05-23",
-    "last_updated": "2026-05-30",
-    "completed": "2026-05-30",
+    "last_updated": "2026-06-01",
+    "completed": "2026-06-01",
     "maintainer": "APTlantis",
     "license": "Unspecified",
     "language_primary": "VB.NET",
@@ -60,8 +60,8 @@
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.4.1.0-win-x64.msi",
-      "docs/FileCabinet v1.4.1 — Headless Operations and Preservation Docs Release.md",
+      "artifacts/installer/FileCabinet-1.4.2.0-win-x64.msi",
+      "docs/FileCabinet v1.4.2 — Help Menu and Same Source Batch Patch.md",
       "FileCabinet.Cli.exe",
       "Vault catalog JSON",
       "Vault thumbnail PNG assets",
@@ -117,27 +117,27 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.4.1.0",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.4.1.0-win-x64.msi to the GitHub v1.4.1 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.4.2.0",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.4.2.0-win-x64.msi to the GitHub v1.4.2 release.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.4.1 — Headless Operations and Preservation Docs Release.md"
+      "Include release notes from docs/FileCabinet v1.4.2 — Help Menu and Same Source Batch Patch.md"
     ]
   },
   "notes": {
-    "release_name": "FileCabinet v1.4.1 — Headless Operations and Preservation Docs Release",
-    "installer": "FileCabinet-1.4.1.0-win-x64.msi",
-    "installer_sha256": "B3127AB6EB2C4A00B2388DFF3ED56B7AB2D60F620850CFC69A7B3D35F1DDE53F",
-    "installer_size_bytes": 117846016,
-    "v1_4_1_highlights": [
-      "Separate FileCabinet.Cli.exe automation surface for headless ingest, verify, search, export, report, repair-preview, repair, rescan, thumbnail rebuild, and package operations",
-      "Deterministic vault package export containing catalog JSON, catalog JSONL, retained items, thumbnails, extracted text, repair logs, and vault health output",
-      "Asynchronous WPF vault maintenance hardening for Analyze, Rescan, Apply Selected Repair Candidates, Hash Check, preview loading, extracted-text search, and quarantine count refresh",
-      "Preservation-oriented documentation for vault lifecycle, trust, determinism, local-first storage, repair, recovery, and context preservation",
-      "Application, CLI, installer default, and manifest version updated to 1.4.1"
+    "release_name": "FileCabinet v1.4.2 — Help Menu and Same Source Batch Patch",
+    "installer": "FileCabinet-1.4.2.0-win-x64.msi",
+    "installer_sha256": "7183B3F8887905B5D344139278FFE80255A4B442622E03F454E88EF45CE97C74",
+    "installer_size_bytes": 117878784,
+    "v1_4_2_highlights": [
+      "Focused Help menu exposes the User Guide, preservation rationale, repair guide, hash rationale, and roadmap documents from the app title bar",
+      "Installed builds now include README.md and docs/*.md so Help links work outside the development checkout",
+      "Same Source Batch discovery uses cached scope membership instead of repeated catalog-wide row filtering, avoiding UI lockups on larger vaults",
+      "Settings remains available through existing buttons and a new title-bar Settings entry",
+      "Application, CLI, installer default, and manifest version updated to 1.4.2"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -150,6 +150,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 61 tests on 2026-05-30; dotnet build FileCabinet.slnx --no-restore completed on 2026-05-30; installer/build-installer.ps1 -Version 1.4.1.0 completed on 2026-05-30"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 66 tests on 2026-06-01; dotnet build FileCabinet.vbproj --no-restore -p:OutputPath=.verify-build\\ -p:UseAppHost=false completed on 2026-06-01; installer/build-installer.ps1 -Version 1.4.2.0 completed on 2026-06-01"
   }
 }
