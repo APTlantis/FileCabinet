@@ -1,4 +1,5 @@
 Imports FileCabinet
+Imports FileCabinet.Cli
 
 Public Class CliParser
     Public Shared Function Parse(args As IEnumerable(Of String)) As CliCommand
@@ -9,31 +10,12 @@ Public Class CliParser
         While index < tokens.Count
             Dim token = tokens(index)
 
-            If String.Equals(token, "--help", StringComparison.OrdinalIgnoreCase) OrElse String.Equals(token, "-h", StringComparison.OrdinalIgnoreCase) Then
-                command.Help = True
-                index += 1
-            ElseIf String.Equals(token, "--version", StringComparison.OrdinalIgnoreCase) Then
-                command.Version = True
-                index += 1
-            ElseIf String.Equals(token, "--json", StringComparison.OrdinalIgnoreCase) Then
-                command.Json = True
-                index += 1
-            ElseIf String.Equals(token, "--quiet", StringComparison.OrdinalIgnoreCase) Then
-                command.Quiet = True
-                index += 1
-            ElseIf String.Equals(token, "--apply", StringComparison.OrdinalIgnoreCase) Then
-                command.Apply = True
-                index += 1
-            ElseIf String.Equals(token, "--yes", StringComparison.OrdinalIgnoreCase) Then
-                command.Yes = True
-                index += 1
-            ElseIf String.Equals(token, "--zip", StringComparison.OrdinalIgnoreCase) Then
-                command.Zip = True
+            If TryApplySwitchOption(command, token) Then
                 index += 1
             ElseIf IsValueOption(token) Then
                 ApplyValueOption(command, token, ReadValue(tokens, index, command))
                 index += 2
-            ElseIf token.StartsWith("-") Then
+            ElseIf token.StartsWith("-", StringComparison.Ordinal) Then
                 ApplyFlagOption(command, token)
                 index += 1
             ElseIf String.IsNullOrWhiteSpace(command.CommandName) Then
@@ -49,6 +31,29 @@ Public Class CliParser
         Return command
     End Function
 
+    Private Shared Function TryApplySwitchOption(command As CliCommand, token As String) As Boolean
+        Select Case If(token, "").Trim().ToLowerInvariant()
+            Case "--help", "-h"
+                command.Help = True
+            Case "--version"
+                command.Version = True
+            Case "--json"
+                command.Json = True
+            Case "--quiet"
+                command.Quiet = True
+            Case "--apply"
+                command.Apply = True
+            Case "--yes"
+                command.Yes = True
+            Case "--zip"
+                command.Zip = True
+            Case Else
+                Return False
+        End Select
+
+        Return True
+    End Function
+
     Private Shared Function IsValueOption(token As String) As Boolean
         Select Case If(token, "").Trim().ToLowerInvariant()
             Case "--catalog", "--vault", "--output", "--format", "--scope", "--category", "--tag", "--limit", "--fail-on"
@@ -59,7 +64,7 @@ Public Class CliParser
     End Function
 
     Private Shared Function ReadValue(tokens As List(Of String), index As Integer, command As CliCommand) As String
-        If index + 1 >= tokens.Count OrElse tokens(index + 1).StartsWith("-") Then
+        If index + 1 >= tokens.Count OrElse tokens(index + 1).StartsWith("-", StringComparison.Ordinal) Then
             command.Errors.Add($"{tokens(index)} requires a value.")
             Return ""
         End If

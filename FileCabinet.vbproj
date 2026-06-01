@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
+    <OptionStrict>On</OptionStrict>
     <RootNamespace>FileCabinet</RootNamespace>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Assets\FileCabinet.ico</ApplicationIcon>

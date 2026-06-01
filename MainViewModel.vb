@@ -15,6 +15,7 @@ Public Class MainViewModel
     Implements INotifyPropertyChanged
 
     Private Const LargeArtifactThresholdBytes As Long = 1024L * 1024L * 1024L
+    Private Shared ReadOnly ReleaseMarkerRegexTimeout As TimeSpan = TimeSpan.FromMilliseconds(250)
 
     Private ReadOnly _catalogService As CatalogService
     Private ReadOnly _ingestionService As IngestionService
@@ -2396,7 +2397,7 @@ Public Class MainViewModel
             Return New List(Of String)
         End If
 
-        Return Regex.Matches(value.ToLowerInvariant(), "\bv?\d+(?:\.\d+){1,3}\b").
+        Return Regex.Matches(value.ToLowerInvariant(), "\bv?\d+(?:\.\d+){1,3}\b", RegexOptions.None, ReleaseMarkerRegexTimeout).
             Cast(Of Match)().
             Select(Function(match) match.Value).
             Distinct(StringComparer.OrdinalIgnoreCase).
