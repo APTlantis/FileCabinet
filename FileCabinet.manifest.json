@@ -130,7 +130,7 @@
   "notes": {
     "release_name": "FileCabinet v1.4.2 — Help Menu and Same Source Batch Patch",
     "installer": "FileCabinet-1.4.2.0-win-x64.msi",
-    "installer_sha256": "7183B3F8887905B5D344139278FFE80255A4B442622E03F454E88EF45CE97C74",
+    "installer_sha256": "1D550EFC75C3CDAC8A8355C3A38DF3321D519F9286F4AD57B2A1B998F8178C4D",
     "installer_size_bytes": 117878784,
     "v1_4_2_highlights": [
       "Focused Help menu exposes the User Guide, preservation rationale, repair guide, hash rationale, and roadmap documents from the app title bar",
@@ -150,6 +150,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 66 tests on 2026-06-01; dotnet build FileCabinet.vbproj --no-restore -p:OutputPath=.verify-build\\ -p:UseAppHost=false completed on 2026-06-01; installer/build-installer.ps1 -Version 1.4.2.0 completed on 2026-06-01"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 71 tests on 2026-06-01; dotnet build FileCabinet.vbproj --no-restore -p:OutputPath=.verify-build\\ -p:UseAppHost=false completed on 2026-06-01; installer/build-installer.ps1 -Version 1.4.2.0 completed on 2026-06-01"
   }
 }
