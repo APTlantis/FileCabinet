@@ -5,12 +5,11 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
+
+
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-
-
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
 [![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-[![Build and analyze](https://github.com/APTlantis/FileCabinet/actions/workflows/build.yml/badge.svg)](https://github.com/APTlantis/FileCabinet/actions/workflows/build.yml)
 ![.NET Version](https://img.shields.io/badge/.NET-10.0-blue.svg)
 
 FileCabinet is a local-first desktop vault for digital artifacts you want to keep, find, verify, and recover later. It is not meant to replace your normal folders. Think of it as a deliberate retention space for files that deserve more structure than "somewhere in Downloads" but do not fit neatly into one project folder.
