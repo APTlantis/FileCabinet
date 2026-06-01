@@ -249,6 +249,7 @@ FileCabinet's preservation model is documented in:
 - [Stronger Daily-Use Roadmap](docs/FileCabinet%20%E2%80%94%20Stronger%20Daily-Use%20Roadmap.md)
 - [Stewardship & Preservation Maturity Roadmap](docs/FileCabinet%20%E2%80%94%20Stewardship%20%26%20Preservation%20Maturity%20Roadmap.md)
 - [Legacy & Federation Roadmap](docs/FileCabinet%20%E2%80%94%20Legacy%20%26%20Federation%20Roadmap.md)
+- [Testing Maturity Roadmap](docs/FileCabinet%20%E2%80%94%20Testing%20Maturity%20Roadmap.md)
 
 ## Design Boundaries
 
