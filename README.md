@@ -4,6 +4,16 @@ FileCabinet is a local-first desktop vault for digital artifacts you want to kee
 
 Good candidates include installers, disk images, manifests, configuration files, keys, screenshots, datasets, archives, torrents, generated assets, recovery documents, and research artifacts.
 
+## Who FileCabinet Is For
+
+FileCabinet is for people who are willing to do a little more work up front so important files are easier to trust, find, and recover later.
+
+It will usually take more intention than leaving a file in Downloads. You may choose an intake mode, review metadata, add a reason, adjust tags, or mark trust and retention priority. FileCabinet should keep making that process easier, faster, and more guided, but the basic tradeoff is intentional: the vault asks for a small amount of context while the artifact is still fresh so your future self is not left guessing.
+
+The effort scales. Even rudimentary metadata gives you more long-term context than the filesystem provides by itself. The more of FileCabinet's fields and workflows you use, the richer the future result becomes, and the harder it is for important artifacts to become anonymous or lost over time.
+
+That makes FileCabinet a better fit for high-signal artifacts than for every casual file. The reward is a vault that can explain what something is, where it came from, why it mattered, whether it changed, and how to recover it when the original context is gone.
+
 ## The Core Idea
 
 FileCabinet stores important files inside a selected vault folder and keeps a catalog of what each file is, where it came from, how it was classified, what hashes identify it, and what searchable text was extracted from it.
@@ -222,6 +232,7 @@ FileCabinet's preservation model is documented in:
 - [Vault Lifecycle](docs/FileCabinet%20%E2%80%94%20Vault%20Lifecycle.md)
 - [Trust and Verification Model](docs/FileCabinet%20%E2%80%94%20Trust%20and%20Verification%20Model.md)
 - [Local-First Artifact Preservation](docs/FileCabinet%20%E2%80%94%20Local-First%20Artifact%20Preservation.md)
+- [The Deliberate Retention Tradeoff](docs/FileCabinet%20%E2%80%94%20The%20Deliberate%20Retention%20Tradeoff.md)
 - [Repair and Recovery Guide](docs/FileCabinet%20%E2%80%94%20Repair%20and%20Recovery%20Guide.md)
 - [Designing for Context Preservation](docs/FileCabinet%20%E2%80%94%20Designing%20for%20Context%20Preservation.md)
 
