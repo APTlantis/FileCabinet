@@ -7,18 +7,49 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies and build project
+          name: Build, Test, and Analyze with SonarCloud
           command: |
+            set -euo pipefail
+
+            # Install .NET SDK 10.x locally
             curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
             chmod +x dotnet-install.sh
             ./dotnet-install.sh --channel 10.0 --install-dir "$HOME/.dotnet"
             export PATH="$HOME/.dotnet:$PATH"
-            dotnet restore FileCabinet.slnx /p:EnableWindowsTargeting=true
-            dotnet build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
-      - sonarcloud/scan
 
-orbs:
-  sonarcloud: sonarsource/sonarcloud@2.0.0
+            # Ensure SONAR_TOKEN is provided via CircleCI Context "SonarCloud"
+            if [ -z "${SONAR_TOKEN:-}" ]; then
+              echo "SONAR_TOKEN environment variable is not set. Configure it in the SonarCloud context." >&2
+              exit 1
+            fi
+
+            # Install SonarScanner for .NET to a local tools directory
+            SCANNER_DIR="$HOME/.sonar-scanner"
+            mkdir -p "$SCANNER_DIR"
+            dotnet tool update dotnet-sonarscanner --tool-path "$SCANNER_DIR"
+
+            # Restore dependencies
+            dotnet restore FileCabinet.slnx /p:EnableWindowsTargeting=true
+
+            # Begin Sonar analysis, build, test with coverage, and end analysis
+            "$SCANNER_DIR/dotnet-sonarscanner" begin \
+              /k:"APTlantis_FileCabinet" \
+              /o:"aptlantis" \
+              /d:sonar.host.url="https://sonarcloud.io" \
+              /d:sonar.vbnet.opencover.reportsPaths="FileCabinet.Tests/TestResults/coverage.opencover.xml" \
+              /d:sonar.token="$SONAR_TOKEN"
+
+            dotnet build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
+
+            dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj \
+              --configuration Release \
+              --no-restore \
+              /p:CollectCoverage=true \
+              /p:CoverletOutput=TestResults/ \
+              /p:CoverletOutputFormat=opencover
+
+            "$SCANNER_DIR/dotnet-sonarscanner" end \
+              /d:sonar.token="$SONAR_TOKEN"
 
 workflows:
   main:
