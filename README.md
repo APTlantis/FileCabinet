@@ -1,5 +1,10 @@
 # FileCabinet User Guide
 
+[![Build and analyze](https://github.com/APTlantis/FileCabinet/actions/workflows/build.yml/badge.svg)](https://github.com/APTlantis/FileCabinet/actions/workflows/build.yml)
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
+[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
+![.NET Version](https://img.shields.io/badge/.NET-10.0-blue.svg)
+
 FileCabinet is a local-first desktop vault for digital artifacts you want to keep, find, verify, and recover later. It is not meant to replace your normal folders. Think of it as a deliberate retention space for files that deserve more structure than "somewhere in Downloads" but do not fit neatly into one project folder.
 
 Good candidates include installers, disk images, manifests, configuration files, keys, screenshots, datasets, archives, torrents, generated assets, recovery documents, and research artifacts.
