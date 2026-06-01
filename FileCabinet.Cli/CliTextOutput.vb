@@ -24,7 +24,7 @@ Namespace FileCabinet.Cli
         End Function
 
         Public Shared Function Version() As String
-            Return "FileCabinet.Cli 1.4.1"
+            Return "FileCabinet.Cli 1.4.3"
         End Function
 
         Public Shared Function Ingest(result As HeadlessIngestResult) As String
