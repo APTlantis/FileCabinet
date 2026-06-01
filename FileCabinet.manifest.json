@@ -14,6 +14,8 @@
       "metadata",
       "integrity-verification",
       "preview-pipeline",
+      "neon-ink",
+      "dark-theme",
       "wpf",
       "vbnet"
     ]
@@ -21,7 +23,6 @@
   "metadata": {
     "created": "2026-05-23",
     "last_updated": "2026-06-01",
-    "completed": "2026-06-01",
     "maintainer": "APTlantis",
     "license": "Unspecified",
     "language_primary": "VB.NET",
@@ -45,7 +46,8 @@
       "Vault extracted-text folder",
       "Vault exports folder",
       "Vault quarantine folder",
-      "Vault repair log"
+      "Vault repair log",
+      "Application theme resources"
     ]
   },
   "relationships": {
@@ -55,7 +57,8 @@
       ".NET 10",
       "WPF",
       "WiX Toolset 6.0.2",
-      "Blake3 2.2.1"
+      "Blake3 2.2.1",
+      "MSTest"
     ]
   },
   "artifacts": {
@@ -75,6 +78,23 @@
       "Existing vault item files during rescan",
       "Existing catalog data from AppData"
     ]
+  },
+  "release": {
+    "version": "1.4.4",
+    "name": "FileCabinet v1.4.4 — Neon Ink Theme Patch",
+    "date": "2026-06-01",
+    "installer": {
+      "path": "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi",
+      "runtime": "win-x64",
+      "package_version": "1.4.4.0",
+      "size_bytes": 117886976,
+      "sha256": "D455758F9BBDF5C381D5D4B7130EDE36409F1706E7FA5FA2773276B9FAD3D011"
+    },
+    "verified": {
+      "date": "2026-06-01",
+      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 79 tests",
+      "installer_build": "installer/build-installer.ps1 -Version 1.4.4.0 completed"
+    }
   },
   "datasets": [
     {
@@ -103,8 +123,20 @@
   ],
   "documentation": {
     "writerside_topic": "",
-    "architecture_doc": "FileCabinet.md",
-    "readme": "README.md"
+    "readme": "README.md",
+    "release_notes": "docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md",
+    "theme_overview": "docs/NeonInk-Theme-Integration-Overview.md",
+    "core_docs": [
+      "docs/FileCabinet — Vault Lifecycle.md",
+      "docs/FileCabinet — Trust and Verification Model.md",
+      "docs/FileCabinet — Local-First Artifact Preservation.md",
+      "docs/FileCabinet — The Deliberate Retention Tradeoff.md",
+      "docs/FileCabinet — Repair and Recovery Guide.md",
+      "docs/FileCabinet — Designing for Context Preservation.md",
+      "docs/FileCabinet — Why Determinism Matters.md",
+      "docs/FileCabinet — Why SHA-256 and BLAKE3.md",
+      "docs/FileCabinet — Why VB.NET and WPF.md"
+    ]
   },
   "links": {
     "repository": "https://github.com/APTlantis/FileCabinet",
@@ -127,12 +159,22 @@
       "Include release notes from docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md"
     ]
   },
+  "theme": {
+    "id": "neon-ink",
+    "name": "Aptlantis Studio - Neon Ink",
+    "mode": "dark",
+    "resource_dictionary": "Themes/NeonInk.xaml",
+    "merged_from": "Application.xaml",
+    "principles": [
+      "Semantic color over decorative neon",
+      "Cyan and teal for navigation, focus, and structure",
+      "Violet and purple for ingest, preview, process, and pipeline states",
+      "Pink and magenta for featured, creative, and metadata emphasis",
+      "Green, yellow, red, and orange reserved for health, attention, risk, and build/file-operation states"
+    ]
+  },
   "notes": {
-    "release_name": "FileCabinet v1.4.4 — Neon Ink Theme Patch",
-    "installer": "FileCabinet-1.4.4.0-win-x64.msi",
-    "installer_sha256": "D455758F9BBDF5C381D5D4B7130EDE36409F1706E7FA5FA2773276B9FAD3D011",
-    "installer_size_bytes": 117886976,
-    "v1_4_4_highlights": [
+    "current_highlights": [
       "Neon Ink theme resources now live in a dedicated WPF ResourceDictionary",
       "MainWindow uses shared theme brushes instead of inline palette resources",
       "Cyan navigation fills were darkened for readable selected-row and route text",
