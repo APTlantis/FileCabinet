@@ -14,7 +14,11 @@ jobs:
             ./dotnet-install.sh --channel 10.0 --install-dir "$HOME/.dotnet"
             export PATH="$HOME/.dotnet:$PATH"
             dotnet restore FileCabinet.slnx /p:EnableWindowsTargeting=true
+            dotnet restore FileCabinet.Tests/FileCabinet.Tests.vbproj /p:EnableWindowsTargeting=true
             dotnet build FileCabinet.slnx --configuration Release --no-restore /p:EnableWindowsTargeting=true
+            dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore --logger "trx;LogFileName=test-results.trx" --results-directory TestResults /p:EnableWindowsTargeting=true
+      - store_test_results:
+          path: TestResults
       - sonarcloud/scan
 
 orbs:

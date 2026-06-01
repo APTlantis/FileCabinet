@@ -2792,37 +2792,69 @@ Public Class MainViewModel
         End If
 
         For Each artifact In artifacts
-            If String.IsNullOrWhiteSpace(artifact.Id) Then
-                artifact.Id = Guid.NewGuid().ToString("N")
-            End If
-
-            If String.IsNullOrWhiteSpace(artifact.TypeFamily) Then
-                artifact.TypeFamily = InferTypeFamilyFromCategory(artifact.Category)
-            End If
-
-            If artifact.SizeBytes = 0 AndAlso Not String.IsNullOrWhiteSpace(artifact.Path) AndAlso File.Exists(artifact.Path) Then
-                artifact.SizeBytes = New FileInfo(artifact.Path).Length
-            End If
-
-            If String.IsNullOrWhiteSpace(artifact.RelativePath) AndAlso Not String.IsNullOrWhiteSpace(artifact.Path) Then
-                Try
-                    artifact.RelativePath = Path.GetRelativePath(VaultRootPath, artifact.Path)
-                Catch
-                End Try
-            End If
-
-            If String.IsNullOrWhiteSpace(artifact.ExtractedTextStatus) Then
-                artifact.ExtractedTextStatus = If(String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath), "Not extracted", "Extracted")
-            End If
-
-            If String.IsNullOrWhiteSpace(artifact.ThumbnailStatus) Then
-                artifact.ThumbnailStatus = If(String.IsNullOrWhiteSpace(artifact.ThumbnailRelativePath), ThumbnailService.NotApplicableStatus, ThumbnailService.GeneratedStatus)
-            End If
-
-            artifact.TrustClassification = NormalizeChoice(artifact.TrustClassification, {"Unknown", "Trusted", "Unverified", "Questionable"}, "Unknown")
-            artifact.RetentionPriority = NormalizeChoice(artifact.RetentionPriority, {"Normal", "High", "Cold archive", "Review later"}, "Normal")
-            artifact.ArchiveStatus = NormalizeChoice(artifact.ArchiveStatus, {"Active", "Archived", "Quarantined", "Needs review"}, "Active")
+            HydrateArtifact(artifact)
         Next
+    End Sub
+
+    Private Sub HydrateArtifact(artifact As ArtifactModel)
+        If artifact Is Nothing Then
+            Return
+        End If
+
+        EnsureArtifactId(artifact)
+        EnsureArtifactTypeFamily(artifact)
+        EnsureArtifactSize(artifact)
+        EnsureArtifactRelativePath(artifact)
+        EnsureExtractedTextStatus(artifact)
+        EnsureThumbnailStatus(artifact)
+        NormalizeArtifactChoices(artifact)
+    End Sub
+
+    Private Shared Sub EnsureArtifactId(artifact As ArtifactModel)
+        If String.IsNullOrWhiteSpace(artifact.Id) Then
+            artifact.Id = Guid.NewGuid().ToString("N")
+        End If
+    End Sub
+
+    Private Shared Sub EnsureArtifactTypeFamily(artifact As ArtifactModel)
+        If String.IsNullOrWhiteSpace(artifact.TypeFamily) Then
+            artifact.TypeFamily = InferTypeFamilyFromCategory(artifact.Category)
+        End If
+    End Sub
+
+    Private Shared Sub EnsureArtifactSize(artifact As ArtifactModel)
+        If artifact.SizeBytes = 0 AndAlso Not String.IsNullOrWhiteSpace(artifact.Path) AndAlso File.Exists(artifact.Path) Then
+            artifact.SizeBytes = New FileInfo(artifact.Path).Length
+        End If
+    End Sub
+
+    Private Sub EnsureArtifactRelativePath(artifact As ArtifactModel)
+        If Not String.IsNullOrWhiteSpace(artifact.RelativePath) OrElse String.IsNullOrWhiteSpace(artifact.Path) Then
+            Return
+        End If
+
+        Try
+            artifact.RelativePath = Path.GetRelativePath(VaultRootPath, artifact.Path)
+        Catch
+        End Try
+    End Sub
+
+    Private Shared Sub EnsureExtractedTextStatus(artifact As ArtifactModel)
+        If String.IsNullOrWhiteSpace(artifact.ExtractedTextStatus) Then
+            artifact.ExtractedTextStatus = If(String.IsNullOrWhiteSpace(artifact.ExtractedTextRelativePath), "Not extracted", "Extracted")
+        End If
+    End Sub
+
+    Private Shared Sub EnsureThumbnailStatus(artifact As ArtifactModel)
+        If String.IsNullOrWhiteSpace(artifact.ThumbnailStatus) Then
+            artifact.ThumbnailStatus = If(String.IsNullOrWhiteSpace(artifact.ThumbnailRelativePath), ThumbnailService.NotApplicableStatus, ThumbnailService.GeneratedStatus)
+        End If
+    End Sub
+
+    Private Shared Sub NormalizeArtifactChoices(artifact As ArtifactModel)
+        artifact.TrustClassification = NormalizeChoice(artifact.TrustClassification, {"Unknown", "Trusted", "Unverified", "Questionable"}, "Unknown")
+        artifact.RetentionPriority = NormalizeChoice(artifact.RetentionPriority, {"Normal", "High", "Cold archive", "Review later"}, "Normal")
+        artifact.ArchiveStatus = NormalizeChoice(artifact.ArchiveStatus, {"Active", "Archived", "Quarantined", "Needs review"}, "Active")
     End Sub
 
     Private Shared Function InferTypeFamilyFromCategory(category As String) As String
@@ -3096,54 +3128,7 @@ Public Class MainViewModel
         End If
 
         Try
-            Select Case result.Candidate.ActionType
-                Case "RegenerateThumbnail"
-                    If String.IsNullOrWhiteSpace(result.Artifact.Path) OrElse Not File.Exists(result.Artifact.Path) Then
-                        result.Detail = "Retained file is missing"
-                        Return result
-                    End If
-
-                    Dim thumbnail = _thumbnailService.GenerateForArtifact(result.Artifact, vaultRootPath)
-                    result.ThumbnailRelativePath = thumbnail.RelativePath
-                    result.ThumbnailStatus = thumbnail.Status
-                    result.Succeeded = String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
-                Case "RecomputeHash"
-                    If String.IsNullOrWhiteSpace(result.Artifact.Path) OrElse Not File.Exists(result.Artifact.Path) Then
-                        result.Detail = "Retained file is missing"
-                        Return result
-                    End If
-
-                    Dim hashes = _hashService.ComputeHashes(result.Artifact.Path)
-                    result.Blake3 = hashes.Blake3
-                    result.Sha256 = hashes.Sha256
-                    result.HashStatus = "Verified"
-                    result.Succeeded = True
-                Case "ReExtractText"
-                    If String.IsNullOrWhiteSpace(result.Artifact.Path) OrElse Not File.Exists(result.Artifact.Path) Then
-                        result.Detail = "Retained file is missing"
-                        Return result
-                    End If
-
-                    Dim extraction = _ingestionService.ExtractTextForArtifact(result.Artifact, vaultRootPath)
-                    result.ExtractedTextRelativePath = extraction.RelativePath
-                    result.ExtractedTextStatus = extraction.Status
-                    result.Succeeded = String.Equals(extraction.Status, "Extracted", StringComparison.OrdinalIgnoreCase) OrElse
-                        String.Equals(extraction.Status, "Extracted (truncated)", StringComparison.OrdinalIgnoreCase)
-                Case "RebindPath"
-                    Dim resolvedPath = ResolveVaultRelativePath(vaultRootPath, result.Artifact.RelativePath)
-                    If String.IsNullOrWhiteSpace(resolvedPath) OrElse
-                        Not IsPathInsideDirectory(resolvedPath, vaultRootPath) OrElse
-                        Not File.Exists(resolvedPath) Then
-                        result.Detail = "Vault-relative file could not be resolved"
-                        Return result
-                    End If
-
-                    result.ResolvedPath = resolvedPath
-                    result.Succeeded = True
-                Case Else
-                    result.Skipped = True
-                    result.Detail = "Review-only candidate requires manual action"
-            End Select
+            ApplyRepairAction(result, vaultRootPath)
         Catch ex As Exception
             result.Succeeded = False
             result.Detail = ex.Message
@@ -3151,6 +3136,93 @@ Public Class MainViewModel
 
         Return result
     End Function
+
+    Private Sub ApplyRepairAction(result As RepairApplicationResult, vaultRootPath As String)
+        Select Case result.Candidate.ActionType
+            Case "RegenerateThumbnail"
+                ApplyThumbnailRepair(result, vaultRootPath)
+            Case "RecomputeHash"
+                ApplyHashRepair(result)
+            Case "ReExtractText"
+                ApplyTextExtractionRepair(result, vaultRootPath)
+            Case "RebindPath"
+                ApplyPathRebindRepair(result, vaultRootPath)
+            Case Else
+                SkipManualRepair(result)
+        End Select
+    End Sub
+
+    Private Sub ApplyThumbnailRepair(result As RepairApplicationResult, vaultRootPath As String)
+        If Not HasRetainedFile(result.Artifact) Then
+            MarkMissingRetainedFile(result)
+            Return
+        End If
+
+        Dim thumbnail = _thumbnailService.GenerateForArtifact(result.Artifact, vaultRootPath)
+        result.ThumbnailRelativePath = thumbnail.RelativePath
+        result.ThumbnailStatus = thumbnail.Status
+        result.Succeeded = String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
+    End Sub
+
+    Private Sub ApplyHashRepair(result As RepairApplicationResult)
+        If Not HasRetainedFile(result.Artifact) Then
+            MarkMissingRetainedFile(result)
+            Return
+        End If
+
+        Dim hashes = _hashService.ComputeHashes(result.Artifact.Path)
+        result.Blake3 = hashes.Blake3
+        result.Sha256 = hashes.Sha256
+        result.HashStatus = "Verified"
+        result.Succeeded = True
+    End Sub
+
+    Private Sub ApplyTextExtractionRepair(result As RepairApplicationResult, vaultRootPath As String)
+        If Not HasRetainedFile(result.Artifact) Then
+            MarkMissingRetainedFile(result)
+            Return
+        End If
+
+        Dim extraction = _ingestionService.ExtractTextForArtifact(result.Artifact, vaultRootPath)
+        result.ExtractedTextRelativePath = extraction.RelativePath
+        result.ExtractedTextStatus = extraction.Status
+        result.Succeeded = IsSuccessfulTextExtraction(extraction.Status)
+    End Sub
+
+    Private Shared Sub ApplyPathRebindRepair(result As RepairApplicationResult, vaultRootPath As String)
+        Dim resolvedPath = ResolveVaultRelativePath(vaultRootPath, result.Artifact.RelativePath)
+        If Not IsResolvedVaultFile(resolvedPath, vaultRootPath) Then
+            result.Detail = "Vault-relative file could not be resolved"
+            Return
+        End If
+
+        result.ResolvedPath = resolvedPath
+        result.Succeeded = True
+    End Sub
+
+    Private Shared Function HasRetainedFile(artifact As ArtifactModel) As Boolean
+        Return Not String.IsNullOrWhiteSpace(artifact?.Path) AndAlso File.Exists(artifact.Path)
+    End Function
+
+    Private Shared Sub MarkMissingRetainedFile(result As RepairApplicationResult)
+        result.Detail = "Retained file is missing"
+    End Sub
+
+    Private Shared Function IsSuccessfulTextExtraction(status As String) As Boolean
+        Return String.Equals(status, "Extracted", StringComparison.OrdinalIgnoreCase) OrElse
+            String.Equals(status, "Extracted (truncated)", StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Shared Function IsResolvedVaultFile(resolvedPath As String, vaultRootPath As String) As Boolean
+        Return Not String.IsNullOrWhiteSpace(resolvedPath) AndAlso
+            IsPathInsideDirectory(resolvedPath, vaultRootPath) AndAlso
+            File.Exists(resolvedPath)
+    End Function
+
+    Private Shared Sub SkipManualRepair(result As RepairApplicationResult)
+        result.Skipped = True
+        result.Detail = "Review-only candidate requires manual action"
+    End Sub
 
     Private Sub ApplyRepairApplicationResult(result As RepairApplicationResult)
         If result Is Nothing OrElse Not result.Succeeded OrElse result.Artifact Is Nothing Then
