@@ -1,0 +1,598 @@
+title = "APTlantis Project Manifest v2.3"
+type = "object"
+required = ["project", "metadata", "runtime"]
+
+# PROJECT
+
+[properties.project]
+type = "object"
+required = ["id", "title", "type", "stage"]
+
+[properties.project.properties.id]
+type = "string"
+pattern = "[a-z0-9\\-_]"
+description = "Unique machine-friendly project identifier"
+
+[properties.project.properties.title]
+type = "string"
+
+[properties.project.properties.description]
+type = "string"
+
+[properties.project.properties.type]
+type = "string"
+enum = [
+  "service",
+  "tool",
+  "generator",
+  "pipeline",
+  "library",
+  "dataset",
+  "ui",
+  "dashboard",
+  "infrastructure"
+]
+
+[properties.project.properties.stage]
+type = "string"
+enum = [
+  "concept",
+  "prototype",
+  "active",
+  "near-complete",
+  "production",
+  "archived"
+]
+
+[properties.project.properties.version]
+type = "string"
+
+[properties.project.properties.tags]
+type = "array"
+
+[properties.project.properties.tags.items]
+type = "string"
+
+# METADATA
+
+[properties.metadata]
+type = "object"
+required = ["created", "language_primary"]
+
+[properties.metadata.properties.created]
+type = "string"
+format = "date"
+
+[properties.metadata.properties.last_updated]
+type = "string"
+format = "date"
+
+[properties.metadata.properties.completed]
+type = "string"
+format = "date"
+
+[properties.metadata.properties.maintainer]
+type = "string"
+
+[properties.metadata.properties.license]
+type = "string"
+
+[properties.metadata.properties.language_primary]
+type = "string"
+
+[properties.metadata.properties.languages_used]
+type = "array"
+
+[properties.metadata.properties.languages_used.items]
+type = "string"
+
+# STATE
+
+[properties.state]
+type = "object"
+
+[properties.state.properties.completion_percent]
+type = "integer"
+
+[properties.state.properties.stability]
+type = "string"
+enum = [
+  "experimental",
+  "unstable",
+  "mostly-stable",
+  "stable",
+  "hardened"
+]
+
+[properties.state.properties.active_development]
+type = "boolean"
+
+[properties.state.properties.technical_debt]
+type = "string"
+enum = ["low", "moderate", "high"]
+
+[properties.state.properties.maintenance_burden]
+type = "string"
+enum = ["low", "medium", "high"]
+
+[properties.state.properties.known_gaps]
+type = "array"
+
+[properties.state.properties.known_gaps.items]
+type = "string"
+
+# RUNTIME
+
+[properties.runtime]
+type = "object"
+required = ["platform"]
+
+[properties.runtime.properties.platform]
+type = "string"
+enum = [
+  "desktop",
+  "server",
+  "cli",
+  "container",
+  "web",
+  "library"
+]
+
+[properties.runtime.properties.environment]
+type = "string"
+
+[properties.runtime.properties.services]
+type = "array"
+
+[properties.runtime.properties.services.items]
+type = "string"
+
+[properties.runtime.properties.storage]
+type = "array"
+
+[properties.runtime.properties.storage.items]
+type = "string"
+
+# CAPABILITIES
+
+[properties.capabilities]
+type = "object"
+additionalProperties = { type = "boolean" }
+
+# INTERFACES
+
+[properties.interfaces]
+type = "array"
+
+[properties.interfaces.items]
+type = "object"
+
+[properties.interfaces.items.properties.type]
+type = "string"
+
+[properties.interfaces.items.properties.path]
+type = "string"
+
+[properties.interfaces.items.properties.entrypoint]
+type = "string"
+
+[properties.interfaces.items.properties.auth]
+type = "boolean"
+
+[properties.interfaces.items.properties.provider]
+type = "string"
+
+# RELATIONSHIPS
+
+[properties.relationships]
+type = "object"
+
+[properties.relationships.properties.depends_on_projects]
+type = "array"
+
+[properties.relationships.properties.depends_on_projects.items]
+type = "string"
+
+[properties.relationships.properties.used_by_projects]
+type = "array"
+
+[properties.relationships.properties.used_by_projects.items]
+type = "string"
+
+[properties.relationships.properties.external_dependencies]
+type = "array"
+
+[properties.relationships.properties.external_dependencies.items]
+type = "string"
+
+[properties.relationships.properties.related_projects]
+type = "array"
+
+[properties.relationships.properties.related_projects.items]
+type = "string"
+
+# ARTIFACTS
+
+[properties.artifacts]
+type = "object"
+
+[properties.artifacts.properties.produces]
+type = "array"
+
+[properties.artifacts.properties.produces.items]
+type = "string"
+
+[properties.artifacts.properties.consumes]
+type = "array"
+
+[properties.artifacts.properties.consumes.items]
+type = "string"
+
+# DATASETS
+
+[properties.datasets]
+type = "array"
+
+[properties.datasets.items]
+type = "object"
+required = ["name", "format"]
+
+[properties.datasets.items.properties.name]
+type = "string"
+
+[properties.datasets.items.properties.description]
+type = "string"
+
+[properties.datasets.items.properties.format]
+type = "string"
+
+[properties.datasets.items.properties.size]
+type = "string"
+
+[properties.datasets.items.properties.location]
+type = "string"
+
+# PERSISTENCE
+
+[properties.persistence]
+type = "object"
+
+[properties.persistence.properties.primary_store]
+type = "string"
+
+[properties.persistence.properties.secondary_stores]
+type = "array"
+
+[properties.persistence.properties.secondary_stores.items]
+type = "string"
+
+[properties.persistence.properties.storage_mode]
+type = "string"
+
+[properties.persistence.properties.supports_replication]
+type = "boolean"
+
+# SCRIPTS
+
+[properties.scripts]
+type = "array"
+
+[properties.scripts.items]
+type = "object"
+required = ["name", "language"]
+
+[properties.scripts.items.properties.name]
+type = "string"
+
+[properties.scripts.items.properties.language]
+type = "string"
+
+[properties.scripts.items.properties.role]
+type = "string"
+
+[properties.scripts.items.properties.status]
+type = "string"
+
+[properties.scripts.items.properties.version]
+type = "integer"
+
+# GENERATION
+
+[properties.generation]
+type = "object"
+
+[properties.generation.properties.manifest_is_canonical]
+type = "boolean"
+
+[properties.generation.properties.generates_readme]
+type = "boolean"
+
+[properties.generation.properties.generates_writerside]
+type = "boolean"
+
+[properties.generation.properties.generates_jsonld]
+type = "boolean"
+
+[properties.generation.properties.generates_visualizations]
+type = "boolean"
+
+[properties.generation.properties.generates_embeddings]
+type = "boolean"
+
+[properties.generation.properties.generator]
+type = "string"
+
+# DOCUMENTATION
+
+[properties.documentation]
+type = "object"
+
+[properties.documentation.properties.readme]
+type = "string"
+
+[properties.documentation.properties.architecture_doc]
+type = "string"
+
+[properties.documentation.properties.writerside_topic]
+type = "string"
+
+[properties.documentation.properties.generated_sections]
+type = "boolean"
+
+[properties.documentation.properties.release_notes]
+type = "string"
+
+[properties.documentation.properties.theme_overview]
+type = "string"
+
+[properties.documentation.properties.core_docs]
+type = "array"
+
+[properties.documentation.properties.core_docs.items]
+type = "string"
+
+# RELEASE
+
+[properties.release]
+type = "object"
+
+[properties.release.properties.version]
+type = "string"
+
+[properties.release.properties.name]
+type = "string"
+
+[properties.release.properties.date]
+type = "string"
+format = "date"
+
+[properties.release.properties.installer]
+type = "object"
+
+[properties.release.properties.installer.properties.path]
+type = "string"
+
+[properties.release.properties.installer.properties.runtime]
+type = "string"
+
+[properties.release.properties.installer.properties.package_version]
+type = "string"
+
+[properties.release.properties.installer.properties.size_bytes]
+type = "integer"
+
+[properties.release.properties.installer.properties.sha256]
+type = "string"
+
+[properties.release.properties.verified]
+type = "object"
+
+[properties.release.properties.verified.properties.date]
+type = "string"
+format = "date"
+
+[properties.release.properties.verified.properties.tests]
+type = "string"
+
+[properties.release.properties.verified.properties.installer_build]
+type = "string"
+
+# SCHEMAS
+
+[properties.schemas]
+type = "object"
+
+[properties.schemas.properties.uses]
+type = "array"
+
+[properties.schemas.properties.uses.items]
+type = "string"
+
+[properties.schemas.properties.produces]
+type = "array"
+
+[properties.schemas.properties.produces.items]
+type = "string"
+
+[properties.schemas.properties.validates]
+type = "array"
+
+[properties.schemas.properties.validates.items]
+type = "string"
+
+# SEMANTIC
+
+[properties.semantic]
+type = "object"
+
+[properties.semantic.properties.domain]
+type = "string"
+
+[properties.semantic.properties.primary_concepts]
+type = "array"
+
+[properties.semantic.properties.primary_concepts.items]
+type = "string"
+
+[properties.semantic.properties.related_domains]
+type = "array"
+
+[properties.semantic.properties.related_domains.items]
+type = "string"
+
+[properties.semantic.properties.cognitive_tags]
+type = "array"
+
+[properties.semantic.properties.cognitive_tags.items]
+type = "string"
+
+[properties.semantic.properties.complexity]
+type = "string"
+
+# VISUAL
+
+[properties.visual]
+type = "object"
+
+[properties.visual.properties.theme]
+type = "string"
+
+[properties.visual.properties.primary_color]
+type = "string"
+
+[properties.visual.properties.semantic_role]
+type = "string"
+
+[properties.visual.properties.contains_svg_assets]
+type = "boolean"
+
+[properties.visual.properties.contains_scene_art]
+type = "boolean"
+
+# THEME
+
+[properties.theme]
+type = "object"
+
+[properties.theme.properties.id]
+type = "string"
+
+[properties.theme.properties.name]
+type = "string"
+
+[properties.theme.properties.mode]
+type = "string"
+enum = [
+  "light",
+  "dark",
+  "system"
+]
+
+[properties.theme.properties.resource_dictionary]
+type = "string"
+
+[properties.theme.properties.merged_from]
+type = "string"
+
+[properties.theme.properties.principles]
+type = "array"
+
+[properties.theme.properties.principles.items]
+type = "string"
+
+# OBSERVABILITY
+
+[properties.observability]
+type = "object"
+
+[properties.observability.properties.logs]
+type = "boolean"
+
+[properties.observability.properties.metrics]
+type = "boolean"
+
+[properties.observability.properties.health_checks]
+type = "boolean"
+
+[properties.observability.properties.event_stream]
+type = "boolean"
+
+[properties.observability.properties.telemetry]
+type = "boolean"
+
+# DISTRIBUTION
+
+[properties.distribution]
+type = "object"
+
+[properties.distribution.properties.packaged]
+type = "boolean"
+
+[properties.distribution.properties.package_formats]
+type = "array"
+
+[properties.distribution.properties.package_formats.items]
+type = "string"
+
+[properties.distribution.properties.portable]
+type = "boolean"
+
+[properties.distribution.properties.offline_capable]
+type = "boolean"
+
+[properties.distribution.properties.requires_installation]
+type = "boolean"
+
+# LINKS
+
+[properties.links]
+type = "object"
+
+[properties.links.properties.repository]
+type = "string"
+format = "uri"
+
+[properties.links.properties.homepage]
+type = "string"
+format = "uri"
+
+[properties.links.properties.dashboard]
+type = "string"
+format = "uri"
+
+# STRUCTURE
+
+[properties.structure]
+type = "object"
+
+[properties.structure.properties.repo_path]
+type = "string"
+
+[properties.structure.properties.docs_path]
+type = "string"
+
+[properties.structure.properties.data_path]
+type = "string"
+
+# AUTOMATION
+
+[properties.automation]
+type = "object"
+
+[properties.automation.properties.build]
+type = "string"
+
+[properties.automation.properties.deploy]
+type = "string"
+
+[properties.automation.properties.tasks]
+type = "array"
+
+[properties.automation.properties.tasks.items]
+type = "string"
+
+# NOTES
+
+[properties.notes]
+type = "object"
+additionalProperties = true
