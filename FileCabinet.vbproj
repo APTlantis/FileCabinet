@@ -36,6 +36,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="docs\*.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="FileCabinet.Tests\**\*.vb" />
     <Compile Remove="FileCabinet.Cli\**\*.vb" />
   </ItemGroup>

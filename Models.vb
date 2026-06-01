@@ -277,6 +277,11 @@ Public Class ActivityEntryModel
     Public Property IconBackground As String = "#BAC8EF"
 End Class
 
+Public Class HelpDocumentModel
+    Public Property Title As String = ""
+    Public Property RelativePath As String = ""
+End Class
+
 Public Class ArtifactRelationModel
     Public Property Artifact As ArtifactModel
     Public Property Score As Integer

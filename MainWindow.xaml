@@ -460,6 +460,23 @@
                                Foreground="{StaticResource PrimaryTextBrush}"
                                FontSize="13"
                                VerticalAlignment="Center" />
+                    <Menu Background="Transparent"
+                          Foreground="{StaticResource SecondaryTextBrush}"
+                          Margin="18,0,0,0"
+                          VerticalAlignment="Center">
+                        <MenuItem Header="Settings" Command="{Binding ShowSettingsCommand}" />
+                        <MenuItem Header="Help">
+                            <MenuItem Header="User Guide" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" />
+                            <MenuItem Header="Deliberate Retention Tradeoff" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" />
+                            <MenuItem Header="Trust and Verification Model" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" />
+                            <MenuItem Header="Why SHA-256 and BLAKE3" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Why SHA-256 and BLAKE3.md" />
+                            <MenuItem Header="Repair and Recovery Guide" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" />
+                            <MenuItem Header="Deterministic Vault Roadmap" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" />
+                            <Separator />
+                            <MenuItem Header="Open Docs Folder" Command="{Binding OpenDocsFolderCommand}" />
+                            <MenuItem Header="About FileCabinet" Command="{Binding ShowAboutCommand}" />
+                        </MenuItem>
+                    </Menu>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Content="&#xE921;" Style="{StaticResource ChromeButton}" Click="MinimizeButton_Click" />

@@ -67,6 +67,9 @@ Public Class MainViewModel
     Private _searchVersion As Integer
     Private _searchExtractedTextMatches As HashSet(Of String)
     Private _searchExtractedText As String = ""
+    Private _sameSourceBatchScopeKeys As HashSet(Of String)
+    Private _sameSourceBatchScopeSelectedKey As String = ""
+    Private _isRefreshingFilters As Boolean
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -80,6 +83,7 @@ Public Class MainViewModel
     Public Property VaultHealthFindings As New ObservableCollection(Of VaultHealthFinding)
     Public Property RepairCandidates As New ObservableCollection(Of RepairCandidate)
     Public Property RepairHistory As New ObservableCollection(Of RepairLogEntry)
+    Public Property HelpDocuments As New ObservableCollection(Of HelpDocumentModel)
     Private _filteredTags As ICollectionView
     Public Property ClearFiltersCommand As ICommand
     Public Property ShowAllItemsCommand As ICommand
@@ -114,6 +118,9 @@ Public Class MainViewModel
     Public Property SortByDateCommand As ICommand
     Public Property ToggleDensityCommand As ICommand
     Public Property CycleColumnPresetCommand As ICommand
+    Public Property OpenHelpDocumentCommand As ICommand
+    Public Property OpenDocsFolderCommand As ICommand
+    Public Property ShowAboutCommand As ICommand
 
     Public Sub New()
         _catalogService = New CatalogService()
@@ -155,6 +162,10 @@ Public Class MainViewModel
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
         CycleColumnPresetCommand = New RelayCommand(Sub(parameter) CycleColumnPreset())
+        OpenHelpDocumentCommand = New RelayCommand(Sub(parameter) OpenDocumentationPath(TryCast(parameter, String)))
+        OpenDocsFolderCommand = New RelayCommand(Sub(parameter) OpenDocsFolder())
+        ShowAboutCommand = New RelayCommand(Sub(parameter) ShowAbout())
+        ReplaceCollection(HelpDocuments, DefaultHelpDocuments())
         LoadCatalog()
     End Sub
 
@@ -197,7 +208,10 @@ Public Class MainViewModel
                 LoadEditorFromSelected()
                 RebuildRelatedArtifacts()
                 If String.Equals(ActiveScope, "Same source batch", StringComparison.OrdinalIgnoreCase) Then
-                    RefreshFilters(preserveSelection:=True)
+                    InvalidateDiscoveryScopeCache()
+                    If Not _isRefreshingFilters Then
+                        RefreshFilters(preserveSelection:=True)
+                    End If
                 End If
             End If
         End Set
@@ -294,6 +308,7 @@ Public Class MainViewModel
             Dim normalized = NormalizeScope(value)
             If _activeScope <> normalized Then
                 _activeScope = normalized
+                InvalidateDiscoveryScopeCache()
                 OnPropertyChanged()
                 OnPropertyChanged(NameOf(FilterTitle))
                 OnPropertyChanged(NameOf(ActiveScopeText))
@@ -1476,6 +1491,78 @@ Public Class MainViewModel
         ActionStatus = "Settings summarized"
     End Sub
 
+    Private Sub ShowAbout()
+        Dim version = GetType(MainViewModel).Assembly.GetName().Version
+        _settingsText = $"FileCabinet {version}{vbCrLf}Personal vault and artifact manager{vbCrLf}{vbCrLf}Local-first, deterministic, inspectable, repairable, and operator-focused."
+        OnPropertyChanged(NameOf(SettingsText))
+        ActionStatus = "About FileCabinet"
+    End Sub
+
+    Private Sub OpenDocumentationPath(relativePath As String)
+        Dim resolvedPath = ResolveDocumentationPath(relativePath)
+
+        If String.IsNullOrWhiteSpace(resolvedPath) Then
+            ActionStatus = $"Help document missing: {relativePath}"
+            Return
+        End If
+
+        Try
+            Process.Start(New ProcessStartInfo With {
+                .FileName = resolvedPath,
+                .UseShellExecute = True
+            })
+            ActionStatus = $"Opened help: {Path.GetFileName(resolvedPath)}"
+        Catch ex As Exception
+            ActionStatus = $"Help open failed: {ex.Message}"
+        End Try
+    End Sub
+
+    Private Sub OpenDocsFolder()
+        Dim docsPath = ResolveDocumentationPath("docs")
+
+        If String.IsNullOrWhiteSpace(docsPath) Then
+            ActionStatus = "Docs folder missing"
+            Return
+        End If
+
+        Try
+            Process.Start(New ProcessStartInfo With {
+                .FileName = docsPath,
+                .UseShellExecute = True
+            })
+            ActionStatus = "Opened docs folder"
+        Catch ex As Exception
+            ActionStatus = $"Docs folder open failed: {ex.Message}"
+        End Try
+    End Sub
+
+    Public Shared Function ResolveDocumentationPath(relativePath As String) As String
+        If String.IsNullOrWhiteSpace(relativePath) Then
+            Return ""
+        End If
+
+        Dim normalizedRelativePath = relativePath.Replace("/"c, Path.DirectorySeparatorChar)
+        Dim candidates As New List(Of String) From {
+            AppContext.BaseDirectory,
+            Directory.GetCurrentDirectory()
+        }
+
+        Dim current = New DirectoryInfo(Directory.GetCurrentDirectory())
+        While current IsNot Nothing
+            candidates.Add(current.FullName)
+            current = current.Parent
+        End While
+
+        For Each root In candidates.Where(Function(candidate) Not String.IsNullOrWhiteSpace(candidate)).Distinct(StringComparer.OrdinalIgnoreCase)
+            Dim candidatePath = Path.Combine(root, normalizedRelativePath)
+            If File.Exists(candidatePath) OrElse Directory.Exists(candidatePath) Then
+                Return candidatePath
+            End If
+        Next
+
+        Return ""
+    End Function
+
     Private Sub BackupCatalog()
         Try
             Dim exportsRoot = Path.Combine(VaultRootPath, "exports")
@@ -1667,6 +1754,17 @@ Public Class MainViewModel
         End Select
     End Function
 
+    Private Shared Function DefaultHelpDocuments() As List(Of HelpDocumentModel)
+        Return New List(Of HelpDocumentModel) From {
+            New HelpDocumentModel With {.Title = "User Guide", .RelativePath = "README.md"},
+            New HelpDocumentModel With {.Title = "Deliberate Retention Tradeoff", .RelativePath = "docs\FileCabinet — The Deliberate Retention Tradeoff.md"},
+            New HelpDocumentModel With {.Title = "Trust and Verification Model", .RelativePath = "docs\FileCabinet — Trust and Verification Model.md"},
+            New HelpDocumentModel With {.Title = "Why SHA-256 and BLAKE3", .RelativePath = "docs\FileCabinet — Why SHA-256 and BLAKE3.md"},
+            New HelpDocumentModel With {.Title = "Repair and Recovery Guide", .RelativePath = "docs\FileCabinet — Repair and Recovery Guide.md"},
+            New HelpDocumentModel With {.Title = "Roadmaps", .RelativePath = "docs\FileCabinet — Deterministic Vault Roadmap.md"}
+        }
+    End Function
+
     Private Shared Function NormalizeChoice(value As String, allowedValues As IEnumerable(Of String), defaultValue As String) As String
         Dim normalized = If(value, "").Trim()
         Dim match = allowedValues.FirstOrDefault(Function(optionValue) String.Equals(optionValue, normalized, StringComparison.OrdinalIgnoreCase))
@@ -1781,6 +1879,8 @@ Public Class MainViewModel
     End Function
 
     Private Sub RebuildDerivedLists()
+        InvalidateDiscoveryScopeCache()
+
         Dim rebuiltCategories = Artifacts.
             GroupBy(Function(a) a.Category).
             OrderBy(Function(g) g.Key).
@@ -1992,14 +2092,20 @@ Public Class MainViewModel
         End If
 
         Dim previous = If(preserveSelection, SelectedArtifact, Nothing)
-        FilteredArtifacts.Refresh()
-        OnPropertyChanged(NameOf(FilterTitle))
+        _isRefreshingFilters = True
 
-        If previous IsNot Nothing AndAlso FilteredArtifacts.Cast(Of ArtifactModel)().Contains(previous) Then
-            SelectedArtifact = previous
-        Else
-            SelectFirstFilteredArtifact()
-        End If
+        Try
+            FilteredArtifacts.Refresh()
+            OnPropertyChanged(NameOf(FilterTitle))
+
+            If previous IsNot Nothing AndAlso FilteredArtifacts.Cast(Of ArtifactModel)().Contains(previous) Then
+                SelectedArtifact = previous
+            Else
+                SelectFirstFilteredArtifact()
+            End If
+        Finally
+            _isRefreshingFilters = False
+        End Try
     End Sub
 
     Private Sub SelectFirstFilteredArtifact()
@@ -2443,8 +2549,28 @@ Public Class MainViewModel
             Return HasPublishedRepairNeed(artifact)
         End If
 
+        If String.Equals(NormalizeScope(ActiveScope), "Same source batch", StringComparison.OrdinalIgnoreCase) Then
+            Return EnsureSameSourceBatchScopeKeys().Contains(ArtifactSearchKey(artifact))
+        End If
+
         Return ArtifactMatchesDiscoveryScope(artifact, ActiveScope, Artifacts, VaultRootPath, SelectedArtifact, _thumbnailService)
     End Function
+
+    Private Function EnsureSameSourceBatchScopeKeys() As HashSet(Of String)
+        Dim selectedKey = ArtifactSearchKey(SelectedArtifact)
+
+        If _sameSourceBatchScopeKeys Is Nothing OrElse Not String.Equals(_sameSourceBatchScopeSelectedKey, selectedKey, StringComparison.OrdinalIgnoreCase) Then
+            _sameSourceBatchScopeKeys = BuildSameSourceBatchScopeKeys(Artifacts, SelectedArtifact)
+            _sameSourceBatchScopeSelectedKey = selectedKey
+        End If
+
+        Return _sameSourceBatchScopeKeys
+    End Function
+
+    Private Sub InvalidateDiscoveryScopeCache()
+        _sameSourceBatchScopeKeys = Nothing
+        _sameSourceBatchScopeSelectedKey = ""
+    End Sub
 
     Private Function HasPublishedRepairNeed(artifact As ArtifactModel) As Boolean
         If artifact Is Nothing Then
@@ -2589,12 +2715,73 @@ Public Class MainViewModel
             Any(Function(candidate) candidate IsNot Nothing AndAlso Not ReferenceEquals(candidate, artifact) AndAlso SameSourceBatch(artifact, candidate))
     End Function
 
+    Public Shared Function BuildSameSourceBatchScopeKeys(artifacts As IEnumerable(Of ArtifactModel), selectedArtifact As ArtifactModel) As HashSet(Of String)
+        Dim keys As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+        Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).Where(Function(artifact) artifact IsNot Nothing).ToList()
+
+        If selectedArtifact IsNot Nothing Then
+            For Each artifact In artifactList
+                If SameSourceBatch(artifact, selectedArtifact) Then
+                    keys.Add(ArtifactSearchKey(artifact))
+                End If
+            Next
+
+            Return keys
+        End If
+
+        Dim grouped = artifactList.
+            Select(Function(artifact)
+                       Dim directory = OriginalDirectoryKey(artifact)
+                       Dim ingestedAt As DateTime
+                       If String.IsNullOrWhiteSpace(directory) OrElse Not DateTime.TryParse(artifact.IngestedAt, ingestedAt) Then
+                           Return Nothing
+                       End If
+
+                       Return New SameSourceBatchCandidate With {
+                           .Artifact = artifact,
+                           .DirectoryKey = directory,
+                           .IngestedAt = ingestedAt
+                       }
+                   End Function).
+            Where(Function(candidate) candidate IsNot Nothing).
+            GroupBy(Function(candidate) $"{candidate.DirectoryKey}|{candidate.IngestedAt:yyyy-MM-dd}", StringComparer.OrdinalIgnoreCase)
+
+        For Each group In grouped
+            Dim ordered = group.OrderBy(Function(candidate) candidate.IngestedAt).ToList()
+
+            For index = 0 To ordered.Count - 1
+                Dim current = ordered(index)
+                Dim hasPeer = (index > 0 AndAlso Math.Abs((current.IngestedAt - ordered(index - 1).IngestedAt).TotalHours) <= 4) OrElse
+                    (index < ordered.Count - 1 AndAlso Math.Abs((ordered(index + 1).IngestedAt - current.IngestedAt).TotalHours) <= 4)
+
+                If hasPeer Then
+                    keys.Add(ArtifactSearchKey(current.Artifact))
+                End If
+            Next
+        Next
+
+        Return keys
+    End Function
+
     Private Shared Function SameSourceBatch(left As ArtifactModel, right As ArtifactModel) As Boolean
         If left Is Nothing OrElse right Is Nothing OrElse ReferenceEquals(left, right) Then
             Return False
         End If
 
         Return SameDirectory(left.OriginalPath, right.OriginalPath) AndAlso SameIngestSession(left, right)
+    End Function
+
+    Private Shared Function OriginalDirectoryKey(artifact As ArtifactModel) As String
+        If String.IsNullOrWhiteSpace(artifact?.OriginalPath) Then
+            Return ""
+        End If
+
+        Try
+            Dim directory = Path.GetDirectoryName(Path.GetFullPath(artifact.OriginalPath))
+            Return If(directory, "")
+        Catch
+            Return ""
+        End Try
     End Function
 
     Private Sub HydrateArtifacts(artifacts As List(Of ArtifactModel))
@@ -3524,6 +3711,12 @@ Public Class MainViewModel
         Public Property ExtractedTextRelativePath As String = ""
         Public Property ExtractedTextStatus As String = ""
         Public Property ResolvedPath As String = ""
+    End Class
+
+    Private Class SameSourceBatchCandidate
+        Public Property Artifact As ArtifactModel
+        Public Property DirectoryKey As String = ""
+        Public Property IngestedAt As DateTime
     End Class
 
     Private Shared Function FormatSize(bytes As Long) As String
