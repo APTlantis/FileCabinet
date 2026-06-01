@@ -25,8 +25,8 @@ The v1.4.4 patch introduces the Neon Ink visual system, a WPF theme resource dic
 Installer:
 
 - `artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi`
-- Size: `117886976` bytes
-- SHA-256: `D455758F9BBDF5C381D5D4B7130EDE36409F1706E7FA5FA2773276B9FAD3D011`
+- Size: `117497856` bytes
+- SHA-256: `5C32C55257B68B2B4F85327F757ED2CC8649E9D9606E90EF225EDE2E13C668F3`
 
 ## Who FileCabinet Is For
 

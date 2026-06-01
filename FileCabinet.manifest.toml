@@ -65,6 +65,8 @@ external_dependencies = [
 produces = [
   "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi",
   "docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md",
+  "Assets/FileCabinet.ico",
+  "Assets/FileCabinetLogoMark.png",
   "FileCabinet.Cli.exe",
   "Vault catalog JSON",
   "Vault thumbnail PNG assets",
@@ -88,8 +90,8 @@ date = "2026-06-01"
 path = "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi"
 runtime = "win-x64"
 package_version = "1.4.4.0"
-size_bytes = 117886976
-sha256 = "D455758F9BBDF5C381D5D4B7130EDE36409F1706E7FA5FA2773276B9FAD3D011"
+size_bytes = 117497856
+sha256 = "5C32C55257B68B2B4F85327F757ED2CC8649E9D9606E90EF225EDE2E13C668F3"
 
 [release.verified]
 date = "2026-06-01"
@@ -176,6 +178,7 @@ current_highlights = [
   "Cyan navigation fills were darkened for readable selected-row and route text",
   "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
   "Preview and activity accents were refreshed to match Neon Ink semantics",
+  "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
   "Application, CLI, installer default, and manifest version updated to 1.4.4"
 ]
 not_in_scope = [

@@ -8,6 +8,8 @@ The WPF application now loads a dedicated `Themes/NeonInk.xaml` resource diction
 
 The theme defines explicit background, text, navigation, process, featured, success, caution, critical, archive, and preview-oriented brushes. `MainWindow.xaml` now uses those shared resources instead of keeping the core palette inline in the window.
 
+The application, executable, Start Menu shortcut, desktop shortcut, and installer icon have been refreshed from the new FileCabinet logo mark.
+
 ## Visual Refresh
 
 The UI has been rebalanced around Neon Ink semantics:
@@ -43,8 +45,8 @@ The Windows x64 MSI was rebuilt with package version `1.4.4.0`.
 Installer:
 
 - `FileCabinet-1.4.4.0-win-x64.msi`
-- Size: `117886976` bytes
-- SHA-256: `D455758F9BBDF5C381D5D4B7130EDE36409F1706E7FA5FA2773276B9FAD3D011`
+- Size: `117497856` bytes
+- SHA-256: `5C32C55257B68B2B4F85327F757ED2CC8649E9D9606E90EF225EDE2E13C668F3`
 
 The release manifest records the final MSI size and SHA-256 checksum.
 
