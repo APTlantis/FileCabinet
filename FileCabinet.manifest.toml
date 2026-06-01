@@ -1,598 +1,192 @@
-title = "APTlantis Project Manifest v2.3"
-type = "object"
-required = ["project", "metadata", "runtime"]
-
-# PROJECT
-
-[properties.project]
-type = "object"
-required = ["id", "title", "type", "stage"]
-
-[properties.project.properties.id]
-type = "string"
-pattern = "[a-z0-9\\-_]"
-description = "Unique machine-friendly project identifier"
-
-[properties.project.properties.title]
-type = "string"
-
-[properties.project.properties.description]
-type = "string"
-
-[properties.project.properties.type]
-type = "string"
-enum = [
-  "service",
-  "tool",
-  "generator",
-  "pipeline",
-  "library",
-  "dataset",
-  "ui",
-  "dashboard",
-  "infrastructure"
-]
-
-[properties.project.properties.stage]
-type = "string"
-enum = [
-  "concept",
-  "prototype",
-  "active",
-  "near-complete",
-  "production",
-  "archived"
-]
-
-[properties.project.properties.version]
-type = "string"
-
-[properties.project.properties.tags]
-type = "array"
-
-[properties.project.properties.tags.items]
-type = "string"
-
-# METADATA
-
-[properties.metadata]
-type = "object"
-required = ["created", "language_primary"]
-
-[properties.metadata.properties.created]
-type = "string"
-format = "date"
-
-[properties.metadata.properties.last_updated]
-type = "string"
-format = "date"
-
-[properties.metadata.properties.completed]
-type = "string"
-format = "date"
-
-[properties.metadata.properties.maintainer]
-type = "string"
-
-[properties.metadata.properties.license]
-type = "string"
-
-[properties.metadata.properties.language_primary]
-type = "string"
-
-[properties.metadata.properties.languages_used]
-type = "array"
-
-[properties.metadata.properties.languages_used.items]
-type = "string"
-
-# STATE
-
-[properties.state]
-type = "object"
-
-[properties.state.properties.completion_percent]
-type = "integer"
-
-[properties.state.properties.stability]
-type = "string"
-enum = [
-  "experimental",
-  "unstable",
-  "mostly-stable",
-  "stable",
-  "hardened"
-]
-
-[properties.state.properties.active_development]
-type = "boolean"
-
-[properties.state.properties.technical_debt]
-type = "string"
-enum = ["low", "moderate", "high"]
-
-[properties.state.properties.maintenance_burden]
-type = "string"
-enum = ["low", "medium", "high"]
-
-[properties.state.properties.known_gaps]
-type = "array"
-
-[properties.state.properties.known_gaps.items]
-type = "string"
-
-# RUNTIME
-
-[properties.runtime]
-type = "object"
-required = ["platform"]
-
-[properties.runtime.properties.platform]
-type = "string"
-enum = [
+[project]
+id = "filecabinet"
+title = "FileCabinet"
+description = "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts."
+type = "tool"
+stage = "production"
+version = "1.4.4"
+tags = [
+  "local-first",
   "desktop",
-  "server",
-  "cli",
-  "container",
-  "web",
-  "library"
+  "vault",
+  "artifact-management",
+  "metadata",
+  "integrity-verification",
+  "preview-pipeline",
+  "neon-ink",
+  "dark-theme",
+  "wpf",
+  "vbnet"
 ]
 
-[properties.runtime.properties.environment]
-type = "string"
-
-[properties.runtime.properties.services]
-type = "array"
-
-[properties.runtime.properties.services.items]
-type = "string"
-
-[properties.runtime.properties.storage]
-type = "array"
-
-[properties.runtime.properties.storage.items]
-type = "string"
-
-# CAPABILITIES
-
-[properties.capabilities]
-type = "object"
-additionalProperties = { type = "boolean" }
-
-# INTERFACES
-
-[properties.interfaces]
-type = "array"
-
-[properties.interfaces.items]
-type = "object"
-
-[properties.interfaces.items.properties.type]
-type = "string"
-
-[properties.interfaces.items.properties.path]
-type = "string"
-
-[properties.interfaces.items.properties.entrypoint]
-type = "string"
-
-[properties.interfaces.items.properties.auth]
-type = "boolean"
-
-[properties.interfaces.items.properties.provider]
-type = "string"
-
-# RELATIONSHIPS
-
-[properties.relationships]
-type = "object"
-
-[properties.relationships.properties.depends_on_projects]
-type = "array"
-
-[properties.relationships.properties.depends_on_projects.items]
-type = "string"
-
-[properties.relationships.properties.used_by_projects]
-type = "array"
-
-[properties.relationships.properties.used_by_projects.items]
-type = "string"
-
-[properties.relationships.properties.external_dependencies]
-type = "array"
-
-[properties.relationships.properties.external_dependencies.items]
-type = "string"
-
-[properties.relationships.properties.related_projects]
-type = "array"
-
-[properties.relationships.properties.related_projects.items]
-type = "string"
-
-# ARTIFACTS
-
-[properties.artifacts]
-type = "object"
-
-[properties.artifacts.properties.produces]
-type = "array"
-
-[properties.artifacts.properties.produces.items]
-type = "string"
-
-[properties.artifacts.properties.consumes]
-type = "array"
-
-[properties.artifacts.properties.consumes.items]
-type = "string"
-
-# DATASETS
-
-[properties.datasets]
-type = "array"
-
-[properties.datasets.items]
-type = "object"
-required = ["name", "format"]
-
-[properties.datasets.items.properties.name]
-type = "string"
-
-[properties.datasets.items.properties.description]
-type = "string"
-
-[properties.datasets.items.properties.format]
-type = "string"
-
-[properties.datasets.items.properties.size]
-type = "string"
-
-[properties.datasets.items.properties.location]
-type = "string"
-
-# PERSISTENCE
-
-[properties.persistence]
-type = "object"
-
-[properties.persistence.properties.primary_store]
-type = "string"
-
-[properties.persistence.properties.secondary_stores]
-type = "array"
-
-[properties.persistence.properties.secondary_stores.items]
-type = "string"
-
-[properties.persistence.properties.storage_mode]
-type = "string"
-
-[properties.persistence.properties.supports_replication]
-type = "boolean"
-
-# SCRIPTS
-
-[properties.scripts]
-type = "array"
-
-[properties.scripts.items]
-type = "object"
-required = ["name", "language"]
-
-[properties.scripts.items.properties.name]
-type = "string"
-
-[properties.scripts.items.properties.language]
-type = "string"
-
-[properties.scripts.items.properties.role]
-type = "string"
-
-[properties.scripts.items.properties.status]
-type = "string"
-
-[properties.scripts.items.properties.version]
-type = "integer"
-
-# GENERATION
-
-[properties.generation]
-type = "object"
-
-[properties.generation.properties.manifest_is_canonical]
-type = "boolean"
-
-[properties.generation.properties.generates_readme]
-type = "boolean"
-
-[properties.generation.properties.generates_writerside]
-type = "boolean"
-
-[properties.generation.properties.generates_jsonld]
-type = "boolean"
-
-[properties.generation.properties.generates_visualizations]
-type = "boolean"
-
-[properties.generation.properties.generates_embeddings]
-type = "boolean"
-
-[properties.generation.properties.generator]
-type = "string"
-
-# DOCUMENTATION
-
-[properties.documentation]
-type = "object"
-
-[properties.documentation.properties.readme]
-type = "string"
-
-[properties.documentation.properties.architecture_doc]
-type = "string"
-
-[properties.documentation.properties.writerside_topic]
-type = "string"
-
-[properties.documentation.properties.generated_sections]
-type = "boolean"
-
-[properties.documentation.properties.release_notes]
-type = "string"
-
-[properties.documentation.properties.theme_overview]
-type = "string"
-
-[properties.documentation.properties.core_docs]
-type = "array"
-
-[properties.documentation.properties.core_docs.items]
-type = "string"
-
-# RELEASE
-
-[properties.release]
-type = "object"
-
-[properties.release.properties.version]
-type = "string"
-
-[properties.release.properties.name]
-type = "string"
-
-[properties.release.properties.date]
-type = "string"
-format = "date"
-
-[properties.release.properties.installer]
-type = "object"
-
-[properties.release.properties.installer.properties.path]
-type = "string"
-
-[properties.release.properties.installer.properties.runtime]
-type = "string"
-
-[properties.release.properties.installer.properties.package_version]
-type = "string"
-
-[properties.release.properties.installer.properties.size_bytes]
-type = "integer"
-
-[properties.release.properties.installer.properties.sha256]
-type = "string"
-
-[properties.release.properties.verified]
-type = "object"
-
-[properties.release.properties.verified.properties.date]
-type = "string"
-format = "date"
-
-[properties.release.properties.verified.properties.tests]
-type = "string"
-
-[properties.release.properties.verified.properties.installer_build]
-type = "string"
-
-# SCHEMAS
-
-[properties.schemas]
-type = "object"
-
-[properties.schemas.properties.uses]
-type = "array"
-
-[properties.schemas.properties.uses.items]
-type = "string"
-
-[properties.schemas.properties.produces]
-type = "array"
-
-[properties.schemas.properties.produces.items]
-type = "string"
-
-[properties.schemas.properties.validates]
-type = "array"
-
-[properties.schemas.properties.validates.items]
-type = "string"
-
-# SEMANTIC
-
-[properties.semantic]
-type = "object"
-
-[properties.semantic.properties.domain]
-type = "string"
-
-[properties.semantic.properties.primary_concepts]
-type = "array"
-
-[properties.semantic.properties.primary_concepts.items]
-type = "string"
-
-[properties.semantic.properties.related_domains]
-type = "array"
-
-[properties.semantic.properties.related_domains.items]
-type = "string"
-
-[properties.semantic.properties.cognitive_tags]
-type = "array"
-
-[properties.semantic.properties.cognitive_tags.items]
-type = "string"
-
-[properties.semantic.properties.complexity]
-type = "string"
-
-# VISUAL
-
-[properties.visual]
-type = "object"
-
-[properties.visual.properties.theme]
-type = "string"
-
-[properties.visual.properties.primary_color]
-type = "string"
-
-[properties.visual.properties.semantic_role]
-type = "string"
-
-[properties.visual.properties.contains_svg_assets]
-type = "boolean"
-
-[properties.visual.properties.contains_scene_art]
-type = "boolean"
-
-# THEME
-
-[properties.theme]
-type = "object"
-
-[properties.theme.properties.id]
-type = "string"
-
-[properties.theme.properties.name]
-type = "string"
-
-[properties.theme.properties.mode]
-type = "string"
-enum = [
-  "light",
-  "dark",
-  "system"
+[metadata]
+created = "2026-05-23"
+last_updated = "2026-06-01"
+maintainer = "APTlantis"
+license = "Unspecified"
+language_primary = "VB.NET"
+languages_used = [
+  "VB.NET",
+  "XAML",
+  "PowerShell",
+  "Markdown",
+  "JSON",
+  "TOML"
 ]
 
-[properties.theme.properties.resource_dictionary]
-type = "string"
+[runtime]
+platform = "desktop"
+environment = "Windows x64, self-contained .NET 10 WPF application"
+services = []
+storage = [
+  "Local filesystem vault",
+  "AppData catalog",
+  "Vault items folder",
+  "Vault thumbnails folder",
+  "Vault extracted-text folder",
+  "Vault exports folder",
+  "Vault quarantine folder",
+  "Vault repair log",
+  "Application theme resources"
+]
 
-[properties.theme.properties.merged_from]
-type = "string"
+[relationships]
+depends_on_projects = []
+used_by_projects = []
+external_dependencies = [
+  ".NET 10",
+  "WPF",
+  "WiX Toolset 6.0.2",
+  "Blake3 2.2.1",
+  "MSTest"
+]
 
-[properties.theme.properties.principles]
-type = "array"
+[artifacts]
+produces = [
+  "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi",
+  "docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md",
+  "FileCabinet.Cli.exe",
+  "Vault catalog JSON",
+  "Vault thumbnail PNG assets",
+  "Vault extracted text indexes",
+  "Vault catalog backup exports",
+  "Vault repair log JSONL history",
+  "Deterministic vault package exports"
+]
+consumes = [
+  "User-selected files and folders for vault ingestion",
+  "Existing vault item files during rescan",
+  "Existing catalog data from AppData"
+]
 
-[properties.theme.properties.principles.items]
-type = "string"
+[release]
+version = "1.4.4"
+name = "FileCabinet v1.4.4 — Neon Ink Theme Patch"
+date = "2026-06-01"
 
-# OBSERVABILITY
+[release.installer]
+path = "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi"
+runtime = "win-x64"
+package_version = "1.4.4.0"
+size_bytes = 117886976
+sha256 = "D455758F9BBDF5C381D5D4B7130EDE36409F1706E7FA5FA2773276B9FAD3D011"
 
-[properties.observability]
-type = "object"
+[release.verified]
+date = "2026-06-01"
+tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 79 tests"
+installer_build = "installer/build-installer.ps1 -Version 1.4.4.0 completed"
 
-[properties.observability.properties.logs]
-type = "boolean"
+[[datasets]]
+name = "FileCabinet catalog"
+description = "Local JSON catalog containing vault metadata, artifact records, tags, categories, hashes, extracted text paths, thumbnail paths, activities, and UI preferences."
+format = "JSON"
+size = "User-dependent"
+location = "%APPDATA%/FileCabinet/catalog.json"
 
-[properties.observability.properties.metrics]
-type = "boolean"
+[[datasets]]
+name = "FileCabinet vault"
+description = "Portable retained artifact storage containing items, thumbnails, extracted text, quarantine, and exports."
+format = "Filesystem directory tree"
+size = "User-dependent"
+location = "User-selected vault root"
 
-[properties.observability.properties.health_checks]
-type = "boolean"
+[[scripts]]
+name = "installer/build-installer.ps1"
+language = "PowerShell"
+role = "Publishes the self-contained Windows x64 build and creates the WiX MSI installer."
+status = "active"
+version = 1
 
-[properties.observability.properties.event_stream]
-type = "boolean"
+[documentation]
+writerside_topic = ""
+readme = "README.md"
+release_notes = "docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md"
+theme_overview = "docs/NeonInk-Theme-Integration-Overview.md"
+core_docs = [
+  "docs/FileCabinet — Vault Lifecycle.md",
+  "docs/FileCabinet — Trust and Verification Model.md",
+  "docs/FileCabinet — Local-First Artifact Preservation.md",
+  "docs/FileCabinet — The Deliberate Retention Tradeoff.md",
+  "docs/FileCabinet — Repair and Recovery Guide.md",
+  "docs/FileCabinet — Designing for Context Preservation.md",
+  "docs/FileCabinet — Why Determinism Matters.md",
+  "docs/FileCabinet — Why SHA-256 and BLAKE3.md",
+  "docs/FileCabinet — Why VB.NET and WPF.md"
+]
 
-[properties.observability.properties.telemetry]
-type = "boolean"
+[links]
+repository = "https://github.com/APTlantis/FileCabinet"
+homepage = "https://github.com/APTlantis/FileCabinet"
+dashboard = "https://github.com/APTlantis/FileCabinet/releases"
 
-# DISTRIBUTION
+[structure]
+repo_path = "D:/FileCabinet"
+docs_path = "D:/FileCabinet/docs"
+data_path = "User-selected vault root"
 
-[properties.distribution]
-type = "object"
+[automation]
+build = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.4.4.0"
+deploy = "Publish artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi to the GitHub v1.4.4 release."
+tasks = [
+  "Run unit tests",
+  "Build self-contained Windows x64 publish output",
+  "Build WiX MSI installer",
+  "Attach MSI to GitHub release",
+  "Include release notes from docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md"
+]
 
-[properties.distribution.properties.packaged]
-type = "boolean"
+[theme]
+id = "neon-ink"
+name = "Aptlantis Studio - Neon Ink"
+mode = "dark"
+resource_dictionary = "Themes/NeonInk.xaml"
+merged_from = "Application.xaml"
+principles = [
+  "Semantic color over decorative neon",
+  "Cyan and teal for navigation, focus, and structure",
+  "Violet and purple for ingest, preview, process, and pipeline states",
+  "Pink and magenta for featured, creative, and metadata emphasis",
+  "Green, yellow, red, and orange reserved for health, attention, risk, and build/file-operation states"
+]
 
-[properties.distribution.properties.package_formats]
-type = "array"
-
-[properties.distribution.properties.package_formats.items]
-type = "string"
-
-[properties.distribution.properties.portable]
-type = "boolean"
-
-[properties.distribution.properties.offline_capable]
-type = "boolean"
-
-[properties.distribution.properties.requires_installation]
-type = "boolean"
-
-# LINKS
-
-[properties.links]
-type = "object"
-
-[properties.links.properties.repository]
-type = "string"
-format = "uri"
-
-[properties.links.properties.homepage]
-type = "string"
-format = "uri"
-
-[properties.links.properties.dashboard]
-type = "string"
-format = "uri"
-
-# STRUCTURE
-
-[properties.structure]
-type = "object"
-
-[properties.structure.properties.repo_path]
-type = "string"
-
-[properties.structure.properties.docs_path]
-type = "string"
-
-[properties.structure.properties.data_path]
-type = "string"
-
-# AUTOMATION
-
-[properties.automation]
-type = "object"
-
-[properties.automation.properties.build]
-type = "string"
-
-[properties.automation.properties.deploy]
-type = "string"
-
-[properties.automation.properties.tasks]
-type = "array"
-
-[properties.automation.properties.tasks.items]
-type = "string"
-
-# NOTES
-
-[properties.notes]
-type = "object"
-additionalProperties = true
+[notes]
+current_highlights = [
+  "Neon Ink theme resources now live in a dedicated WPF ResourceDictionary",
+  "MainWindow uses shared theme brushes instead of inline palette resources",
+  "Cyan navigation fills were darkened for readable selected-row and route text",
+  "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
+  "Preview and activity accents were refreshed to match Neon Ink semantics",
+  "Application, CLI, installer default, and manifest version updated to 1.4.4"
+]
+not_in_scope = [
+  "Automatic restore execution",
+  "Automatic hash mismatch resolution",
+  "Destructive cleanup of orphan generated assets"
+]
+design_boundaries = [
+  "Deterministic recall over automatic inference",
+  "Operator-authored context over generated categorization",
+  "Inspectable metadata over opaque ranking",
+  "Repairable local vault state over cloud dependency"
+]
+last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 79 tests on 2026-06-01; installer/build-installer.ps1 -Version 1.4.4.0 completed on 2026-06-01"
