@@ -16,6 +16,18 @@ FileCabinet is a local-first desktop vault for digital artifacts you want to kee
 
 Good candidates include installers, disk images, manifests, configuration files, keys, screenshots, datasets, archives, torrents, generated assets, recovery documents, and research artifacts.
 
+## Current Release
+
+Current version: **FileCabinet v1.4.4**.
+
+The v1.4.4 patch introduces the Neon Ink visual system, a WPF theme resource dictionary, refreshed semantic colors for preview/activity/status surfaces, and a darker navigation selection surface for better text contrast.
+
+Installer:
+
+- `artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi`
+- Size: `117886976` bytes
+- SHA-256: `D455758F9BBDF5C381D5D4B7130EDE36409F1706E7FA5FA2773276B9FAD3D011`
+
 ## Who FileCabinet Is For
 
 FileCabinet is for people who are willing to do a little more work up front so important files are easier to trust, find, and recover later.
@@ -43,6 +55,20 @@ K:\FileCabinet\
   thumbnails\
   extracted-text\
 ```
+
+## Interface And Theme
+
+FileCabinet uses the **Neon Ink** dark theme. The theme is intentionally semantic rather than decorative:
+
+- cyan and teal identify navigation, selection, focus, and structure
+- violet and purple identify ingest, preview, process, and pipeline states
+- pink and magenta identify featured, creative, and metadata emphasis
+- green identifies healthy, indexed, verified, and validated states
+- yellow identifies starred or attention-worthy artifacts
+- red identifies quarantine, failure, delete, or destructive states
+- orange identifies large objects, build outputs, installers, and package-like artifacts
+
+The goal is fast scanning in dense vault views: bright color should tell you what kind of state you are looking at before it simply looks bright.
 
 ## Vaults
 
@@ -108,7 +134,7 @@ The density toggle is only a display preference. It does not change catalog data
 
 The right panel shows the selected artifact.
 
-For images, FileCabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card.
+For images, FileCabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card with a category-aware Neon Ink accent.
 
 The details area shows editable metadata and file facts:
 
@@ -240,7 +266,6 @@ FileCabinet's preservation model is documented in:
 
 ### Preservation Model
 
-- [The Art of Deliberate Retention](docs/TheArtofDeliberateRetention.md)
 - [Vault Lifecycle](docs/FileCabinet%20%E2%80%94%20Vault%20Lifecycle.md)
 - [Trust and Verification Model](docs/FileCabinet%20%E2%80%94%20Trust%20and%20Verification%20Model.md)
 - [Local-First Artifact Preservation](docs/FileCabinet%20%E2%80%94%20Local-First%20Artifact%20Preservation.md)
@@ -253,6 +278,7 @@ FileCabinet's preservation model is documented in:
 - [Why Determinism Matters](docs/FileCabinet%20%E2%80%94%20Why%20Determinism%20Matters.md)
 - [Why SHA-256 and BLAKE3](docs/FileCabinet%20%E2%80%94%20Why%20SHA-256%20and%20BLAKE3.md)
 - [Why VB.NET and WPF](docs/FileCabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
+- [Neon Ink Theme Integration Overview](docs/NeonInk-Theme-Integration-Overview.md)
 
 ### Roadmaps
 
@@ -262,6 +288,12 @@ FileCabinet's preservation model is documented in:
 - [Stewardship & Preservation Maturity Roadmap](docs/FileCabinet%20%E2%80%94%20Stewardship%20%26%20Preservation%20Maturity%20Roadmap.md)
 - [Legacy & Federation Roadmap](docs/FileCabinet%20%E2%80%94%20Legacy%20%26%20Federation%20Roadmap.md)
 - [Testing Maturity Roadmap](docs/FileCabinet%20%E2%80%94%20Testing%20Maturity%20Roadmap.md)
+
+### Release Notes
+
+- [v1.4.4 — Neon Ink Theme Patch](docs/FileCabinet%20v1.4.4%20%E2%80%94%20Neon%20Ink%20Theme%20Patch.md)
+- [v1.4.3 — Quality Gate and Installer Patch](docs/FileCabinet%20v1.4.3%20%E2%80%94%20Quality%20Gate%20and%20Installer%20Patch.md)
+- [v1.4.2 — Help Menu and Same Source Batch Patch](docs/FileCabinet%20v1.4.2%20%E2%80%94%20Help%20Menu%20and%20Same%20Source%20Batch%20Patch.md)
 
 ## Design Boundaries
 
