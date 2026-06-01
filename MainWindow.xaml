@@ -11,27 +11,10 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanResize"
-        Background="#07111C"
-        Foreground="#E7EEF8">
+        Background="{StaticResource WindowBgBrush}"
+        Foreground="{StaticResource PrimaryTextBrush}">
     <Window.Resources>
         <local:BindingProxy x:Key="VmProxy" Data="{Binding}" />
-
-        <SolidColorBrush x:Key="WindowBgBrush" Color="#07111C" />
-        <SolidColorBrush x:Key="PanelBgBrush" Color="#091522" />
-        <SolidColorBrush x:Key="CardBgBrush" Color="#101D2B" />
-        <SolidColorBrush x:Key="CardAltBrush" Color="#0D1825" />
-        <SolidColorBrush x:Key="BorderDimBrush" Color="#223246" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#4DA3FF" />
-        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#E7EEF8" />
-        <SolidColorBrush x:Key="SecondaryTextBrush" Color="#AEBBCD" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#728198" />
-        <SolidColorBrush x:Key="GreenBrush" Color="#55D680" />
-
-        <LinearGradientBrush x:Key="ShellGradientBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#0A1521" Offset="0" />
-            <GradientStop Color="#0B1827" Offset="0.55" />
-            <GradientStop Color="#07111C" Offset="1" />
-        </LinearGradientBrush>
 
         <Style x:Key="IconText" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
@@ -82,7 +65,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#18283A" />
+                                <Setter Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -95,7 +78,7 @@
             <Setter Property="Height" Value="34" />
             <Setter Property="MinWidth" Value="34" />
             <Setter Property="Padding" Value="10,0" />
-            <Setter Property="Background" Value="#122133" />
+            <Setter Property="Background" Value="{StaticResource NeonInk.SoftBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
@@ -111,7 +94,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#192B40" />
+                                <Setter Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -125,7 +108,7 @@
             <Setter Property="MinWidth" Value="82" />
             <Setter Property="Padding" Value="12,0" />
             <Setter Property="Margin" Value="0,0,6,0" />
-            <Setter Property="Background" Value="#0D1825" />
+            <Setter Property="Background" Value="{StaticResource CardAltBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
@@ -145,12 +128,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#142A42" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#173A61" />
-                                <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.PipelineBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource NeonInk.FeaturedBrush}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -164,7 +147,7 @@
             <Setter Property="Padding" Value="9,0" />
             <Setter Property="Margin" Value="0,2" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Background" Value="#1B4778" />
+            <Setter Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
@@ -202,10 +185,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#1B4778" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#142A42" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -225,10 +208,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#173A61" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#142A42" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -237,14 +220,14 @@
         </Style>
 
         <Style x:Key="Chip" TargetType="Border">
-            <Setter Property="Background" Value="#172538" />
+            <Setter Property="Background" Value="{StaticResource NeonInk.SoftBrush}" />
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Padding" Value="10,4" />
             <Setter Property="Margin" Value="0,0,6,6" />
         </Style>
 
         <Style x:Key="EditorTextBox" TargetType="TextBox">
-            <Setter Property="Background" Value="#0D1825" />
+            <Setter Property="Background" Value="{StaticResource CardAltBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
@@ -253,7 +236,7 @@
         </Style>
 
         <Style x:Key="EditorComboBoxItem" TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="#0D1825" />
+            <Setter Property="Background" Value="{StaticResource CardAltBrush}" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
             <Setter Property="Padding" Value="8,5" />
             <Setter Property="FontSize" Value="12" />
@@ -265,10 +248,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#173A61" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#1B4778" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -277,7 +260,7 @@
         </Style>
 
         <Style x:Key="EditorComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="#0D1825" />
+            <Setter Property="Background" Value="{StaticResource CardAltBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
@@ -318,7 +301,7 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="Root" Property="Background" Value="#122133" />
+                                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.SoftBrush}" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -358,7 +341,7 @@
                                    AllowsTransparency="True"
                                    Focusable="False"
                                    PopupAnimation="Fade">
-                                <Border Background="#0D1825"
+                                <Border Background="{StaticResource CardAltBrush}"
                                         BorderBrush="{StaticResource BorderDimBrush}"
                                         BorderThickness="1"
                                         MinWidth="{TemplateBinding ActualWidth}"
@@ -386,7 +369,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="#0B1520" />
+            <Setter Property="Background" Value="{StaticResource NeonInk.BaseBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
             <Setter Property="GridLinesVisibility" Value="None" />
@@ -402,7 +385,7 @@
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#0B1520" />
+            <Setter Property="Background" Value="{StaticResource NeonInk.BaseBrush}" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="FontSize" Value="12" />
@@ -428,27 +411,27 @@
         </Style>
 
         <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="#0B1520" />
+            <Setter Property="Background" Value="{StaticResource NeonInk.BaseBrush}" />
             <Style.Triggers>
                 <Trigger Property="AlternationIndex" Value="1">
-                    <Setter Property="Background" Value="#0D1825" />
+                    <Setter Property="Background" Value="{StaticResource CardAltBrush}" />
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#1B4778" />
+                    <Setter Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
                     <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
 
-    <Border Background="{StaticResource ShellGradientBrush}" BorderBrush="#162437" BorderThickness="1">
+    <Border Background="{StaticResource ShellGradientBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="32" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Background="#050B12" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid Grid.Row="0" Background="{StaticResource NeonInk.VoidBrush}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -466,15 +449,15 @@
                           VerticalAlignment="Center">
                         <MenuItem Header="Settings" Command="{Binding ShowSettingsCommand}" />
                         <MenuItem Header="Help">
-                            <MenuItem Header="User Guide" Foreground="#172033" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" />
-                            <MenuItem Header="Deliberate Retention Tradeoff" Foreground="#172033" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" />
-                            <MenuItem Header="Trust and Verification Model" Foreground="#172033" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" />
-                            <MenuItem Header="Why SHA-256 and BLAKE3" Foreground="#172033" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Why SHA-256 and BLAKE3.md" />
-                            <MenuItem Header="Repair and Recovery Guide" Foreground="#172033" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" />
-                            <MenuItem Header="Deterministic Vault Roadmap" Foreground="#172033" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" />
+                            <MenuItem Header="User Guide" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" />
+                            <MenuItem Header="Deliberate Retention Tradeoff" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" />
+                            <MenuItem Header="Trust and Verification Model" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" />
+                            <MenuItem Header="Why SHA-256 and BLAKE3" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Why SHA-256 and BLAKE3.md" />
+                            <MenuItem Header="Repair and Recovery Guide" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" />
+                            <MenuItem Header="Deterministic Vault Roadmap" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" />
                             <Separator />
-                            <MenuItem Header="Open Docs Folder" Foreground="#172033" Command="{Binding OpenDocsFolderCommand}" />
-                            <MenuItem Header="About FileCabinet" Foreground="#172033" Command="{Binding ShowAboutCommand}" />
+                            <MenuItem Header="Open Docs Folder" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenDocsFolderCommand}" />
+                            <MenuItem Header="About FileCabinet" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding ShowAboutCommand}" />
                         </MenuItem>
                     </Menu>
                 </StackPanel>
@@ -544,19 +527,19 @@
                                 <Grid Margin="0,10,0,0">
                                     <Button Content="Inbox" Command="{Binding ShowRecentCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" />
                                     <Border HorizontalAlignment="Right" Background="{StaticResource AccentBrush}" CornerRadius="9" Padding="8,2">
-                                        <TextBlock Text="{Binding InboxCountText}" FontSize="11" Foreground="White" />
+                                        <TextBlock Text="{Binding InboxCountText}" FontSize="11" Foreground="{StaticResource NeonInk.InverseTextBrush}" />
                                     </Border>
                                 </Grid>
                                 <Grid Margin="0,10,0,0">
                                     <Button Content="Starred" Command="{Binding ShowStarredCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" />
-                                    <Border HorizontalAlignment="Right" Background="#FFC234" CornerRadius="9" Padding="8,2">
-                                        <TextBlock Text="{Binding StarredCountText}" FontSize="11" Foreground="#121212" />
+                                    <Border HorizontalAlignment="Right" Background="{StaticResource NeonInk.ImportantBrush}" CornerRadius="9" Padding="8,2">
+                                        <TextBlock Text="{Binding StarredCountText}" FontSize="11" Foreground="{StaticResource NeonInk.InverseTextBrush}" />
                                     </Border>
                                 </Grid>
                                 <Grid Margin="0,10,0,0">
                                     <Button Content="Quarantine" Command="{Binding ShowQuarantineCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" />
-                                    <Border HorizontalAlignment="Right" Background="#F24F5F" CornerRadius="9" Padding="8,2">
-                                        <TextBlock Text="{Binding QuarantineCountText}" FontSize="11" Foreground="White" />
+                                    <Border HorizontalAlignment="Right" Background="{StaticResource NeonInk.CriticalBrush}" CornerRadius="9" Padding="8,2">
+                                        <TextBlock Text="{Binding QuarantineCountText}" FontSize="11" Foreground="{StaticResource NeonInk.InverseTextBrush}" />
                                     </Border>
                                 </Grid>
                                 <Button Content="Unverified" Command="{Binding ShowUnverifiedCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" Margin="0,10,0,0" />
@@ -610,7 +593,7 @@
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsSelected" Value="True">
-                                                                <Setter TargetName="Root" Property="Background" Value="#173A61" />
+                                                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
@@ -627,7 +610,7 @@
                                     </ListBox.ItemTemplate>
                                 </ListBox>
 
-                                <Border Background="#101C2B" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Height="32" Margin="0,8,0,0">
+                                <Border Background="{StaticResource NeonInk.PanelBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Height="32" Margin="0,8,0,0">
                                     <Grid Margin="9,0" VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="18" />
@@ -674,7 +657,7 @@
                             <TextBlock Text="{Binding CurrentVaultSummary}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Border Width="300" Height="34" Background="#101C2B" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,8,0">
+                            <Border Width="300" Height="34" Background="{StaticResource NeonInk.PanelBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,8,0">
                                 <Grid Margin="11,0" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="18" />
@@ -744,10 +727,10 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <Border Margin="12"
-                                        BorderBrush="{StaticResource AccentBrush}"
+                                        BorderBrush="{StaticResource NeonInk.ProcessBrush}"
                                         BorderThickness="1.5"
                                         CornerRadius="6"
-                                        Background="#0F2136"
+                                        Background="{StaticResource NeonInk.SoftBrush}"
                                         AllowDrop="True"
                                         Drop="DropZone_Drop"
                                         MouseLeftButtonUp="DropZone_MouseLeftButtonUp">
@@ -758,13 +741,13 @@
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
-                                        <TextBlock Text="DROP ZONE - INGEST FILES" Foreground="{StaticResource AccentBrush}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                        <TextBlock Text="DROP ZONE - INGEST FILES" Foreground="{StaticResource NeonInk.ProcessBrush}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" />
 
                                         <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" Foreground="#AAC8EF" FontSize="52" HorizontalAlignment="Center" />
+                                            <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource NeonInk.PipelineBrush}" FontSize="52" HorizontalAlignment="Center" />
                                             <TextBlock Text="Drag &amp; drop files or folders here" Foreground="{StaticResource PrimaryTextBrush}" FontSize="15" HorizontalAlignment="Center" Margin="0,8,0,0" />
-                                            <TextBlock Text="or click to browse" Foreground="{StaticResource AccentBrush}" FontSize="13" HorizontalAlignment="Center" Margin="0,7,0,0" />
-                                            <Border Background="#173A61" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" CornerRadius="5" Padding="10,4" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                            <TextBlock Text="or click to browse" Foreground="{StaticResource NeonInk.FeaturedBrush}" FontSize="13" HorizontalAlignment="Center" Margin="0,7,0,0" />
+                                            <Border Background="{StaticResource NeonInk.PipelineBrush}" BorderBrush="{StaticResource NeonInk.FeaturedBrush}" BorderThickness="1" CornerRadius="5" Padding="10,4" HorizontalAlignment="Center" Margin="0,8,0,0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="INTAKE MODE:" Foreground="{StaticResource MutedTextBrush}" FontSize="11" FontWeight="SemiBold" />
                                                     <TextBlock Text="{Binding IngestModeText}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="11" FontWeight="SemiBold" Margin="6,0,0,0" />
@@ -800,7 +783,7 @@
                                                     <TextBlock Text="{Binding DuplicatePolicyText}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
                                                 </StackPanel>
                                             </Button>
-                                            <Border Background="#131F2D" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Padding="12,8" Margin="0,0,8,8">
+                                            <Border Background="{StaticResource NeonInk.PanelBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Padding="12,8" Margin="0,0,8,8">
                                                 <TextBlock Text="{Binding IngestModeDetail}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" TextWrapping="Wrap" Width="180" />
                                             </Border>
                                         </WrapPanel>
@@ -820,7 +803,7 @@
 
                         <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource PanelBorder}">
                             <StackPanel Margin="16">
-                                <TextBlock Text="RECENT ACTIVITY" Style="{StaticResource SectionTitle}" Margin="0,0,0,18" />
+                                <TextBlock Text="RECENT ACTIVITY" Foreground="{StaticResource NeonInk.ProcessBrush}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,18" />
                                 <ItemsControl ItemsSource="{Binding Activities}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -878,8 +861,8 @@
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Border Width="20" Height="20" CornerRadius="10" Background="#BAC8EF" Margin="0,0,12,0">
-                                                            <TextBlock Text="&#xEA86;" FontFamily="Segoe MDL2 Assets" Foreground="#40557A" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" />
+                                                        <Border Width="20" Height="20" CornerRadius="10" Background="{StaticResource NeonInk.StructureBrush}" Margin="0,0,12,0">
+                                                            <TextBlock Text="&#xEA86;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource NeonInk.InverseTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" />
                                                         </Border>
                                                         <TextBlock Text="{Binding Name}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
                                                     </StackPanel>
@@ -895,7 +878,7 @@
                                                 <DataTemplate>
                                                     <Grid>
                                                         <TextBlock Text="{Binding TagsText}" Style="{StaticResource DataCell}" Margin="0,0,22,0" />
-                                                        <TextBlock Text="{Binding StarText}" Foreground="#FFC234" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                        <TextBlock Text="{Binding StarText}" Foreground="{StaticResource NeonInk.ImportantBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                                     </Grid>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
@@ -916,7 +899,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Vault Storage" Style="{StaticResource DataCell}" VerticalAlignment="Center" />
                             <Grid Grid.Column="1" Height="10" VerticalAlignment="Center">
-                                <Border Background="#1D2B3B" CornerRadius="5" />
+                                <Border Background="{StaticResource NeonInk.RaisedBrush}" CornerRadius="5" />
                                 <Border Background="{StaticResource GreenBrush}" CornerRadius="5" Width="220" HorizontalAlignment="Left" />
                             </Grid>
                             <TextBlock Grid.Column="2" Text="{Binding StorageUsedText}" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="16,0,42,0" />
@@ -935,7 +918,7 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="230" />
                         </Grid.RowDefinitions>
-                        <Border Style="{StaticResource PanelBorder}">
+                        <Border Style="{StaticResource PanelBorder}" BorderBrush="{StaticResource NeonInk.ExperimentalBrush}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Margin="16">
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
@@ -945,7 +928,7 @@
                                     </StackPanel>
 
                                     <StackPanel Visibility="{Binding IsPreviewTabSelected, Converter={StaticResource BoolToVisibility}}">
-                                    <Border Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" MinHeight="260" Margin="0,8,0,24" Padding="10">
+                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.ExperimentalBrush}" BorderThickness="1" CornerRadius="6" MinHeight="260" Margin="0,8,0,24" Padding="10">
                                         <Grid>
                                             <Image Source="{Binding SelectedPreview.Image}"
                                                    Stretch="Uniform"
@@ -970,7 +953,7 @@
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"
                                                                Margin="0,-10,0,0" />
-                                                    <Border Background="#0B1520"
+                                                    <Border Background="{StaticResource NeonInk.BaseBrush}"
                                                             BorderBrush="{Binding SelectedPreview.AccentBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="4"
@@ -990,7 +973,7 @@
                                             </StackPanel>
 
                                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="210" Visibility="{Binding IsMissingPreview, Converter={StaticResource BoolToVisibility}}">
-                                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" Foreground="#F24F5F" FontSize="42" HorizontalAlignment="Center" />
+                                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource NeonInk.CriticalBrush}" FontSize="42" HorizontalAlignment="Center" />
                                                 <TextBlock Text="{Binding SelectedPreview.Title}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
                                                 <TextBlock Text="{Binding SelectedPreview.Detail}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
                                             </StackPanel>
@@ -999,8 +982,8 @@
                                     </StackPanel>
 
                                     <StackPanel Visibility="{Binding IsRelationsTabSelected, Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Text="Relations" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
-                                    <Border Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,20">
+                                    <TextBlock Text="Relations" Foreground="{StaticResource NeonInk.StructureBrush}" FontSize="11" Margin="0,0,0,8" />
+                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.StructureBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,20">
                                         <StackPanel>
                                             <TextBlock Text="{Binding RelatedArtifactsSummary}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,8" />
                                             <ItemsControl ItemsSource="{Binding RelatedArtifacts}">
@@ -1035,11 +1018,11 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding EditName}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.StarText}" Foreground="#FFC234" FontSize="17" Margin="8,0,0,0" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.StarText}" Foreground="{StaticResource NeonInk.ImportantBrush}" FontSize="17" Margin="8,0,0,0" />
                                     </Grid>
                                     <TextBlock Text="{Binding SelectedArtifact.SummaryText}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,22" />
 
-                                    <TextBlock Text="Editable Metadata" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
+                                    <TextBlock Text="Editable Metadata" Foreground="{StaticResource NeonInk.FeaturedBrush}" FontSize="11" Margin="0,0,0,8" />
                                     <TextBox Text="{Binding EditName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" />
                                     <ComboBox Text="{Binding EditCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               ItemsSource="{Binding CategoryNames}"
@@ -1056,7 +1039,7 @@
                                         <Slider Grid.Column="1" Minimum="0" Maximum="5" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding EditRating, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                     </Grid>
 
-                                    <TextBlock Text="Operator Context" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
+                                    <TextBlock Text="Operator Context" Foreground="{StaticResource NeonInk.ProcessBrush}" FontSize="11" Margin="0,0,0,8" />
                                     <TextBlock Text="Retention reason" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
                                     <TextBox Text="{Binding EditRetentionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Retention reason" />
                                     <TextBlock Text="Why this matters" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
@@ -1182,7 +1165,7 @@
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Rating" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.RatingText}" Foreground="#FFC234" FontSize="14" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.RatingText}" Foreground="{StaticResource NeonInk.ImportantBrush}" FontSize="14" />
                                     </Grid>
 
                                     <TextBlock Text="Notes" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
@@ -1227,7 +1210,7 @@
                                             <StackPanel><TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Quaran-&#x0a;tine" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
                                         </Button>
                                         <Button Click="DeleteArtifactButton_Click" Style="{StaticResource ToolButton}" Height="54" Padding="0">
-                                            <StackPanel><TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" HorizontalAlignment="Center" Foreground="#F24F5F" /><TextBlock Text="Delete&#x0a;Forever" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                            <StackPanel><TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" HorizontalAlignment="Center" Foreground="{StaticResource NeonInk.CriticalBrush}" /><TextBlock Text="Delete&#x0a;Forever" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
                                         </Button>
                                     </UniformGrid>
                                     <TextBlock Text="{Binding ActionStatus}" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
@@ -1250,7 +1233,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="VAULT HEALTH" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="SemiBold" />
+                                        <TextBlock Text="VAULT HEALTH" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="12" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding VaultMaintenanceDetail}" Style="{StaticResource SmallLabel}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" MaxWidth="520" />
@@ -1284,7 +1267,7 @@
                                     <TextBlock Grid.Row="3" Text="Backup" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupDisplay}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
 
-                                    <Border Grid.Row="4" Grid.ColumnSpan="2" Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="8">
+                                    <Border Grid.Row="4" Grid.ColumnSpan="2" Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="8">
                                         <ScrollViewer MaxHeight="88" VerticalScrollBarVisibility="Auto">
                                             <ItemsControl ItemsSource="{Binding RepairCandidates}">
                                                 <ItemsControl.ItemTemplate>
@@ -1316,7 +1299,7 @@
                                         </ScrollViewer>
                                     </Border>
 
-                                    <Border Grid.Row="5" Grid.ColumnSpan="2" Background="#0B1520" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0" Padding="8">
+                                    <Border Grid.Row="5" Grid.ColumnSpan="2" Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0" Padding="8">
                                         <StackPanel>
                                             <Grid Margin="0,0,0,6">
                                                 <Grid.ColumnDefinitions>

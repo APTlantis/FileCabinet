@@ -1329,8 +1329,8 @@ Public Class MainViewModel
                 .ActionText = $"Deleted {artifact.Name}",
                 .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  removed from vault",
                 .Icon = "",
-                .IconBrush = "#F24F5F",
-                .IconBackground = "#4A1F29"
+                .IconBrush = "#F43F5E",
+                .IconBackground = "#3B1720"
             }
             Activities.Insert(0, activity)
             _catalog.Activities.Insert(0, activity)
@@ -2882,11 +2882,11 @@ Public Class MainViewModel
         Dim largeObjects = Artifacts.Where(Function(a) a.SizeBytes >= 1024L * 1024L * 1024L).Count()
         Dim indexed = Artifacts.Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256) OrElse Not String.IsNullOrWhiteSpace(a.Blake3)).Count()
         Dim rebuilt = New List(Of StatCardModel) From {
-            New StatCardModel With {.Label = "Total Items", .Value = Artifacts.Count.ToString("N0"), .Icon = "", .IconBrush = "#4DA3FF", .IconBackground = "#153C67"},
-            New StatCardModel With {.Label = "Vault Size", .Value = FormatSize(Artifacts.Sum(Function(a) a.SizeBytes)), .Icon = "", .IconBrush = "#9566FF", .IconBackground = "#2C2356"},
-            New StatCardModel With {.Label = "Indexed", .Value = indexed.ToString("N0"), .Icon = "", .IconBrush = "#55D680", .IconBackground = "#183C2B"},
-            New StatCardModel With {.Label = "Large Objects", .Value = largeObjects.ToString("N0"), .Icon = "", .IconBrush = "#F5A623", .IconBackground = "#4A3315"},
-            New StatCardModel With {.Label = "In Quarantine", .Value = QuarantineCountText, .Icon = "", .IconBrush = "#F24F5F", .IconBackground = "#4A1F29"}
+            New StatCardModel With {.Label = "Total Items", .Value = Artifacts.Count.ToString("N0"), .Icon = "", .IconBrush = "#38BDF8", .IconBackground = "#123044"},
+            New StatCardModel With {.Label = "Vault Size", .Value = FormatSize(Artifacts.Sum(Function(a) a.SizeBytes)), .Icon = "", .IconBrush = "#A78BFA", .IconBackground = "#2A214D"},
+            New StatCardModel With {.Label = "Indexed", .Value = indexed.ToString("N0"), .Icon = "", .IconBrush = "#34D399", .IconBackground = "#123522"},
+            New StatCardModel With {.Label = "Large Objects", .Value = largeObjects.ToString("N0"), .Icon = "", .IconBrush = "#FB923C", .IconBackground = "#3A2712"},
+            New StatCardModel With {.Label = "In Quarantine", .Value = QuarantineCountText, .Icon = "", .IconBrush = "#F43F5E", .IconBackground = "#3B1720"}
         }
         ReplaceCollection(Stats, rebuilt)
         If _catalog IsNot Nothing Then
@@ -3075,8 +3075,8 @@ Public Class MainViewModel
                 .ActionText = $"Applied {applied:N0} repair(s)",
                 .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  {failed:N0} failed, {skipped:N0} skipped; repair log updated",
                 .Icon = "",
-                .IconBrush = "#51D88A",
-                .IconBackground = "#153F2C"
+                .IconBrush = "#34D399",
+                .IconBackground = "#123522"
             }
             Activities.Insert(0, activity)
             _catalog.Activities.Insert(0, activity)

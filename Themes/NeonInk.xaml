@@ -1,0 +1,85 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="NeonInk.VoidColor">#050816</Color>
+    <Color x:Key="NeonInk.BaseColor">#0B0F1A</Color>
+    <Color x:Key="NeonInk.PanelColor">#111827</Color>
+    <Color x:Key="NeonInk.RaisedColor">#162033</Color>
+    <Color x:Key="NeonInk.SoftColor">#0F172A</Color>
+
+    <Color x:Key="NeonInk.PrimaryTextColor">#E5E7EB</Color>
+    <Color x:Key="NeonInk.SecondaryTextColor">#CBD5E1</Color>
+    <Color x:Key="NeonInk.MutedTextColor">#94A3B8</Color>
+    <Color x:Key="NeonInk.FaintTextColor">#64748B</Color>
+    <Color x:Key="NeonInk.InverseTextColor">#050816</Color>
+
+    <Color x:Key="NeonInk.InfoColor">#22D3EE</Color>
+    <Color x:Key="NeonInk.StructureColor">#06B6D4</Color>
+    <Color x:Key="NeonInk.NavigationColor">#38BDF8</Color>
+    <Color x:Key="NeonInk.NavigationSurfaceColor">#0E7490</Color>
+    <Color x:Key="NeonInk.SuccessColor">#34D399</Color>
+    <Color x:Key="NeonInk.VerifiedColor">#22C55E</Color>
+    <Color x:Key="NeonInk.ReproducibleColor">#2DD4BF</Color>
+    <Color x:Key="NeonInk.ImportantColor">#FACC15</Color>
+    <Color x:Key="NeonInk.CautionColor">#FBBF24</Color>
+    <Color x:Key="NeonInk.CriticalColor">#F43F5E</Color>
+    <Color x:Key="NeonInk.ErrorColor">#EF4444</Color>
+    <Color x:Key="NeonInk.ProcessColor">#A78BFA</Color>
+    <Color x:Key="NeonInk.PipelineColor">#C084FC</Color>
+    <Color x:Key="NeonInk.CodeHeatColor">#F97316</Color>
+    <Color x:Key="NeonInk.BuildColor">#FB923C</Color>
+    <Color x:Key="NeonInk.FeaturedColor">#F472B6</Color>
+    <Color x:Key="NeonInk.CreativeColor">#EC4899</Color>
+    <Color x:Key="NeonInk.ExperimentalColor">#818CF8</Color>
+    <Color x:Key="NeonInk.ArchiveColor">#94A3B8</Color>
+    <Color x:Key="NeonInk.UnknownColor">#CBD5E1</Color>
+
+    <SolidColorBrush x:Key="NeonInk.VoidBrush" Color="{StaticResource NeonInk.VoidColor}" />
+    <SolidColorBrush x:Key="NeonInk.BaseBrush" Color="{StaticResource NeonInk.BaseColor}" />
+    <SolidColorBrush x:Key="NeonInk.PanelBrush" Color="{StaticResource NeonInk.PanelColor}" />
+    <SolidColorBrush x:Key="NeonInk.RaisedBrush" Color="{StaticResource NeonInk.RaisedColor}" />
+    <SolidColorBrush x:Key="NeonInk.SoftBrush" Color="{StaticResource NeonInk.SoftColor}" />
+
+    <SolidColorBrush x:Key="NeonInk.PrimaryTextBrush" Color="{StaticResource NeonInk.PrimaryTextColor}" />
+    <SolidColorBrush x:Key="NeonInk.SecondaryTextBrush" Color="{StaticResource NeonInk.SecondaryTextColor}" />
+    <SolidColorBrush x:Key="NeonInk.MutedTextBrush" Color="{StaticResource NeonInk.MutedTextColor}" />
+    <SolidColorBrush x:Key="NeonInk.FaintTextBrush" Color="{StaticResource NeonInk.FaintTextColor}" />
+    <SolidColorBrush x:Key="NeonInk.InverseTextBrush" Color="{StaticResource NeonInk.InverseTextColor}" />
+
+    <SolidColorBrush x:Key="NeonInk.InfoBrush" Color="{StaticResource NeonInk.InfoColor}" />
+    <SolidColorBrush x:Key="NeonInk.StructureBrush" Color="{StaticResource NeonInk.StructureColor}" />
+    <SolidColorBrush x:Key="NeonInk.NavigationBrush" Color="{StaticResource NeonInk.NavigationColor}" />
+    <SolidColorBrush x:Key="NeonInk.NavigationSurfaceBrush" Color="{StaticResource NeonInk.NavigationSurfaceColor}" />
+    <SolidColorBrush x:Key="NeonInk.SuccessBrush" Color="{StaticResource NeonInk.SuccessColor}" />
+    <SolidColorBrush x:Key="NeonInk.VerifiedBrush" Color="{StaticResource NeonInk.VerifiedColor}" />
+    <SolidColorBrush x:Key="NeonInk.ReproducibleBrush" Color="{StaticResource NeonInk.ReproducibleColor}" />
+    <SolidColorBrush x:Key="NeonInk.ImportantBrush" Color="{StaticResource NeonInk.ImportantColor}" />
+    <SolidColorBrush x:Key="NeonInk.CautionBrush" Color="{StaticResource NeonInk.CautionColor}" />
+    <SolidColorBrush x:Key="NeonInk.CriticalBrush" Color="{StaticResource NeonInk.CriticalColor}" />
+    <SolidColorBrush x:Key="NeonInk.ErrorBrush" Color="{StaticResource NeonInk.ErrorColor}" />
+    <SolidColorBrush x:Key="NeonInk.ProcessBrush" Color="{StaticResource NeonInk.ProcessColor}" />
+    <SolidColorBrush x:Key="NeonInk.PipelineBrush" Color="{StaticResource NeonInk.PipelineColor}" />
+    <SolidColorBrush x:Key="NeonInk.CodeHeatBrush" Color="{StaticResource NeonInk.CodeHeatColor}" />
+    <SolidColorBrush x:Key="NeonInk.BuildBrush" Color="{StaticResource NeonInk.BuildColor}" />
+    <SolidColorBrush x:Key="NeonInk.FeaturedBrush" Color="{StaticResource NeonInk.FeaturedColor}" />
+    <SolidColorBrush x:Key="NeonInk.CreativeBrush" Color="{StaticResource NeonInk.CreativeColor}" />
+    <SolidColorBrush x:Key="NeonInk.ExperimentalBrush" Color="{StaticResource NeonInk.ExperimentalColor}" />
+    <SolidColorBrush x:Key="NeonInk.ArchiveBrush" Color="{StaticResource NeonInk.ArchiveColor}" />
+    <SolidColorBrush x:Key="NeonInk.UnknownBrush" Color="{StaticResource NeonInk.UnknownColor}" />
+
+    <SolidColorBrush x:Key="WindowBgBrush" Color="{StaticResource NeonInk.VoidColor}" />
+    <SolidColorBrush x:Key="PanelBgBrush" Color="{StaticResource NeonInk.PanelColor}" />
+    <SolidColorBrush x:Key="CardBgBrush" Color="{StaticResource NeonInk.PanelColor}" />
+    <SolidColorBrush x:Key="CardAltBrush" Color="{StaticResource NeonInk.SoftColor}" />
+    <SolidColorBrush x:Key="BorderDimBrush" Color="#26364D" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource NeonInk.NavigationColor}" />
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource NeonInk.PrimaryTextColor}" />
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource NeonInk.SecondaryTextColor}" />
+    <SolidColorBrush x:Key="MutedTextBrush" Color="{StaticResource NeonInk.MutedTextColor}" />
+    <SolidColorBrush x:Key="GreenBrush" Color="{StaticResource NeonInk.SuccessColor}" />
+
+    <LinearGradientBrush x:Key="ShellGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource NeonInk.VoidColor}" Offset="0" />
+        <GradientStop Color="{StaticResource NeonInk.BaseColor}" Offset="0.55" />
+        <GradientStop Color="{StaticResource NeonInk.SoftColor}" Offset="1" />
+    </LinearGradientBrush>
+</ResourceDictionary>

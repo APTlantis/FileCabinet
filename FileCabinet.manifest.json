@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.4.3",
+    "version": "1.4.4",
     "tags": [
       "local-first",
       "desktop",
@@ -60,8 +60,8 @@
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.4.3.0-win-x64.msi",
-      "docs/FileCabinet v1.4.3 — Quality Gate and Installer Patch.md",
+      "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi",
+      "docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md",
       "FileCabinet.Cli.exe",
       "Vault catalog JSON",
       "Vault thumbnail PNG assets",
@@ -117,28 +117,28 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.4.3.0",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.4.3.0-win-x64.msi to the GitHub v1.4.3 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.4.4.0",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi to the GitHub v1.4.4 release.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.4.3 — Quality Gate and Installer Patch.md"
+      "Include release notes from docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md"
     ]
   },
   "notes": {
-    "release_name": "FileCabinet v1.4.3 — Quality Gate and Installer Patch",
-    "installer": "FileCabinet-1.4.3.0-win-x64.msi",
-    "installer_sha256": "69C66834374563BAD8608CC723626C288DB70DDD6D4E4F604D126FC8D09CF8BB",
-    "installer_size_bytes": 117882880,
-    "v1_4_3_highlights": [
-      "SonarCloud coverage import now uses the VB.NET OpenCover report key so quality gate coverage is read correctly",
-      "CLI helper types live in a named namespace and parser branches have explicit defensive fallback handling",
-      "Regex release marker extraction uses a bounded timeout to avoid unbounded regular expression execution",
-      "Recoverable catalog, ingest, and headless rescan failures now record debug diagnostics instead of using empty catch blocks",
-      "Focused tests cover the new parser, CLI output, catalog recovery, rescan, and preview fallback paths",
-      "Application, CLI, installer default, and manifest version updated to 1.4.3"
+    "release_name": "FileCabinet v1.4.4 — Neon Ink Theme Patch",
+    "installer": "FileCabinet-1.4.4.0-win-x64.msi",
+    "installer_sha256": "C60E0B594751B5B6C818C5782E8E3928912DA607CF83BDCB03C8AA3F29AF1449",
+    "installer_size_bytes": 117886976,
+    "v1_4_4_highlights": [
+      "Neon Ink theme resources now live in a dedicated WPF ResourceDictionary",
+      "MainWindow uses shared theme brushes instead of inline palette resources",
+      "Cyan navigation fills were darkened for readable selected-row and route text",
+      "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
+      "Preview and activity accents were refreshed to match Neon Ink semantics",
+      "Application, CLI, installer default, and manifest version updated to 1.4.4"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -151,6 +151,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 79 tests on 2026-06-01; installer/build-installer.ps1 -Version 1.4.3.0 completed on 2026-06-01"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 79 tests on 2026-06-01; installer/build-installer.ps1 -Version 1.4.4.0 completed on 2026-06-01"
   }
 }

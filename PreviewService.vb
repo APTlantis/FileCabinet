@@ -18,8 +18,8 @@ Public Class ArtifactPreview
     Public Property Detail As String = ""
     Public Property BadgeText As String = ""
     Public Property IconGlyph As String = ChrW(&HE8A5)
-    Public Property AccentBrush As String = "#4DA3FF"
-    Public Property AccentBackground As String = "#142A42"
+    Public Property AccentBrush As String = "#818CF8"
+    Public Property AccentBackground As String = "#1F264B"
 End Class
 
 Public Class PreviewService
@@ -122,8 +122,8 @@ Public Class PreviewService
                 .Detail = "The image is retained in the vault, but WPF could not decode it.",
                 .BadgeText = "IMG",
                 .IconGlyph = ChrW(&HE91B),
-                .AccentBrush = "#55D680",
-                .AccentBackground = "#123522"
+                .AccentBrush = "#EC4899",
+                .AccentBackground = "#3B1733"
             }
         End Try
     End Function
@@ -162,8 +162,8 @@ Public Class PreviewService
                 .Detail = "The file is retained in the vault, but text could not be read safely.",
                 .BadgeText = "TXT",
                 .IconGlyph = ChrW(&HE8A5),
-                .AccentBrush = "#4DA3FF",
-                .AccentBackground = "#142A42"
+                .AccentBrush = "#818CF8",
+                .AccentBackground = "#1F264B"
             }
         End Try
     End Function
@@ -299,46 +299,46 @@ Public Class PreviewService
     Private Shared Function ResolveAccentBrush(artifact As ArtifactModel, extension As String) As String
         Select Case If(artifact?.Category, "")
             Case "ISOs / Disk Images"
-                Return "#7BB7FF"
+                Return "#818CF8"
             Case "Software / Installers"
-                Return "#BFA7FF"
+                Return "#C084FC"
             Case "Archives"
-                Return "#F7B955"
+                Return "#FB923C"
             Case "Torrents"
-                Return "#55D680"
+                Return "#2DD4BF"
             Case "Keys / Security"
-                Return "#FF6B7A"
+                Return "#F43F5E"
             Case "Documents"
-                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#FF6B7A", "#8FD7FF")
+                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#F43F5E", "#22D3EE")
             Case "Spreadsheets"
-                Return "#65D987"
+                Return "#34D399"
             Case "Presentations"
-                Return "#FFB06A"
+                Return "#F472B6"
             Case "Manifests / Config"
-                Return "#91A7FF"
+                Return "#818CF8"
             Case "Audio"
-                Return "#74D7E6"
+                Return "#EC4899"
             Case "Video"
-                Return "#FF8C6A"
+                Return "#F472B6"
             Case Else
                 If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
-                    Return "#FF6B7A"
+                    Return "#F43F5E"
                 End If
 
-                Return "#A8BCD5"
+                Return "#CBD5E1"
         End Select
     End Function
 
     Private Shared Function ResolveAccentBackground(artifact As ArtifactModel, extension As String) As String
         Select Case If(artifact?.Category, "")
             Case "ISOs / Disk Images"
-                Return "#122D4F"
+                Return "#1F264B"
             Case "Software / Installers"
                 Return "#2A214D"
             Case "Archives"
                 Return "#3A2712"
             Case "Torrents"
-                Return "#123522"
+                Return "#12343A"
             Case "Keys / Security"
                 Return "#3B1720"
             Case "Documents"
@@ -346,19 +346,19 @@ Public Class PreviewService
             Case "Spreadsheets"
                 Return "#123522"
             Case "Presentations"
-                Return "#3A2416"
+                Return "#3B1733"
             Case "Manifests / Config"
                 Return "#1F264B"
             Case "Audio"
-                Return "#12343A"
+                Return "#3B1733"
             Case "Video"
-                Return "#3A2118"
+                Return "#3B1733"
             Case Else
                 If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
                     Return "#3B1720"
                 End If
 
-                Return "#18283A"
+                Return "#162033"
         End Select
     End Function
 

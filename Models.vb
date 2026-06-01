@@ -260,8 +260,8 @@ Public Class StatCardModel
     Public Property Label As String = ""
     Public Property Value As String = ""
     Public Property Icon As String = ""
-    Public Property IconBrush As String = "#4DA3FF"
-    Public Property IconBackground As String = "#153C67"
+    Public Property IconBrush As String = "#38BDF8"
+    Public Property IconBackground As String = "#123044"
 End Class
 
 Public Class CategoryModel
@@ -273,8 +273,8 @@ Public Class ActivityEntryModel
     Public Property ActionText As String = ""
     Public Property DetailText As String = ""
     Public Property Icon As String = ""
-    Public Property IconBrush As String = "#40557A"
-    Public Property IconBackground As String = "#BAC8EF"
+    Public Property IconBrush As String = "#A78BFA"
+    Public Property IconBackground As String = "#2A214D"
 End Class
 
 Public Class HelpDocumentModel
