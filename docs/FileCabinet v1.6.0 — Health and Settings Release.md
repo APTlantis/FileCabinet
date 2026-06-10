@@ -41,12 +41,35 @@ Release artifact hashing and detached signatures are handled by the existing loc
 
 FileCabinet does not copy signing key material into this repository.
 
+## Release Artifact
+
+Installer:
+
+- File: `artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi`
+- Size: `127868928` bytes
+- SHA-256: `e2efe9935378a557432f0c2443d476a0b8ba548572db9656ef2d437b63e2d2af`
+- BLAKE3: `6ffa5c250f07d5b86d3e6c0d76218f4732f842fba8b757089e402d5095cd3d63`
+- KangarooTwelve: `4f934e3bb6a3615b8abce7e0112c90131985496d126409bddda86dc28aaec13b`
+
+Post-quantum detached signature:
+
+- File: `artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig`
+- Size: `17088` bytes
+- SHA-256: `4e17345a485d32e4cc0c7a560e87f111f31d0539f7f96eeb9c17f1a7ec875dae`
+- BLAKE3: `610c5e1f97fe49af51eb0a307fe319ace4ff970335b54421d471d37a0082016d`
+- KangarooTwelve: `8c090a9892a5abb22b13b74d87cbd2c4176324a709564336083b18efbcfbd652`
+
+PGP detached signing was attempted with ReleaseHasher and the available local PGP key. It is blocked until the ReleaseHasher PGP path accepts the key; the command returned `No signing key found in certificate`.
+
 ## Verification
 
 Validated on 2026-06-10:
 
 ```powershell
 dotnet test FileCabinet.Tests\FileCabinet.Tests.vbproj --no-restore
+powershell -ExecutionPolicy Bypass -File installer\build-installer.ps1 -Version 1.6.0.0
+D:\200-CTS\230-HASHING\ReleaseHasher\target\debug\release-hasher.exe --json hash artifacts\installer\FileCabinet-1.6.0.0-win-x64.msi
+D:\200-CTS\230-HASHING\ReleaseHasher\target\debug\release-hasher.exe --json sign-pq --key D:\200-CTS\230-HASHING\ReleaseHasher\mykey.sec artifacts\installer\FileCabinet-1.6.0.0-win-x64.msi
 ```
 
 Result: 87 tests passed.

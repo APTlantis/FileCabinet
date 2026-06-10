@@ -65,6 +65,7 @@
   "artifacts": {
     "produces": [
       "artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
+      "artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig",
       "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
       "Assets/FileCabinet.ico",
       "Assets/FileCabinetLogoMark.png",
@@ -90,13 +91,34 @@
       "path": "artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
       "runtime": "win-x64",
       "package_version": "1.6.0.0",
-      "size_bytes": 0,
-      "sha256": ""
+      "size_bytes": 127868928,
+      "sha256": "e2efe9935378a557432f0c2443d476a0b8ba548572db9656ef2d437b63e2d2af",
+      "blake3": "6ffa5c250f07d5b86d3e6c0d76218f4732f842fba8b757089e402d5095cd3d63",
+      "kangaroo12": "4f934e3bb6a3615b8abce7e0112c90131985496d126409bddda86dc28aaec13b"
+    },
+    "signatures": {
+      "pq": {
+        "path": "artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig",
+        "algorithm": "SPHINCS+",
+        "size_bytes": 17088,
+        "sha256": "4e17345a485d32e4cc0c7a560e87f111f31d0539f7f96eeb9c17f1a7ec875dae",
+        "blake3": "610c5e1f97fe49af51eb0a307fe319ace4ff970335b54421d471d37a0082016d",
+        "kangaroo12": "8c090a9892a5abb22b13b74d87cbd2c4176324a709564336083b18efbcfbd652",
+        "status": "created by ReleaseHasher sign-pq"
+      },
+      "pgp": {
+        "path": "",
+        "algorithm": "PGP",
+        "status": "blocked",
+        "detail": "ReleaseHasher sign-pgp was attempted with D:/200-CTS/230-HASHING/ReleaseHasher/keys/AptlantisSigningKey-Private.asc and returned: No signing key found in certificate."
+      }
     },
     "verified": {
       "date": "2026-06-10",
       "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 87 tests",
-      "installer_build": "pending"
+      "installer_build": "installer/build-installer.ps1 -Version 1.6.0.0 completed",
+      "release_hashing": "ReleaseHasher hash completed for artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
+      "release_signing": "ReleaseHasher sign-pq completed; ReleaseHasher sign-pgp blocked by key compatibility"
     }
   },
   "datasets": [
@@ -152,8 +174,8 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.6.0.0; release-hasher hash artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi to the GitHub v1.6.0 release after ARHS hashing and detached signatures.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.6.0.0; release-hasher hash artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi; release-hasher sign-pq artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi --key D:/200-CTS/230-HASHING/ReleaseHasher/mykey.sec",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi and artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig to the GitHub v1.6.0 release; PGP signing is blocked until ReleaseHasher accepts the available PGP signing key.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
@@ -161,7 +183,8 @@
       "Attach MSI to GitHub release",
       "Include release notes from docs/FileCabinet v1.6.0 — Health and Settings Release.md",
       "Generate ARHS hashes with D:/200-CTS/230-HASHING/ReleaseHasher",
-      "Sign release artifacts with existing ReleaseHasher PGP and PQ signing keys"
+      "Sign release artifact with ReleaseHasher PQ key",
+      "Resolve ReleaseHasher PGP key compatibility before publishing a PGP detached signature"
     ]
   },
   "theme": {
@@ -190,7 +213,8 @@
       "Settings panel hardened around canonical hash options",
       "Real KangarooTwelve hashing replaces the previous SHA3 fallback",
       "Vault health progress and moved-vault path rebind repairs improved",
-      "Release verification references ARHS at D:/010-CITY-HALL/ARHS and ReleaseHasher at D:/200-CTS/230-HASHING/ReleaseHasher"
+      "Release verification references ARHS at D:/010-CITY-HALL/ARHS and ReleaseHasher at D:/200-CTS/230-HASHING/ReleaseHasher",
+      "FileCabinet-1.6.0.0-win-x64.msi was built, ARHS-hashed, and PQ-signed on 2026-06-10"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -203,6 +227,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 87 tests on 2026-06-10; installer build and ARHS release hashes pending"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 87 tests on 2026-06-10; installer/build-installer.ps1 -Version 1.6.0.0 completed; ReleaseHasher hash and sign-pq completed; sign-pgp blocked by key compatibility"
   }
 }

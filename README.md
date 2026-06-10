@@ -25,8 +25,11 @@ The v1.6.0 release hardens Settings, replaces the KangarooTwelve placeholder wit
 Installer:
 
 - `artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi`
-- Size: `117497856` bytes
-- SHA-256: `5C32C55257B68B2B4F85327F757ED2CC8649E9D9606E90EF225EDE2E13C668F3`
+- Size: `127868928` bytes
+- SHA-256: `e2efe9935378a557432f0c2443d476a0b8ba548572db9656ef2d437b63e2d2af`
+- BLAKE3: `6ffa5c250f07d5b86d3e6c0d76218f4732f842fba8b757089e402d5095cd3d63`
+- KangarooTwelve: `4f934e3bb6a3615b8abce7e0112c90131985496d126409bddda86dc28aaec13b`
+- PQ signature: `artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig`
 
 ## Who FileCabinet Is For
 
