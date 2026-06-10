@@ -16,7 +16,7 @@ Public Class IngestionService
         ".txt", ".md", ".json", ".toml", ".yaml", ".yml", ".xml", ".ini", ".log", ".csv", ".ps1", ".bat", ".cmd", ".vb", ".cs", ".xaml", ".config", ".rtf", ".asc", ".pem", ".pub", ".docx"
     }
 
-    Public Function Ingest(paths As IEnumerable(Of String), vaultRootPath As String, Optional progress As IProgress(Of IngestionProgress) = Nothing, Optional mode As IngestMode = IngestMode.Move) As List(Of ArtifactModel)
+    Public Function Ingest(paths As IEnumerable(Of String), vaultRootPath As String, Optional progress As IProgress(Of IngestionProgress) = Nothing, Optional mode As IngestMode = IngestMode.Move, Optional activeHashes As String = "APTlantis Release Standard") As List(Of ArtifactModel)
         Dim artifacts As New List(Of ArtifactModel)
 
         If paths Is Nothing Then
@@ -42,7 +42,7 @@ Public Class IngestionService
 
                 Dim stored = New FileInfo(destination)
                 Report(progress, "Hashing", source.Name, "Hash", completedFiles, files.Count, completedBytes + stored.Length, totalBytes)
-                artifacts.Add(CreateArtifact(source, stored, vaultRootPath))
+                artifacts.Add(CreateArtifact(source, stored, vaultRootPath, activeHashes))
 
                 If mode = IngestMode.Move Then
                     Try
@@ -70,7 +70,7 @@ Public Class IngestionService
         Return artifacts
     End Function
 
-    Public Function CreateArtifactFromStoredFile(path As String, vaultRootPath As String, Optional originalPath As String = "") As ArtifactModel
+    Public Function CreateArtifactFromStoredFile(path As String, vaultRootPath As String, Optional originalPath As String = "", Optional activeHashes As String = "APTlantis Release Standard") As ArtifactModel
         If String.IsNullOrWhiteSpace(path) Then
             Throw New ArgumentException("Path is required.", NameOf(path))
         End If
@@ -84,7 +84,7 @@ Public Class IngestionService
             originalPath = stored.FullName
         End If
 
-        Return CreateArtifact(New FileInfo(originalPath), stored, vaultRootPath)
+        Return CreateArtifact(New FileInfo(originalPath), stored, vaultRootPath, activeHashes)
     End Function
 
     Public Function ExtractTextForArtifact(artifact As ArtifactModel, vaultRootPath As String) As (RelativePath As String, Status As String)
@@ -184,13 +184,13 @@ Public Class IngestionService
         })
     End Sub
 
-    Private Shared Function CreateArtifact(source As FileInfo, stored As FileInfo, vaultRootPath As String) As ArtifactModel
+    Private Shared Function CreateArtifact(source As FileInfo, stored As FileInfo, vaultRootPath As String, activeHashes As String) As ArtifactModel
         Dim category = InferCategory(source.Extension)
         Dim typeName = InferType(source.Extension)
         Dim typeFamily = InferTypeFamily(source.Extension)
         Dim tags = InferTags(source, category)
         Dim nowText = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
-        Dim computedHashes = HashServiceInstance.ComputeHashes(stored.FullName)
+        Dim computedHashes = HashServiceInstance.ComputeHashes(stored.FullName, activeHashes)
         Dim extraction = ExtractText(stored, vaultRootPath)
         Dim artifact = New ArtifactModel With {
             .Id = Guid.NewGuid().ToString("N"),
@@ -206,6 +206,8 @@ Public Class IngestionService
             .Created = stored.CreationTime.ToString("yyyy-MM-dd HH:mm"),
             .Blake3 = computedHashes.Blake3,
             .Sha256 = computedHashes.Sha256,
+            .KangarooTwelve = computedHashes.KangarooTwelve,
+            .Sha3_256 = computedHashes.Sha3_256,
             .HashStatus = "Verified",
             .ExtractedTextRelativePath = extraction.RelativePath,
             .ExtractedTextStatus = extraction.Status,

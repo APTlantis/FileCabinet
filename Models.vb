@@ -8,6 +8,7 @@ Public Class CatalogData
     Public Property VaultRootPath As String = ""
     Public Property DefaultIngestMode As String = "Move"
     Public Property DuplicatePolicy As String = "Rename"
+    Public Property ActiveHashes As String = "SHA256,BLAKE3,KangarooTwelve"
     Public Property LastBackupPath As String = ""
     Public Property TableDensity As String = "Comfortable"
     Public Property ColumnPreset As String = "Full"
@@ -342,6 +343,11 @@ Public Class ArtifactModel
     Private _created As String = ""
     Private _sha256 As String = ""
     Private _blake3 As String = ""
+    Private _kangarooTwelve As String = ""
+    Private _sha3_256 As String = ""
+    Private _md5 As String = ""
+    Private _whirlpool As String = ""
+    Private _skein As String = ""
     Private _hashStatus As String = "Not checked"
     Private _rating As Integer
     Private _notes As String = ""
@@ -511,6 +517,51 @@ Public Class ArtifactModel
         End Get
         Set(value As String)
             SetValue(_blake3, If(value, ""))
+        End Set
+    End Property
+
+    Public Property KangarooTwelve As String
+        Get
+            Return _kangarooTwelve
+        End Get
+        Set(value As String)
+            SetValue(_kangarooTwelve, If(value, ""))
+        End Set
+    End Property
+
+    Public Property Sha3_256 As String
+        Get
+            Return _sha3_256
+        End Get
+        Set(value As String)
+            SetValue(_sha3_256, If(value, ""))
+        End Set
+    End Property
+
+    Public Property Md5 As String
+        Get
+            Return _md5
+        End Get
+        Set(value As String)
+            SetValue(_md5, If(value, ""))
+        End Set
+    End Property
+
+    Public Property Whirlpool As String
+        Get
+            Return _whirlpool
+        End Get
+        Set(value As String)
+            SetValue(_whirlpool, If(value, ""))
+        End Set
+    End Property
+
+    Public Property Skein As String
+        Get
+            Return _skein
+        End Get
+        Set(value As String)
+            SetValue(_skein, If(value, ""))
         End Set
     End Property
 

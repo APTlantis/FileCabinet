@@ -71,6 +71,7 @@ Public Class MainViewModel
     Private _sameSourceBatchScopeKeys As HashSet(Of String)
     Private _sameSourceBatchScopeSelectedKey As String = ""
     Private _isRefreshingFilters As Boolean
+    Private _isSettingsVisible As Boolean
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -111,6 +112,7 @@ Public Class MainViewModel
     Public Property ToggleIngestModeCommand As ICommand
     Public Property QuarantineCommand As ICommand
     Public Property ShowSettingsCommand As ICommand
+    Public Property CloseSettingsCommand As ICommand
     Public Property BackupCatalogCommand As ICommand
     Public Property RepairCatalogCommand As ICommand
     Public Property RescanVaultCommand As ICommand
@@ -155,6 +157,7 @@ Public Class MainViewModel
         ToggleIngestModeCommand = New RelayCommand(Sub(parameter) ToggleIngestMode())
         QuarantineCommand = New RelayCommand(Sub(parameter) QuarantineSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
         ShowSettingsCommand = New RelayCommand(Sub(parameter) ShowSettings())
+        CloseSettingsCommand = New RelayCommand(Sub(parameter) CloseSettings())
         BackupCatalogCommand = New RelayCommand(Sub(parameter) BackupCatalog())
         RepairCatalogCommand = New AsyncRelayCommand(Function(parameter) RepairCatalogAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
         RescanVaultCommand = New AsyncRelayCommand(Function(parameter) RescanVaultAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
@@ -712,6 +715,102 @@ Public Class MainViewModel
         Get
             Return _settingsText
         End Get
+    End Property
+
+    Public Property IsSettingsVisible As Boolean
+        Get
+            Return _isSettingsVisible
+        End Get
+        Set(value As Boolean)
+            If _isSettingsVisible <> value Then
+                _isSettingsVisible = value
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
+    Private Function IsHashActive(hashName As String) As Boolean
+        If _catalog Is Nothing Then Return False
+        Return _catalog.ActiveHashes.Split(","c).Select(Function(s) s.Trim()).Contains(hashName, StringComparer.OrdinalIgnoreCase)
+    End Function
+
+    Private Sub SetHashActive(hashName As String, value As Boolean)
+        If _catalog Is Nothing Then Return
+        Dim hashes = _catalog.ActiveHashes.Split(","c).Select(Function(s) s.Trim()).Where(Function(s) Not String.IsNullOrWhiteSpace(s)).ToList()
+        Dim exists = hashes.Contains(hashName, StringComparer.OrdinalIgnoreCase)
+        If value AndAlso Not exists Then
+            hashes.Add(hashName)
+        ElseIf Not value AndAlso exists Then
+            hashes.RemoveAll(Function(h) String.Equals(h, hashName, StringComparison.OrdinalIgnoreCase))
+        Else
+            Return
+        End If
+        _catalog.ActiveHashes = String.Join(",", hashes)
+        _catalogService.Save(_catalog)
+        OnPropertyChanged()
+    End Sub
+
+    Public Property IsSha256Enabled As Boolean
+        Get
+            Return IsHashActive("SHA256")
+        End Get
+        Set(value As Boolean)
+            SetHashActive("SHA256", value)
+        End Set
+    End Property
+
+    Public Property IsBlake3Enabled As Boolean
+        Get
+            Return IsHashActive("BLAKE3")
+        End Get
+        Set(value As Boolean)
+            SetHashActive("BLAKE3", value)
+        End Set
+    End Property
+
+    Public Property IsKangarooTwelveEnabled As Boolean
+        Get
+            Return IsHashActive("KangarooTwelve")
+        End Get
+        Set(value As Boolean)
+            SetHashActive("KangarooTwelve", value)
+        End Set
+    End Property
+
+    Public Property IsSha3_256Enabled As Boolean
+        Get
+            Return IsHashActive("SHA3-256")
+        End Get
+        Set(value As Boolean)
+            SetHashActive("SHA3-256", value)
+        End Set
+    End Property
+
+    Public Property IsMd5Enabled As Boolean
+        Get
+            Return IsHashActive("MD5")
+        End Get
+        Set(value As Boolean)
+            SetHashActive("MD5", value)
+        End Set
+    End Property
+
+    Public Property IsWhirlpoolEnabled As Boolean
+        Get
+            Return IsHashActive("Whirlpool")
+        End Get
+        Set(value As Boolean)
+            SetHashActive("Whirlpool", value)
+        End Set
+    End Property
+
+    Public Property IsSkeinEnabled As Boolean
+        Get
+            Return IsHashActive("Skein")
+        End Get
+        Set(value As Boolean)
+            SetHashActive("Skein", value)
+        End Set
     End Property
 
     Public ReadOnly Property LastBackupDisplay As String
@@ -1371,7 +1470,7 @@ Public Class MainViewModel
             Dim path = artifact.Path
             Dim existingBlake3 = artifact.Blake3
             Dim existingSha256 = artifact.Sha256
-            Dim hashes = Await Task.Run(Function() _hashService.ComputeHashes(path))
+            Dim hashes = Await Task.Run(Function() _hashService.ComputeHashes(path, _catalog.ActiveHashes))
             If Not ReferenceEquals(SelectedArtifact, artifact) Then
                 VaultMaintenanceStatus = "Hash check complete"
                 VaultMaintenanceDetail = "Selection changed before results were applied"
@@ -1484,13 +1583,13 @@ Public Class MainViewModel
     End Sub
 
     Private Sub ShowSettings()
-        Dim backupText = If(String.IsNullOrWhiteSpace(_catalog.LastBackupPath), "No catalog backup yet", _catalog.LastBackupPath)
-        _settingsText = $"Vault: {VaultRootPath}{vbCrLf}Catalog: {CatalogPath}{vbCrLf}Last backup: {backupText}{vbCrLf}Intake: {IngestModeText}{vbCrLf}{DuplicatePolicyText}{vbCrLf}Repair: {RepairStatus}{vbCrLf}Recall: deterministic metadata, text, hashes, and relations"
-        OnPropertyChanged(NameOf(SettingsText))
-        OnPropertyChanged(NameOf(LastBackupDisplay))
-        OnPropertyChanged(NameOf(RecallStatusText))
-        OnPropertyChanged(NameOf(VaultHealthSummary))
-        ActionStatus = "Settings summarized"
+        IsSettingsVisible = True
+        ActionStatus = "Settings opened"
+    End Sub
+
+    Private Sub CloseSettings()
+        IsSettingsVisible = False
+        ActionStatus = "Settings closed"
     End Sub
 
     Private Sub ShowAbout()
@@ -1594,8 +1693,11 @@ Public Class MainViewModel
         Try
             Dim artifactSnapshot = Artifacts.ToList()
             Dim vaultRoot = VaultRootPath
+            Dim analyzeProgress As New Progress(Of String)(Sub(msg)
+                                                               VaultMaintenanceDetail = msg
+                                                           End Sub)
             Dim result = Await Task.Run(Function()
-                                            Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRoot, New ThumbnailService(), New HashService())
+                                            Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRoot, New ThumbnailService(), New HashService(), analyzeProgress, _catalog.ActiveHashes)
                                             Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRoot, healthReport)
                                             Return New VaultMaintenanceResult With {
                                                 .HealthReport = healthReport,
@@ -1632,13 +1734,19 @@ Public Class MainViewModel
         Try
             Dim artifactSnapshot = Artifacts.ToList()
             Dim vaultRoot = VaultRootPath
-            Dim result = Await Task.Run(Function() BuildRescanResult(artifactSnapshot, vaultRoot))
+            Dim rescanProgress As New Progress(Of String)(Sub(msg)
+                                                              VaultMaintenanceDetail = msg
+                                                          End Sub)
+            Dim result = Await Task.Run(Function() BuildRescanResult(artifactSnapshot, vaultRoot, rescanProgress))
 
             ApplyThumbnailUpdates(result.ThumbnailUpdates)
             ApplyAdoptedArtifacts(result.AdoptedArtifacts)
             VaultMaintenanceDetail = "Finalizing health report"
             Dim refreshedSnapshot = Artifacts.ToList()
-            result.HealthReport = Await Task.Run(Function() BuildVaultHealthReport(refreshedSnapshot, vaultRoot, New ThumbnailService(), New HashService()))
+            Dim finalizeProgress As New Progress(Of String)(Sub(msg)
+                                                                VaultMaintenanceDetail = msg
+                                                            End Sub)
+            result.HealthReport = Await Task.Run(Function() BuildVaultHealthReport(refreshedSnapshot, vaultRoot, New ThumbnailService(), New HashService(), finalizeProgress, _catalog.ActiveHashes))
 
             _repairStatus = BuildRepairStatus(result.RepairReport)
             RebuildDerivedLists()
@@ -2270,6 +2378,12 @@ Public Class MainViewModel
             reasons.Add("shared extracted keyword: " & String.Join(", ", extractedKeywordMatches.Take(3)))
         End If
 
+        Dim manifestOriginMatches = SharedManifestOriginKeys(selected, candidate)
+        If manifestOriginMatches.Count > 0 Then
+            score += Math.Min(4, manifestOriginMatches.Count * 2)
+            reasons.Add("shared project origin: " & String.Join(", ", manifestOriginMatches.Take(3)))
+        End If
+
         Dim matchingNameTokens = SharedNameTokens(selected.Name, candidate.Name)
         If matchingNameTokens.Count > 0 Then
             score += Math.Min(4, matchingNameTokens.Count)
@@ -2421,6 +2535,63 @@ Public Class MainViewModel
         Next
 
         Return ""
+    End Function
+
+    Private Shared ReadOnly NamedProjectManifestExtensions As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
+        "sln", "csproj", "vbproj", "fsproj", "esproj", "pyproj", "vcxproj", "xcodeproj", "pbxproj"
+    }
+
+    Private Shared ReadOnly GenericManifestFilenames As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
+        "package.json", "requirements.txt", "cargo.toml", "pyproject.toml", "setup.py",
+        "go.mod", "pom.xml", "build.gradle", "build.gradle.kts", "gemfile", "composer.json",
+        "cmakelists.txt", "makefile", "dockerfile", "podfile", "pubspec.yaml"
+    }
+
+    Private Shared Function SharedManifestOriginKeys(selected As ArtifactModel, candidate As ArtifactModel) As List(Of String)
+        Dim selectedKeys = ManifestOriginKeys(selected)
+        Dim candidateKeys = ManifestOriginKeys(candidate)
+
+        Return candidateKeys.
+            Where(Function(key) selectedKeys.Contains(key, StringComparer.OrdinalIgnoreCase)).
+            Distinct(StringComparer.OrdinalIgnoreCase).
+            OrderBy(Function(key) key).
+            ToList()
+    End Function
+
+    Public Shared Function ManifestOriginKeys(artifact As ArtifactModel) As List(Of String)
+        If artifact Is Nothing Then
+            Return New List(Of String)
+        End If
+
+        Dim keys As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+
+        For Each sourcePath In {artifact.Name, artifact.OriginalPath, artifact.Path}
+            If String.IsNullOrWhiteSpace(sourcePath) Then
+                Continue For
+            End If
+
+            Try
+                Dim segments = sourcePath.Split({Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries)
+
+                For i = 0 To segments.Length - 1
+                    Dim segment = segments(i)
+                    Dim stem = Path.GetFileNameWithoutExtension(segment)
+                    Dim ext = Path.GetExtension(segment).TrimStart("."c)
+
+                    If NamedProjectManifestExtensions.Contains(ext) AndAlso stem.Length >= 3 Then
+                        keys.Add(stem.ToLowerInvariant())
+                    ElseIf GenericManifestFilenames.Contains(segment) AndAlso i > 0 Then
+                        Dim parentDir = segments(i - 1).ToLowerInvariant()
+                        If parentDir.Length >= 3 Then
+                            keys.Add(parentDir)
+                        End If
+                    End If
+                Next
+            Catch
+            End Try
+        Next
+
+        Return keys.OrderBy(Function(k) k).ToList()
     End Function
 
     Private Shared Function SharedExtractedKeywords(selected As ArtifactModel, candidate As ArtifactModel, vaultRootPath As String) As List(Of String)
@@ -2925,11 +3096,11 @@ Public Class MainViewModel
     End Function
 
     Public Function BuildVaultHealthReport() As VaultHealthReport
-        Return BuildVaultHealthReport(Artifacts, VaultRootPath, _thumbnailService, _hashService)
+        Return BuildVaultHealthReport(Artifacts, VaultRootPath, _thumbnailService, _hashService, Nothing, _catalog.ActiveHashes)
     End Function
 
-    Private Function BuildRescanResult(artifactSnapshot As List(Of ArtifactModel), vaultRootPath As String) As VaultMaintenanceResult
-        Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRootPath, New ThumbnailService(), New HashService())
+    Private Function BuildRescanResult(artifactSnapshot As List(Of ArtifactModel), vaultRootPath As String, Optional progress As IProgress(Of String) = Nothing) As VaultMaintenanceResult
+        Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRootPath, New ThumbnailService(), New HashService(), progress, _catalog.ActiveHashes)
         Dim orphanFiles = FindOrphanStoredFiles(artifactSnapshot, vaultRootPath).ToList()
         Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRootPath, healthReport, orphanFiles)
         Dim result As New VaultMaintenanceResult With {
@@ -3088,7 +3259,10 @@ Public Class MainViewModel
 
             Dim artifactSnapshot = Artifacts.ToList()
             Dim vaultRootSnapshot = VaultRootPath
-            Dim healthReport = Await Task.Run(Function() BuildVaultHealthReport(artifactSnapshot, vaultRootSnapshot, New ThumbnailService(), New HashService()))
+            Dim postRepairProgress As New Progress(Of String)(Sub(msg)
+                                                                  VaultMaintenanceDetail = msg
+                                                              End Sub)
+            Dim healthReport = Await Task.Run(Function() BuildVaultHealthReport(artifactSnapshot, vaultRootSnapshot, New ThumbnailService(), New HashService(), postRepairProgress, _catalog.ActiveHashes))
             PublishVaultHealthReport(healthReport)
             RefreshDerivedUiState()
             VaultMaintenanceStatus = "Repairs complete"
@@ -3170,7 +3344,7 @@ Public Class MainViewModel
             Return
         End If
 
-        Dim hashes = _hashService.ComputeHashes(result.Artifact.Path)
+        Dim hashes = _hashService.ComputeHashes(result.Artifact.Path, _catalog.ActiveHashes)
         result.Blake3 = hashes.Blake3
         result.Sha256 = hashes.Sha256
         result.HashStatus = "Verified"
@@ -3376,16 +3550,21 @@ Public Class MainViewModel
         End Select
     End Function
 
-    Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService, Optional hashService As HashService = Nothing) As VaultHealthReport
+    Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService, Optional hashService As HashService = Nothing, Optional progress As IProgress(Of String) = Nothing, Optional ActiveHashes As String = "APTlantis Release Standard") As VaultHealthReport
         Dim report As New VaultHealthReport()
         Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).ToList()
         Dim thumbService = If(thumbnailService, New ThumbnailService())
         Dim integrityService = If(hashService, New HashService())
+        Dim total = artifactList.Count
+        Dim i = 0
 
         For Each artifact In artifactList
             If artifact Is Nothing Then
                 Continue For
             End If
+
+            i += 1
+            progress?.Report($"Checking {i}/{total}: {artifact.Name}")
 
             Dim hasArtifactPath = Not String.IsNullOrWhiteSpace(artifact.Path)
             Dim pathIsInsideVault = Not hasArtifactPath OrElse IsPathInsideDirectory(artifact.Path, vaultRootPath)
@@ -3445,7 +3624,7 @@ Public Class MainViewModel
                     .TouchesRetainedFiles = False
                 })
             ElseIf storedFileExists AndAlso pathIsInsideVault Then
-                AddHashMismatchFinding(report, artifact, integrityService)
+                AddHashMismatchFinding(report, artifact, integrityService, ActiveHashes)
             End If
 
             If thumbService.IsGeneratedThumbnailMissing(artifact, vaultRootPath) Then
@@ -3499,23 +3678,22 @@ Public Class MainViewModel
         Return report
     End Function
 
-    Private Shared Sub AddHashMismatchFinding(report As VaultHealthReport, artifact As ArtifactModel, hashService As HashService)
+    Private Shared Sub AddHashMismatchFinding(report As VaultHealthReport, artifact As ArtifactModel, hashService As HashService, ActiveHashes As String)
         Try
-            Dim hashes = hashService.ComputeHashes(artifact.Path)
-            Dim blakeMatches = String.Equals(artifact.Blake3, hashes.Blake3, StringComparison.OrdinalIgnoreCase)
-            Dim shaMatches = String.Equals(artifact.Sha256, hashes.Sha256, StringComparison.OrdinalIgnoreCase)
-
-            If blakeMatches AndAlso shaMatches Then
-                Return
-            End If
-
+            Dim hashes = hashService.ComputeHashes(artifact.Path, ActiveHashes)
+            Dim activeList = If(String.IsNullOrWhiteSpace(ActiveHashes), New List(Of String)(), ActiveHashes.Split(","c).Select(Function(s) s.Trim().ToLowerInvariant()).ToList())
+            
             Dim mismatchParts As New List(Of String)
-            If Not blakeMatches Then
-                mismatchParts.Add("BLAKE3")
-            End If
+            If activeList.Contains("sha256") AndAlso Not String.Equals(artifact.Sha256, hashes.Sha256, StringComparison.OrdinalIgnoreCase) Then mismatchParts.Add("SHA256")
+            If activeList.Contains("blake3") AndAlso Not String.Equals(artifact.Blake3, hashes.Blake3, StringComparison.OrdinalIgnoreCase) Then mismatchParts.Add("BLAKE3")
+            If activeList.Contains("kangarootwelve") AndAlso Not String.Equals(artifact.KangarooTwelve, hashes.KangarooTwelve, StringComparison.OrdinalIgnoreCase) Then mismatchParts.Add("KangarooTwelve")
+            If activeList.Contains("sha3-256") AndAlso Not String.Equals(artifact.Sha3_256, hashes.Sha3_256, StringComparison.OrdinalIgnoreCase) Then mismatchParts.Add("SHA3-256")
+            If activeList.Contains("md5") AndAlso Not String.Equals(artifact.Md5, hashes.Md5, StringComparison.OrdinalIgnoreCase) Then mismatchParts.Add("MD5")
+            If activeList.Contains("whirlpool") AndAlso Not String.Equals(artifact.Whirlpool, hashes.Whirlpool, StringComparison.OrdinalIgnoreCase) Then mismatchParts.Add("Whirlpool")
+            If activeList.Contains("skein") AndAlso Not String.Equals(artifact.Skein, hashes.Skein, StringComparison.OrdinalIgnoreCase) Then mismatchParts.Add("Skein")
 
-            If Not shaMatches Then
-                mismatchParts.Add("SHA-256")
+            If mismatchParts.Count = 0 Then
+                Return
             End If
 
             report.Findings.Add(New VaultHealthFinding With {

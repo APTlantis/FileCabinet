@@ -85,6 +85,57 @@ Namespace FileCabinet.Tests
             End Try
         End Sub
 
+        <TestMethod>
+        Sub NamedProjectManifestProducesSharedProjectOriginSignal()
+            Dim selected = Artifact("FileCabinet.vbproj", "Source Code", "Text", "hash-a", {})
+            selected.OriginalPath = "E:\repos\FileCabinet\FileCabinet.vbproj"
+
+            Dim candidate = Artifact("FileCabinet-1.4.4.0-win-x64.msi", "Installers", "Installer", "hash-b", {})
+            candidate.OriginalPath = "E:\repos\FileCabinet\installer\FileCabinet-1.4.4.0-win-x64.msi"
+            candidate.SourceProvenance = "Built from FileCabinet.vbproj"
+
+            Dim keys = Global.FileCabinet.MainViewModel.ManifestOriginKeys(selected)
+            Assert.IsTrue(keys.Contains("filecabinet", StringComparer.OrdinalIgnoreCase), "Should extract 'filecabinet' from .vbproj stem")
+
+            Dim relation = Global.FileCabinet.MainViewModel.BuildArtifactRelation(selected, candidate)
+            Assert.IsNotNull(relation)
+            Assert.IsTrue(relation.Reasons.Any(Function(r) r.Contains("shared project origin") AndAlso r.Contains("filecabinet")),
+                          "Relation should cite shared project origin: filecabinet")
+        End Sub
+
+        <TestMethod>
+        Sub GenericManifestFilenameUsesParentDirectoryAsProjectKey()
+            Dim selected = Artifact("package.json", "Source Code", "Text", "hash-c", {})
+            selected.OriginalPath = "C:\work\my-webapp\package.json"
+
+            Dim candidate = Artifact("package-lock.json", "Source Code", "Text", "hash-d", {})
+            candidate.OriginalPath = "C:\work\my-webapp\package-lock.json"
+
+            Dim keys = Global.FileCabinet.MainViewModel.ManifestOriginKeys(selected)
+            Assert.IsTrue(keys.Contains("my-webapp", StringComparer.OrdinalIgnoreCase), "Should extract parent dir 'my-webapp' from generic manifest")
+
+            Dim relation = Global.FileCabinet.MainViewModel.BuildArtifactRelation(selected, candidate)
+            Assert.IsNotNull(relation)
+            Assert.IsTrue(relation.Reasons.Any(Function(r) r.Contains("shared project origin") AndAlso r.Contains("my-webapp")),
+                          "Relation should cite shared project origin: my-webapp")
+        End Sub
+
+        <TestMethod>
+        Sub UnrelatedProjectOriginsProduceNoManifestSignal()
+            Dim selected = Artifact("ProjectAlpha.sln", "Source Code", "Text", "hash-e", {})
+            selected.OriginalPath = "C:\work\ProjectAlpha\ProjectAlpha.sln"
+
+            Dim candidate = Artifact("ProjectBeta.sln", "Source Code", "Text", "hash-f", {})
+            candidate.OriginalPath = "C:\work\ProjectBeta\ProjectBeta.sln"
+
+            Dim keys = Global.FileCabinet.MainViewModel.ManifestOriginKeys(selected)
+            Assert.IsTrue(keys.Contains("projectalpha", StringComparer.OrdinalIgnoreCase))
+
+            Dim sharedKeys = Global.FileCabinet.MainViewModel.ManifestOriginKeys(candidate)
+            Assert.IsFalse(sharedKeys.Any(Function(k) k.Equals("projectalpha", StringComparison.OrdinalIgnoreCase)),
+                           "Different project keys should not overlap")
+        End Sub
+
         Private Shared Function Artifact(name As String, category As String, typeFamily As String, sha256 As String, tags As IEnumerable(Of String)) As Global.FileCabinet.ArtifactModel
             Return New Global.FileCabinet.ArtifactModel With {
                 .Name = name,

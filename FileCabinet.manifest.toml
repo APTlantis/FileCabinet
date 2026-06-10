@@ -142,7 +142,7 @@ homepage = "https://github.com/APTlantis/FileCabinet"
 dashboard = "https://github.com/APTlantis/FileCabinet/releases"
 
 [structure]
-repo_path = "D:/FileCabinet"
+repo_path = "E:/FileCabinet"
 docs_path = "D:/FileCabinet/docs"
 data_path = "User-selected vault root"
 

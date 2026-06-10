@@ -1,0 +1,73 @@
+[manifest]
+schema = "APTlantis Entity Manifest"
+schema_version = "2.4"
+manifest_type = "project"
+canonical_name = "PROJECT.manifest.toml"
+last_updated = "2026-06-10"
+maintainer = "Herb"
+
+[entity]
+id = "filecabinet"
+title = "FileCabinet"
+kind = "project"
+class = "desktop-application"
+status = "active"
+description = "Generated project manifest for FileCabinet. Review and enrich project-specific metadata."
+tags = []
+
+[project]
+type = "desktop-application"
+stage = "active"
+version = "0.0.0"
+
+[governance]
+primary_standard = "DRS"
+release_standard = "DRS"
+additional_standards = []
+proposal_required = true
+
+[lifecycle]
+state = "active"
+created = "2026-06-10"
+last_updated = "2026-06-10"
+maintainer = "Herb"
+completion_percent = 0
+
+[paths]
+root = "D:\\100-DRS\\120-STORAGE\\FileCabinet"
+docs = "docs"
+source = ""
+artifacts = ""
+data = ""
+
+[documentation]
+readme = "README.md"
+proposal = "PROJECT.md"
+roadmap = ""
+architecture = ""
+release_notes = ""
+
+[runtime]
+platform = "desktop"
+language_primary = "unknown"
+languages_used = []
+services = []
+storage = ["local-filesystem"]
+
+[relationships]
+depends_on_projects = []
+used_by_projects = []
+related_projects = []
+external_dependencies = []
+
+[state]
+stability = "experimental"
+active_development = false
+known_gaps = ["Generated during workspace categorization; review project-specific metadata."]
+technical_debt = "unknown"
+
+[agent]
+read_first = ["PROJECT.manifest.toml", "README.md"]
+governing_context = "Read the governing standard before making broad changes."
+safe_to_modify = false
+notes = "Regenerated after category move to keep root path current."

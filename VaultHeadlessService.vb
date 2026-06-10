@@ -418,7 +418,7 @@ Public Class VaultHeadlessService
                     artifact.ThumbnailStatus = thumbnail.Status
                     Return String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
                 Case "RecomputeHash"
-                    Dim hashes = New HashService().ComputeHashes(artifact.Path)
+                    Dim hashes = New HashService().ComputeHashes(artifact.Path, "SHA256,BLAKE3,KangarooTwelve")
                     artifact.Blake3 = hashes.Blake3
                     artifact.Sha256 = hashes.Sha256
                     artifact.HashStatus = "Verified"
