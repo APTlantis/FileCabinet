@@ -1,4 +1,4 @@
-# FileCabinet v1.5.0 - Dynamic Hashing Release
+# FileCabinet v1.5.0 — Dynamic Hashing Release
 
 FileCabinet v1.5.0 fundamentally overhauls the way cryptographic hashing is handled.
 
@@ -29,4 +29,10 @@ This release fully adopts the **APTlantis Release Hashing Standard (ARHS)**. All
 *(Generated via ReleaseHasher)*
 
 ```json
+{
+  "file": "FileCabinet-1.5.0.0-win-x64.msi",
+  "sha256": "fefce7e858ea61194d4516f9406d85be615863293101a10c2c9c1a2ddc98c807",
+  "blake3": "b75921d8a0f5e32dc3423480a4945ebcb8d7fe5f343c5c9bc551e1e2f6c91283",
+  "kangaroo12": "23cbd9278ad2191acaa3403465e6636afa1f03526a9f0f80bdb11b086dbac712"
+}
 ```
