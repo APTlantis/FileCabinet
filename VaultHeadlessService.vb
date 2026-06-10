@@ -93,6 +93,7 @@ Public Class VaultHeadlessService
 
     Public Function LoadCatalog() As CatalogData
         Dim catalog = _catalogService.LoadOrCreate()
+        catalog.ActiveHashes = HashRegistry.NormalizeActiveHashes(catalog.ActiveHashes)
         CatalogService.EnsureVaultFolders(catalog.VaultRootPath)
         Return catalog
     End Function
@@ -101,7 +102,7 @@ Public Class VaultHeadlessService
         Dim catalog = LoadCatalog()
         Dim requestedPaths = If(paths, Enumerable.Empty(Of String)()).Where(Function(path) Not String.IsNullOrWhiteSpace(path)).ToList()
         Dim mode = If(modeOverride.HasValue, modeOverride.Value, ParseIngestMode(catalog.DefaultIngestMode))
-        Dim ingested = _ingestionService.Ingest(requestedPaths, catalog.VaultRootPath, Nothing, mode)
+        Dim ingested = _ingestionService.Ingest(requestedPaths, catalog.VaultRootPath, Nothing, mode, catalog.ActiveHashes)
 
         If ingested.Count > 0 Then
             For Each artifact In ingested
@@ -126,7 +127,7 @@ Public Class VaultHeadlessService
 
     Public Function Verify(Optional failOn As String = "any") As HeadlessVerifyResult
         Dim catalog = LoadCatalog()
-        Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService())
+        Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService(), Nothing, catalog.ActiveHashes)
         Dim repairReport = MainViewModel.BuildRepairReport(catalog.Artifacts, catalog.VaultRootPath, healthReport)
         Dim thresholdMet = FindingsMeetThreshold(healthReport, failOn)
 
@@ -151,7 +152,7 @@ Public Class VaultHeadlessService
 
     Public Function GenerateReport(outputPath As String, format As String) As HeadlessReportResult
         Dim catalog = LoadCatalog()
-        Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService())
+        Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService(), Nothing, catalog.ActiveHashes)
         Dim repairReport = MainViewModel.BuildRepairReport(catalog.Artifacts, catalog.VaultRootPath, healthReport)
         Dim normalizedFormat = If(format, "text").Trim().ToLowerInvariant()
         Dim destination = If(String.IsNullOrWhiteSpace(outputPath), BuildDefaultReportPath(catalog.VaultRootPath, normalizedFormat), outputPath)
@@ -182,7 +183,7 @@ Public Class VaultHeadlessService
 
     Public Function RepairPreview() As HeadlessRepairPreviewResult
         Dim catalog = LoadCatalog()
-        Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService())
+        Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService(), Nothing, catalog.ActiveHashes)
         Return New HeadlessRepairPreviewResult With {
             .HealthReport = healthReport,
             .RepairCandidates = healthReport.Findings.Select(Function(finding) MainViewModel.BuildRepairCandidate(finding)).ToList()
@@ -211,7 +212,7 @@ Public Class VaultHeadlessService
             End If
 
             Dim artifact = FindArtifactForCandidate(catalog.Artifacts, candidate)
-            If artifact Is Nothing OrElse Not ApplyRepairCandidate(catalog.VaultRootPath, artifact, candidate) Then
+            If artifact Is Nothing OrElse Not ApplyRepairCandidate(catalog.VaultRootPath, artifact, candidate, catalog.ActiveHashes) Then
                 result.FailedCount += 1
                 AppendRepairLog(logService, catalog.VaultRootPath, candidate, "Failed", "Repair could not be completed safely")
             Else
@@ -409,7 +410,7 @@ Public Class VaultHeadlessService
             FirstOrDefault(Function(artifact) artifact IsNot Nothing AndAlso String.Equals(artifact.Name, candidate.Subject, StringComparison.OrdinalIgnoreCase))
     End Function
 
-    Private Function ApplyRepairCandidate(vaultRootPath As String, artifact As ArtifactModel, candidate As RepairCandidate) As Boolean
+    Private Function ApplyRepairCandidate(vaultRootPath As String, artifact As ArtifactModel, candidate As RepairCandidate, activeHashes As String) As Boolean
         Try
             Select Case candidate.ActionType
                 Case "RegenerateThumbnail"
@@ -418,10 +419,8 @@ Public Class VaultHeadlessService
                     artifact.ThumbnailStatus = thumbnail.Status
                     Return String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
                 Case "RecomputeHash"
-                    Dim hashes = New HashService().ComputeHashes(artifact.Path, "SHA256,BLAKE3,KangarooTwelve")
-                    artifact.Blake3 = hashes.Blake3
-                    artifact.Sha256 = hashes.Sha256
-                    artifact.HashStatus = "Verified"
+                    Dim hashes = New HashService().ComputeHashes(artifact.Path, activeHashes)
+                    HashRegistry.ApplyHashesToArtifact(artifact, hashes)
                     Return True
                 Case "ReExtractText"
                     Dim extraction = _ingestionService.ExtractTextForArtifact(artifact, vaultRootPath)

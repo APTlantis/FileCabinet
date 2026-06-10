@@ -8,7 +8,7 @@ Public Class CatalogData
     Public Property VaultRootPath As String = ""
     Public Property DefaultIngestMode As String = "Move"
     Public Property DuplicatePolicy As String = "Rename"
-    Public Property ActiveHashes As String = "SHA256,BLAKE3,KangarooTwelve"
+    Public Property ActiveHashes As String = HashRegistry.DefaultActiveHashes
     Public Property LastBackupPath As String = ""
     Public Property TableDensity As String = "Comfortable"
     Public Property ColumnPreset As String = "Full"
@@ -167,6 +167,36 @@ Public Class RepairCandidate
             Return "Safe automatic repair"
         End Get
     End Property
+End Class
+
+Public Class VaultMaintenanceProgress
+    Public Property Stage As String = ""
+    Public Property CurrentItem As String = ""
+    Public Property ProcessedCount As Integer
+    Public Property TotalCount As Integer
+    Public Property Detail As String = ""
+
+    Public ReadOnly Property Percent As Integer
+        Get
+            If TotalCount <= 0 Then
+                Return 0
+            End If
+
+            Return CInt(Math.Max(0, Math.Min(100, Math.Round((ProcessedCount / CDbl(TotalCount)) * 100))))
+        End Get
+    End Property
+
+    Public Overrides Function ToString() As String
+        If TotalCount > 0 Then
+            Return $"{Stage} {ProcessedCount:N0}/{TotalCount:N0}: {CurrentItem}"
+        End If
+
+        If Not String.IsNullOrWhiteSpace(CurrentItem) Then
+            Return $"{Stage}: {CurrentItem}"
+        End If
+
+        Return Stage
+    End Function
 End Class
 
 Public Class RepairLogEntry

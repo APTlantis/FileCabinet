@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.4.4",
+    "version": "1.6.0",
     "tags": [
       "local-first",
       "desktop",
@@ -22,7 +22,7 @@
   },
   "metadata": {
     "created": "2026-05-23",
-    "last_updated": "2026-06-01",
+    "last_updated": "2026-06-10",
     "maintainer": "APTlantis",
     "license": "Unspecified",
     "language_primary": "VB.NET",
@@ -58,13 +58,14 @@
       "WPF",
       "WiX Toolset 6.0.2",
       "Blake3 2.2.1",
+      "StreamHash 1.11.3",
       "MSTest"
     ]
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi",
-      "docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md",
+      "artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
+      "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
       "Assets/FileCabinet.ico",
       "Assets/FileCabinetLogoMark.png",
       "FileCabinet.Cli.exe",
@@ -82,20 +83,20 @@
     ]
   },
   "release": {
-    "version": "1.4.4",
-    "name": "FileCabinet v1.4.4 — Neon Ink Theme Patch",
-    "date": "2026-06-01",
+    "version": "1.6.0",
+    "name": "FileCabinet v1.6.0 — Health and Settings Release",
+    "date": "2026-06-10",
     "installer": {
-      "path": "artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi",
+      "path": "artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
       "runtime": "win-x64",
-      "package_version": "1.4.4.0",
-      "size_bytes": 117497856,
-      "sha256": "5C32C55257B68B2B4F85327F757ED2CC8649E9D9606E90EF225EDE2E13C668F3"
+      "package_version": "1.6.0.0",
+      "size_bytes": 0,
+      "sha256": ""
     },
     "verified": {
-      "date": "2026-06-01",
-      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 79 tests",
-      "installer_build": "installer/build-installer.ps1 -Version 1.4.4.0 completed"
+      "date": "2026-06-10",
+      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 87 tests",
+      "installer_build": "pending"
     }
   },
   "datasets": [
@@ -126,7 +127,7 @@
   "documentation": {
     "writerside_topic": "",
     "readme": "README.md",
-    "release_notes": "docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md",
+    "release_notes": "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
     "theme_overview": "docs/NeonInk-Theme-Integration-Overview.md",
     "core_docs": [
       "docs/FileCabinet — Vault Lifecycle.md",
@@ -151,14 +152,16 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.4.4.0",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi to the GitHub v1.4.4 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.6.0.0; release-hasher hash artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi to the GitHub v1.6.0 release after ARHS hashing and detached signatures.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.4.4 — Neon Ink Theme Patch.md"
+      "Include release notes from docs/FileCabinet v1.6.0 — Health and Settings Release.md",
+      "Generate ARHS hashes with D:/200-CTS/230-HASHING/ReleaseHasher",
+      "Sign release artifacts with existing ReleaseHasher PGP and PQ signing keys"
     ]
   },
   "theme": {
@@ -183,7 +186,11 @@
       "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
       "Preview and activity accents were refreshed to match Neon Ink semantics",
       "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
-      "Application, CLI, installer default, and manifest version updated to 1.4.4"
+      "Application, CLI, and manifest version updated to 1.6.0",
+      "Settings panel hardened around canonical hash options",
+      "Real KangarooTwelve hashing replaces the previous SHA3 fallback",
+      "Vault health progress and moved-vault path rebind repairs improved",
+      "Release verification references ARHS at D:/010-CITY-HALL/ARHS and ReleaseHasher at D:/200-CTS/230-HASHING/ReleaseHasher"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -196,6 +203,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 79 tests on 2026-06-01; installer/build-installer.ps1 -Version 1.4.4.0 completed on 2026-06-01"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 87 tests on 2026-06-10; installer build and ARHS release hashes pending"
   }
 }

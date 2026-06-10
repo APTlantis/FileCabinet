@@ -62,7 +62,8 @@ Namespace FileCabinet.Tests
         Public Shared Function CompleteArtifact(id As String, name As String, storedPath As String, vaultRoot As String, originalRelativePath As String) As Global.FileCabinet.ArtifactModel
             Dim hashes As New Global.FileCabinet.FileHashes With {
                 .Blake3 = "fixture-blake3",
-                .Sha256 = "fixture-sha256"
+                .Sha256 = "fixture-sha256",
+                .KangarooTwelve = "fixture-kangaroo12"
             }
 
             If File.Exists(storedPath) Then
@@ -88,6 +89,11 @@ Namespace FileCabinet.Tests
                 .IngestedAt = timestamp,
                 .Blake3 = hashes.Blake3,
                 .Sha256 = hashes.Sha256,
+                .KangarooTwelve = hashes.KangarooTwelve,
+                .Sha3_256 = hashes.Sha3_256,
+                .Md5 = hashes.Md5,
+                .Whirlpool = hashes.Whirlpool,
+                .Skein = hashes.Skein,
                 .HashStatus = "Verified",
                 .ThumbnailStatus = Global.FileCabinet.ThumbnailService.NotApplicableStatus,
                 .ExtractedTextStatus = "Not extractable",

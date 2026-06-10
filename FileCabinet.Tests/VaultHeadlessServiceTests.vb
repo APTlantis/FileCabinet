@@ -178,6 +178,43 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub RepairApplyRebindsMovedVaultPathAndPreselectsCandidate()
+            Dim workspace = TestWorkspace()
+
+            Try
+                Dim catalogService = CreateCatalogService(workspace)
+                Dim catalog = catalogService.LoadOrCreate()
+                Dim storedPath = Path.Combine(catalog.VaultRootPath, "items", "moved.txt")
+                Directory.CreateDirectory(Path.GetDirectoryName(storedPath))
+                File.WriteAllText(storedPath, "moved vault content")
+                Dim hashes = New Global.FileCabinet.HashService().ComputeHashes(storedPath)
+                catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {
+                    .Name = "moved.txt",
+                    .Path = Path.Combine(workspace, "old-drive", "items", "moved.txt"),
+                    .RelativePath = Path.GetRelativePath(catalog.VaultRootPath, storedPath),
+                    .Sha256 = hashes.Sha256,
+                    .Blake3 = hashes.Blake3,
+                    .KangarooTwelve = hashes.KangarooTwelve,
+                    .HashStatus = "Verified"
+                })
+                catalogService.Save(catalog)
+
+                Dim service = CreateService(workspace)
+                Dim preview = service.RepairPreview()
+                Dim candidate = preview.RepairCandidates.FirstOrDefault(Function(item) item.ActionType = "RebindPath")
+                Dim result = service.Repair(apply:=True)
+                Dim reloaded = service.LoadCatalog()
+
+                Assert.IsNotNull(candidate)
+                Assert.IsTrue(candidate.IsSelected)
+                Assert.AreEqual(1, result.AppliedCount)
+                Assert.AreEqual(storedPath, reloaded.Artifacts(0).Path)
+            Finally
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub RescanPreviewAndApplyAdoptsOrphanStoredFile()
             Dim workspace = TestWorkspace()
 

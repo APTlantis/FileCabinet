@@ -18,13 +18,13 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 ## Current Release
 
-Current version: **FileCabinet v1.4.4**.
+Current version: **FileCabinet v1.6.0**.
 
-The v1.4.4 patch introduces the Neon Ink visual system, a WPF theme resource dictionary, refreshed semantic colors for preview/activity/status surfaces, and a darker navigation selection surface for better text contrast.
+The v1.6.0 release hardens Settings, replaces the KangarooTwelve placeholder with real K12 hashing, and expands vault health repair workflows for moved vaults and regenerated generated assets.
 
 Installer:
 
-- `artifacts/installer/FileCabinet-1.4.4.0-win-x64.msi`
+- `artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi`
 - Size: `117497856` bytes
 - SHA-256: `5C32C55257B68B2B4F85327F757ED2CC8649E9D9606E90EF225EDE2E13C668F3`
 
@@ -292,6 +292,7 @@ FileCabinet's preservation model is documented in:
 ### Release Notes
 
 - [v1.4.4 — Neon Ink Theme Patch](docs/FileCabinet%20v1.4.4%20%E2%80%94%20Neon%20Ink%20Theme%20Patch.md)
+- [v1.6.0 — Health and Settings Release](docs/FileCabinet%20v1.6.0%20%E2%80%94%20Health%20and%20Settings%20Release.md)
 - [v1.4.3 — Quality Gate and Installer Patch](docs/FileCabinet%20v1.4.3%20%E2%80%94%20Quality%20Gate%20and%20Installer%20Patch.md)
 - [v1.4.2 — Help Menu and Same Source Batch Patch](docs/FileCabinet%20v1.4.2%20%E2%80%94%20Help%20Menu%20and%20Same%20Source%20Batch%20Patch.md)
 

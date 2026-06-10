@@ -11,9 +11,9 @@
     <Product>FileCabinet</Product>
     <Company>FileCabinet</Company>
     <Description>Personal vault and artifact manager</Description>
-    <Version>1.5.0</Version>
-    <FileVersion>1.5.0.0</FileVersion>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <Version>1.6.0</Version>
+    <FileVersion>1.6.0.0</FileVersion>
+    <AssemblyVersion>1.6.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +31,7 @@
   <ItemGroup>
     <PackageReference Include="Blake3" Version="2.2.1" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
+    <PackageReference Include="StreamHash" Version="1.11.3" />
   </ItemGroup>
 
   <ItemGroup>

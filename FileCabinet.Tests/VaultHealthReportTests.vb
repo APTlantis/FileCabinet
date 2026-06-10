@@ -200,6 +200,49 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub HealthReportReportsTypedProgressWithoutMutatingCatalog()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "kept.txt")
+            File.WriteAllText(storedPath, "retained")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "kept.txt",
+                    .Path = storedPath,
+                    .RelativePath = Path.GetRelativePath(vaultRoot, storedPath),
+                    .Sha256 = "existing-sha",
+                    .Blake3 = "existing-blake"
+                }
+                Dim beforeSha = artifact.Sha256
+                Dim beforeBlake = artifact.Blake3
+                Dim progress As New CapturingProgress()
+
+                Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), progress, "SHA256,BLAKE3")
+
+                Assert.IsTrue(progress.Updates.Any(Function(update) update.Stage = "Checking" AndAlso update.ProcessedCount = 1 AndAlso update.TotalCount = 1))
+                Assert.AreEqual(beforeSha, artifact.Sha256)
+                Assert.AreEqual(beforeBlake, artifact.Blake3)
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        Private NotInheritable Class CapturingProgress
+            Implements IProgress(Of Global.FileCabinet.VaultMaintenanceProgress)
+
+            Public ReadOnly Property Updates As New List(Of Global.FileCabinet.VaultMaintenanceProgress)
+
+            Public Sub Report(value As Global.FileCabinet.VaultMaintenanceProgress) Implements IProgress(Of Global.FileCabinet.VaultMaintenanceProgress).Report
+                Updates.Add(value)
+            End Sub
+        End Class
+
+        <TestMethod>
         Sub HealthReportDetectsIncompleteMetadataForRetainedFile()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim vaultRoot = Path.Combine(workspace, "vault")

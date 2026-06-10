@@ -22,7 +22,12 @@ Namespace FileCabinet.Cli
                 .path = artifact.Path,
                 .relativePath = artifact.RelativePath,
                 .sha256 = artifact.Sha256,
-                .blake3 = artifact.Blake3
+                .blake3 = artifact.Blake3,
+                .kangarooTwelve = artifact.KangarooTwelve,
+                .sha3_256 = artifact.Sha3_256,
+                .md5 = artifact.Md5,
+                .whirlpool = artifact.Whirlpool,
+                .skein = artifact.Skein
             }).ToList()
         })
         End Function
@@ -50,7 +55,12 @@ Namespace FileCabinet.Cli
                 .relativePath = artifact.RelativePath,
                 .tags = artifact.Tags,
                 .sha256 = artifact.Sha256,
-                .blake3 = artifact.Blake3
+                .blake3 = artifact.Blake3,
+                .kangarooTwelve = artifact.KangarooTwelve,
+                .sha3_256 = artifact.Sha3_256,
+                .md5 = artifact.Md5,
+                .whirlpool = artifact.Whirlpool,
+                .skein = artifact.Skein
             }).ToList()
         })
         End Function
