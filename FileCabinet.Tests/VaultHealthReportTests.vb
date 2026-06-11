@@ -222,6 +222,35 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub HealthReportDetectsMappedHashMismatch()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "kept.txt")
+            File.WriteAllText(storedPath, "abc")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "kept.txt",
+                    .Path = storedPath
+                }
+                artifact.Hashes("crc32") = "not-the-crc"
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "crc32")
+                Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Hash mismatch")
+
+                Assert.IsNotNull(finding)
+                StringAssert.Contains(finding.Detail, "crc32")
+                Assert.AreEqual("not-the-crc", artifact.Hashes("crc32"))
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub HealthReportDetectsFilesOutsideActiveVault()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim vaultRoot = Path.Combine(workspace, "vault")

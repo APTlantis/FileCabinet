@@ -22,6 +22,8 @@ Namespace FileCabinet.Tests
                 first.TrustClassification = "Trusted"
                 first.RetentionPriority = "High"
                 first.ArchiveStatus = "Archived"
+                first.Hashes("crc32") = "9271ee57"
+                first.Hashes("xxhash64") = "9e5c3e5b7f4f9a11"
 
                 Dim second = TestVaultFixtures.CompleteArtifact("artifact-b", "second.txt", secondPath, workspace.VaultRoot, "source\second.txt")
                 second.RetentionReason = "Keep the second fixture"
@@ -40,6 +42,8 @@ Namespace FileCabinet.Tests
                 Assert.AreEqual("artifact-b", reloaded.Artifacts(1).Id)
                 Assert.AreEqual(first.Sha256, reloaded.Artifacts(0).Sha256)
                 Assert.AreEqual(first.Blake3, reloaded.Artifacts(0).Blake3)
+                Assert.AreEqual("9271ee57", reloaded.Artifacts(0).Hashes("crc32"))
+                Assert.AreEqual("9e5c3e5b7f4f9a11", Global.FileCabinet.HashRegistry.GetArtifactHashValue(reloaded.Artifacts(0), "xxHash64"))
                 Assert.AreEqual(first.RelativePath, reloaded.Artifacts(0).RelativePath)
                 Assert.AreEqual("Keep the first fixture", reloaded.Artifacts(0).RetentionReason)
                 Assert.AreEqual("It proves order is stable", reloaded.Artifacts(0).WhyThisMatters)

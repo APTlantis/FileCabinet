@@ -2,6 +2,7 @@ Imports System.Text.Json.Serialization
 Imports System.ComponentModel
 Imports System.IO
 Imports System.Runtime.CompilerServices
+Imports System.Windows.Input
 
 Public Class CatalogData
     Public Property SchemaVersion As Integer = 1
@@ -311,6 +312,35 @@ Public Class HashDisplayModel
     Public Property AccentBackground As String = "#162033"
 End Class
 
+Public Class HashSettingOptionModel
+    Implements INotifyPropertyChanged
+
+    Private _isActive As Boolean
+
+    Public Property Id As String = ""
+    Public Property DisplayName As String = ""
+    Public Property Note As String = ""
+    Public Property ToggleCommand As ICommand
+
+    Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
+
+    Public Property IsActive As Boolean
+        Get
+            Return _isActive
+        End Get
+        Set(value As Boolean)
+            If _isActive <> value Then
+                _isActive = value
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
+    Private Sub OnPropertyChanged(<CallerMemberName> Optional propertyName As String = Nothing)
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(propertyName))
+    End Sub
+End Class
+
 Public Class ArtifactIconModel
     Public Property Glyph As String = ChrW(&HE8A5)
     Public Property Brush As String = "#CBD5E1"
@@ -453,6 +483,7 @@ Public Class ArtifactModel
     Private _md5 As String = ""
     Private _whirlpool As String = ""
     Private _skein As String = ""
+    Private _hashes As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
     Private _hashStatus As String = "Not checked"
     Private _rating As Integer
     Private _notes As String = ""
@@ -675,6 +706,21 @@ Public Class ArtifactModel
         End Get
         Set(value As String)
             SetValue(_skein, If(value, ""))
+        End Set
+    End Property
+
+    Public Property Hashes As Dictionary(Of String, String)
+        Get
+            Return _hashes
+        End Get
+        Set(value As Dictionary(Of String, String))
+            If value Is Nothing Then
+                value = New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+            ElseIf value.Comparer IsNot StringComparer.OrdinalIgnoreCase Then
+                value = New Dictionary(Of String, String)(value, StringComparer.OrdinalIgnoreCase)
+            End If
+
+            SetValue(_hashes, value)
         End Set
     End Property
 

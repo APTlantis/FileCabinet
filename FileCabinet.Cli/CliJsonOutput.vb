@@ -27,7 +27,8 @@ Namespace FileCabinet.Cli
                 .sha3_256 = artifact.Sha3_256,
                 .md5 = artifact.Md5,
                 .whirlpool = artifact.Whirlpool,
-                .skein = artifact.Skein
+                .skein = artifact.Skein,
+                .hashes = AllHashes(artifact)
             }).ToList()
         })
         End Function
@@ -60,7 +61,8 @@ Namespace FileCabinet.Cli
                 .sha3_256 = artifact.Sha3_256,
                 .md5 = artifact.Md5,
                 .whirlpool = artifact.Whirlpool,
-                .skein = artifact.Skein
+                .skein = artifact.Skein,
+                .hashes = AllHashes(artifact)
             }).ToList()
         })
         End Function
@@ -138,6 +140,19 @@ Namespace FileCabinet.Cli
             .fileCount = result.FileCount,
             .isZip = result.IsZip
         })
+        End Function
+
+        Private Shared Function AllHashes(artifact As ArtifactModel) As Dictionary(Of String, String)
+            Dim values As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+
+            For Each optionItem In HashRegistry.Options
+                Dim value = HashRegistry.GetArtifactHashValue(artifact, optionItem.Id)
+                If Not String.IsNullOrWhiteSpace(value) Then
+                    values(optionItem.Id) = value
+                End If
+            Next
+
+            Return values
         End Function
     End Class
 End Namespace

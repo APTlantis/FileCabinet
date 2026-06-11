@@ -211,6 +211,7 @@ Public Class IngestionService
             .Md5 = computedHashes.Md5,
             .Whirlpool = computedHashes.Whirlpool,
             .Skein = computedHashes.Skein,
+            .Hashes = computedHashes.Hashes,
             .HashStatus = "Verified",
             .ExtractedTextRelativePath = extraction.RelativePath,
             .ExtractedTextStatus = extraction.Status,

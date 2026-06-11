@@ -1563,15 +1563,26 @@
 
                         <StackPanel Grid.Row="1" Margin="0,20,0,0">
                             <TextBlock Text="Active Hashes" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
-                            <WrapPanel Margin="0,0,0,16">
-                                <CheckBox Content="SHA256" IsChecked="{Binding IsSha256Enabled}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,5" />
-                                <CheckBox Content="BLAKE3" IsChecked="{Binding IsBlake3Enabled}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,5" />
-                                <CheckBox Content="KangarooTwelve" IsChecked="{Binding IsKangarooTwelveEnabled}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,5" />
-                                <CheckBox Content="SHA3-256" IsChecked="{Binding IsSha3_256Enabled}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,5" />
-                                <CheckBox Content="MD5" IsChecked="{Binding IsMd5Enabled}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,5" />
-                                <CheckBox Content="Whirlpool" IsChecked="{Binding IsWhirlpoolEnabled}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,5" />
-                                <CheckBox Content="Skein" IsChecked="{Binding IsSkeinEnabled}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,10,5" />
-                            </WrapPanel>
+                            <ScrollViewer Height="118" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16">
+                                <ItemsControl ItemsSource="{Binding HashSettingOptions}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding DisplayName}"
+                                                      IsChecked="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      Command="{Binding ToggleCommand}"
+                                                      CommandParameter="{Binding}"
+                                                      ToolTip="{Binding Note}"
+                                                      Foreground="{StaticResource PrimaryTextBrush}"
+                                                      Margin="0,0,10,5" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
                             <TextBlock Text="{Binding ActiveHashSummary}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8" />
                             <TextBlock Text="{Binding HashSettingsNote}" Foreground="{StaticResource AccentBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16" />
 

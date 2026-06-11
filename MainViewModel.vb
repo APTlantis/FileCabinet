@@ -107,6 +107,7 @@ Public Class MainViewModel
     Public Property RestoreArtifactCommand As ICommand
     Public Property PermanentlyDeleteArtifactCommand As ICommand
     Public Property HashCheckCommand As ICommand
+    Public Property ToggleHashOptionCommand As ICommand
     Public Property RefreshCommand As ICommand
     Public Property ToggleStarCommand As ICommand
     Public Property AddTagsCommand As ICommand
@@ -154,6 +155,7 @@ Public Class MainViewModel
         RestoreArtifactCommand = New RelayCommand(Sub(parameter) RestoreSelectedArtifact(TryCast(parameter, String)), Function(parameter) SelectedArtifact IsNot Nothing)
         PermanentlyDeleteArtifactCommand = New RelayCommand(Sub(parameter) PermanentlyDeleteSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
         HashCheckCommand = New AsyncRelayCommand(Function(parameter) CheckSelectedHashAsync(), Function(parameter) SelectedArtifact IsNot Nothing AndAlso Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
+        ToggleHashOptionCommand = New RelayCommand(Sub(parameter) ToggleHashOption(parameter))
         RefreshCommand = New AsyncRelayCommand(Function(parameter) RefreshVaultStateAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
         ToggleStarCommand = New RelayCommand(Sub(parameter) ToggleSelectedStar(), Function(parameter) SelectedArtifact IsNot Nothing)
         AddTagsCommand = New RelayCommand(Sub(parameter) FocusTagEditing(), Function(parameter) SelectedArtifact IsNot Nothing)
@@ -774,6 +776,7 @@ Public Class MainViewModel
         ElseIf Not value AndAlso exists Then
             If hashes.Count = 1 Then
                 ActionStatus = "At least one hash must remain active"
+                RaiseHashSettingChanges()
                 Return
             End If
 
@@ -788,18 +791,25 @@ Public Class MainViewModel
     End Sub
 
     Private Sub RaiseHashSettingChanges()
-        OnPropertyChanged(NameOf(IsSha256Enabled))
-        OnPropertyChanged(NameOf(IsBlake3Enabled))
-        OnPropertyChanged(NameOf(IsKangarooTwelveEnabled))
-        OnPropertyChanged(NameOf(IsSha3_256Enabled))
-        OnPropertyChanged(NameOf(IsMd5Enabled))
-        OnPropertyChanged(NameOf(IsWhirlpoolEnabled))
-        OnPropertyChanged(NameOf(IsSkeinEnabled))
+        OnPropertyChanged(NameOf(HashSettingOptions))
         OnPropertyChanged(NameOf(ActiveHashSummary))
         OnPropertyChanged(NameOf(HashSettingsNote))
         OnPropertyChanged(NameOf(SettingsText))
         OnPropertyChanged(NameOf(SelectedHashDisplays))
     End Sub
+
+    Public ReadOnly Property HashSettingOptions As IEnumerable(Of HashSettingOptionModel)
+        Get
+            Dim activeHashes = If(_catalog?.ActiveHashes, HashRegistry.DefaultActiveHashes)
+            Return HashRegistry.Options.Select(Function(optionItem) New HashSettingOptionModel With {
+                .Id = optionItem.Id,
+                .DisplayName = optionItem.DisplayName,
+                .Note = optionItem.Note,
+                .IsActive = HashRegistry.IsActive(activeHashes, optionItem.Id),
+                .ToggleCommand = ToggleHashOptionCommand
+            }).ToList()
+        End Get
+    End Property
 
     Public ReadOnly Property ActiveHashSummary As String
         Get
@@ -835,68 +845,12 @@ Public Class MainViewModel
         End Get
     End Property
 
-    Public Property IsSha256Enabled As Boolean
-        Get
-            Return IsHashActive("SHA256")
-        End Get
-        Set(value As Boolean)
-            SetHashActive("SHA256", value)
-        End Set
-    End Property
+    Private Sub ToggleHashOption(parameter As Object)
+        Dim optionItem = TryCast(parameter, HashSettingOptionModel)
+        If optionItem Is Nothing Then Return
 
-    Public Property IsBlake3Enabled As Boolean
-        Get
-            Return IsHashActive("BLAKE3")
-        End Get
-        Set(value As Boolean)
-            SetHashActive("BLAKE3", value)
-        End Set
-    End Property
-
-    Public Property IsKangarooTwelveEnabled As Boolean
-        Get
-            Return IsHashActive("KangarooTwelve")
-        End Get
-        Set(value As Boolean)
-            SetHashActive("KangarooTwelve", value)
-        End Set
-    End Property
-
-    Public Property IsSha3_256Enabled As Boolean
-        Get
-            Return IsHashActive("SHA3-256")
-        End Get
-        Set(value As Boolean)
-            SetHashActive("SHA3-256", value)
-        End Set
-    End Property
-
-    Public Property IsMd5Enabled As Boolean
-        Get
-            Return IsHashActive("MD5")
-        End Get
-        Set(value As Boolean)
-            SetHashActive("MD5", value)
-        End Set
-    End Property
-
-    Public Property IsWhirlpoolEnabled As Boolean
-        Get
-            Return IsHashActive("Whirlpool")
-        End Get
-        Set(value As Boolean)
-            SetHashActive("Whirlpool", value)
-        End Set
-    End Property
-
-    Public Property IsSkeinEnabled As Boolean
-        Get
-            Return IsHashActive("Skein")
-        End Get
-        Set(value As Boolean)
-            SetHashActive("Skein", value)
-        End Set
-    End Property
+        SetHashActive(optionItem.Id, optionItem.IsActive)
+    End Sub
 
     Public ReadOnly Property LastBackupDisplay As String
         Get
@@ -1984,6 +1938,7 @@ Public Class MainViewModel
             New HelpDocumentModel With {.Title = "Deliberate Retention Tradeoff", .RelativePath = "docs\FileCabinet — The Deliberate Retention Tradeoff.md"},
             New HelpDocumentModel With {.Title = "Trust and Verification Model", .RelativePath = "docs\FileCabinet — Trust and Verification Model.md"},
             New HelpDocumentModel With {.Title = "Why SHA-256 and BLAKE3", .RelativePath = "docs\FileCabinet — Why SHA-256 and BLAKE3.md"},
+            New HelpDocumentModel With {.Title = "v1.7.1 Hash Compatibility Patch", .RelativePath = "docs\FileCabinet v1.7.1 — Hash Compatibility Patch.md"},
             New HelpDocumentModel With {.Title = "Repair and Recovery Guide", .RelativePath = "docs\FileCabinet — Repair and Recovery Guide.md"},
             New HelpDocumentModel With {.Title = "Roadmaps", .RelativePath = "docs\FileCabinet — Deterministic Vault Roadmap.md"}
         }
@@ -2184,14 +2139,17 @@ Public Class MainViewModel
             ContainsText(artifact.RetentionPriority, needle) OrElse
             ContainsText(artifact.ArchiveStatus, needle) OrElse
             ContainsText(artifact.TagsText, needle) OrElse
-            ContainsText(artifact.Sha256, needle) OrElse
-            ContainsText(artifact.Blake3, needle) OrElse
+            ContainsAnyHash(artifact, needle) OrElse
             ContainsExtractedText(artifact, needle)
     End Function
 
     Private Shared Function ContainsText(value As String, needle As String) As Boolean
         Return Not String.IsNullOrWhiteSpace(value) AndAlso
             value.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0
+    End Function
+
+    Private Shared Function ContainsAnyHash(artifact As ArtifactModel, needle As String) As Boolean
+        Return HashRegistry.Options.Any(Function(optionItem) ContainsText(HashRegistry.GetArtifactHashValue(artifact, optionItem.Id), needle))
     End Function
 
     Private Function ContainsExtractedText(artifact As ArtifactModel, needle As String) As Boolean

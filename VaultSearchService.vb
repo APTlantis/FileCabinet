@@ -56,8 +56,7 @@ Public Class VaultSearchService
             ContainsText(artifact.RetentionPriority, needle) OrElse
             ContainsText(artifact.ArchiveStatus, needle) OrElse
             ContainsText(artifact.TagsText, needle) OrElse
-            ContainsText(artifact.Sha256, needle) OrElse
-            ContainsText(artifact.Blake3, needle) OrElse
+            ContainsAnyHash(artifact, needle) OrElse
             ContainsExtractedText(artifact, vaultRootPath, needle)
     End Function
 
@@ -82,6 +81,10 @@ Public Class VaultSearchService
 
     Private Shared Function ContainsText(value As String, needle As String) As Boolean
         Return Not String.IsNullOrWhiteSpace(value) AndAlso value.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0
+    End Function
+
+    Private Shared Function ContainsAnyHash(artifact As ArtifactModel, needle As String) As Boolean
+        Return HashRegistry.Options.Any(Function(optionItem) ContainsText(HashRegistry.GetArtifactHashValue(artifact, optionItem.Id), needle))
     End Function
 
     Private Shared Function ContainsExtractedText(artifact As ArtifactModel, vaultRootPath As String, needle As String) As Boolean

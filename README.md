@@ -18,12 +18,13 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 ## Current Release
 
-Current version: **FileCabinet v1.7.0**.
+Current version: **FileCabinet v1.7.1**.
 
-The v1.7.0 release fixes active hash computation, adds a dedicated Vault Health tab, expands dynamic hash details, adds category-specific iconography, sharpens Neon Ink desktop styling, and fixes borderless maximize behavior around the Windows taskbar.
+The v1.7.1 patch adds 24 optional archival, legacy, and fast compatibility hashes while keeping the default active hash set unchanged.
 
 Release notes:
 
+- `docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md`
 - `docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md`
 
 ## Who FileCabinet Is For
@@ -290,6 +291,7 @@ FileCabinet's preservation model is documented in:
 ### Release Notes
 
 - [v1.7.0 — Vault Health and Iconography Release](docs/FileCabinet%20v1.7.0%20%E2%80%94%20Vault%20Health%20and%20Iconography%20Release.md)
+- [v1.7.1 — Hash Compatibility Patch](docs/FileCabinet%20v1.7.1%20%E2%80%94%20Hash%20Compatibility%20Patch.md)
 - [v1.4.4 — Neon Ink Theme Patch](docs/FileCabinet%20v1.4.4%20%E2%80%94%20Neon%20Ink%20Theme%20Patch.md)
 - [v1.6.0 — Health and Settings Release](docs/FileCabinet%20v1.6.0%20%E2%80%94%20Health%20and%20Settings%20Release.md)
 - [v1.4.3 — Quality Gate and Installer Patch](docs/FileCabinet%20v1.4.3%20%E2%80%94%20Quality%20Gate%20and%20Installer%20Patch.md)

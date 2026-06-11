@@ -11,9 +11,9 @@
     <Product>FileCabinet</Product>
     <Company>FileCabinet</Company>
     <Description>Personal vault and artifact manager</Description>
-    <Version>1.7.0</Version>
-    <FileVersion>1.7.0.0</FileVersion>
-    <AssemblyVersion>1.7.0.0</AssemblyVersion>
+    <Version>1.7.1</Version>
+    <FileVersion>1.7.1.0</FileVersion>
+    <AssemblyVersion>1.7.1.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <Import Include="System.Windows.Documents" />
@@ -28,6 +28,7 @@
     <PackageReference Include="Blake3" Version="2.2.1" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
     <PackageReference Include="StreamHash" Version="1.11.3" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>
