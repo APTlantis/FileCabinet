@@ -72,6 +72,7 @@ Public Class MainViewModel
     Private _sameSourceBatchScopeSelectedKey As String = ""
     Private _isRefreshingFilters As Boolean
     Private _isSettingsVisible As Boolean
+    Private _isVaultHealthVisible As Boolean
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -113,6 +114,8 @@ Public Class MainViewModel
     Public Property QuarantineCommand As ICommand
     Public Property ShowSettingsCommand As ICommand
     Public Property CloseSettingsCommand As ICommand
+    Public Property ShowVaultHealthCommand As ICommand
+    Public Property CloseVaultHealthCommand As ICommand
     Public Property BackupCatalogCommand As ICommand
     Public Property RepairCatalogCommand As ICommand
     Public Property RescanVaultCommand As ICommand
@@ -158,6 +161,8 @@ Public Class MainViewModel
         QuarantineCommand = New RelayCommand(Sub(parameter) QuarantineSelectedArtifact(), Function(parameter) SelectedArtifact IsNot Nothing)
         ShowSettingsCommand = New RelayCommand(Sub(parameter) ShowSettings())
         CloseSettingsCommand = New RelayCommand(Sub(parameter) CloseSettings())
+        ShowVaultHealthCommand = New RelayCommand(Sub(parameter) ShowVaultHealth())
+        CloseVaultHealthCommand = New RelayCommand(Sub(parameter) CloseVaultHealth())
         BackupCatalogCommand = New RelayCommand(Sub(parameter) BackupCatalog())
         RepairCatalogCommand = New AsyncRelayCommand(Function(parameter) RepairCatalogAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
         RescanVaultCommand = New AsyncRelayCommand(Function(parameter) RescanVaultAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
@@ -207,6 +212,7 @@ Public Class MainViewModel
                 OnPropertyChanged(NameOf(StoredFileStatus))
                 OnPropertyChanged(NameOf(SelectedBlake3Display))
                 OnPropertyChanged(NameOf(SelectedSha256Display))
+                OnPropertyChanged(NameOf(SelectedHashDisplays))
                 ActionStatus = If(StoredFileExists(), "Stored file ready", "Stored file missing")
                 LoadPreviewForSelectedAsync()
                 LoadEditorFromSelected()
@@ -591,6 +597,7 @@ Public Class MainViewModel
                 OnPropertyChanged(NameOf(IsPreviewTabSelected))
                 OnPropertyChanged(NameOf(IsDetailsTabSelected))
                 OnPropertyChanged(NameOf(IsRelationsTabSelected))
+                OnPropertyChanged(NameOf(IsHealthTabSelected))
             End If
         End Set
     End Property
@@ -711,6 +718,7 @@ Public Class MainViewModel
         End Get
     End Property
 
+
     Public ReadOnly Property SettingsText As String
         Get
             Return _settingsText
@@ -728,6 +736,29 @@ Public Class MainViewModel
             End If
         End Set
     End Property
+
+    Public Property IsVaultHealthVisible As Boolean
+        Get
+            Return _isVaultHealthVisible
+        End Get
+        Set(value As Boolean)
+            If _isVaultHealthVisible <> value Then
+                _isVaultHealthVisible = value
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
+    Private Sub ShowVaultHealth()
+        RightPanelTab = "Health"
+        If RefreshCommand.CanExecute(Nothing) Then
+            RefreshCommand.Execute(Nothing)
+        End If
+    End Sub
+
+    Private Sub CloseVaultHealth()
+        IsVaultHealthVisible = False
+    End Sub
 
     Private Function IsHashActive(hashName As String) As Boolean
         If _catalog Is Nothing Then Return False
@@ -767,6 +798,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(ActiveHashSummary))
         OnPropertyChanged(NameOf(HashSettingsNote))
         OnPropertyChanged(NameOf(SettingsText))
+        OnPropertyChanged(NameOf(SelectedHashDisplays))
     End Sub
 
     Public ReadOnly Property ActiveHashSummary As String
@@ -794,6 +826,12 @@ Public Class MainViewModel
                 Where(Function(optionItem) HashRegistry.IsActive(_catalog.ActiveHashes, optionItem.Id) AndAlso Not String.IsNullOrWhiteSpace(optionItem.Note)).
                 Select(Function(optionItem) $"{optionItem.DisplayName}: {optionItem.Note}")
             Return String.Join("  ", legacyNotes)
+        End Get
+    End Property
+
+    Public ReadOnly Property SelectedHashDisplays As IEnumerable(Of HashDisplayModel)
+        Get
+            Return BuildHashDisplayRows(SelectedArtifact, If(_catalog?.ActiveHashes, HashRegistry.DefaultActiveHashes))
         End Get
     End Property
 
@@ -1051,6 +1089,26 @@ Public Class MainViewModel
         End Get
     End Property
 
+    Private Shared Function BuildHashDisplayRows(artifact As ArtifactModel, activeHashes As String) As IEnumerable(Of HashDisplayModel)
+        Dim activeIds = New HashSet(Of String)(HashRegistry.ParseActiveHashIds(HashRegistry.NormalizeActiveHashes(activeHashes)), StringComparer.OrdinalIgnoreCase)
+
+        Return HashRegistry.Options.Select(Function(optionItem)
+                                               Dim value = HashRegistry.GetArtifactHashValue(artifact, optionItem.Id)
+                                               Dim isActive = activeIds.Contains(optionItem.Id)
+                                               Dim hasValue = Not String.IsNullOrWhiteSpace(value)
+
+                                               Return New HashDisplayModel With {
+                                                   .Id = optionItem.Id,
+                                                   .DisplayName = optionItem.DisplayName,
+                                                   .Value = If(hasValue, value, "(not computed)"),
+                                                   .Status = If(isActive, If(hasValue, "Active / computed", "Active / missing"), If(hasValue, "Inactive / retained", "Inactive / not computed")),
+                                                   .IsActive = isActive,
+                                                   .AccentBrush = If(isActive, If(hasValue, "#34D399", "#FBBF24"), "#64748B"),
+                                                   .AccentBackground = If(isActive, If(hasValue, "#123522", "#3A2712"), "#162033")
+                                               }
+                                           End Function).ToList()
+    End Function
+
     Public Property IsPreviewTabSelected As Boolean
         Get
             Return String.Equals(RightPanelTab, "Preview", StringComparison.OrdinalIgnoreCase)
@@ -1080,6 +1138,17 @@ Public Class MainViewModel
         Set(value As Boolean)
             If value Then
                 RightPanelTab = "Relations"
+            End If
+        End Set
+    End Property
+
+    Public Property IsHealthTabSelected As Boolean
+        Get
+            Return String.Equals(RightPanelTab, "Health", StringComparison.OrdinalIgnoreCase)
+        End Get
+        Set(value As Boolean)
+            If value Then
+                RightPanelTab = "Health"
             End If
         End Set
     End Property
@@ -1114,6 +1183,8 @@ Public Class MainViewModel
                 Return "Details"
             Case "relations"
                 Return "Relations"
+            Case "health"
+                Return "Health"
             Case Else
                 Return "Preview"
         End Select
@@ -1197,7 +1268,7 @@ Public Class MainViewModel
         Dim requestedMode = If(modeOverride.HasValue, modeOverride.Value, CurrentIngestMode)
 
         Try
-            ingested = Await Task.Run(Function() _ingestionService.Ingest(paths, VaultRootPath, progress, requestedMode))
+            ingested = Await Task.Run(Function() _ingestionService.Ingest(paths, VaultRootPath, progress, requestedMode, _catalog.ActiveHashes))
         Finally
             IsIngesting = False
         End Try
@@ -1550,6 +1621,7 @@ Public Class MainViewModel
             VaultMaintenanceDetail = ActionStatus
             OnPropertyChanged(NameOf(SelectedBlake3Display))
             OnPropertyChanged(NameOf(SelectedSha256Display))
+            OnPropertyChanged(NameOf(SelectedHashDisplays))
             OnPropertyChanged(NameOf(StoredFileStatus))
         Catch ex As Exception
             VaultMaintenanceStatus = "Hash check failed"
@@ -1740,7 +1812,7 @@ Public Class MainViewModel
                                                            End Sub)
             Dim result = Await Task.Run(Function()
                                             Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRoot, New ThumbnailService(), New HashService(), analyzeProgress, _catalog.ActiveHashes)
-                                            Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRoot, healthReport)
+                                            Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRoot, healthReport, Nothing, _catalog.ActiveHashes)
                                             Return New VaultMaintenanceResult With {
                                                 .HealthReport = healthReport,
                                                 .RepairReport = repairReport
@@ -2291,6 +2363,7 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(ActiveScopeText))
         OnPropertyChanged(NameOf(LastBackupDisplay))
         OnPropertyChanged(NameOf(RecallStatusText))
+        OnPropertyChanged(NameOf(SelectedHashDisplays))
         RebuildStats()
         RebuildRelatedArtifacts()
     End Sub
@@ -3093,7 +3166,9 @@ Public Class MainViewModel
 
     Private Sub RebuildStats()
         Dim largeObjects = Artifacts.Where(Function(a) a.SizeBytes >= 1024L * 1024L * 1024L).Count()
-        Dim indexed = Artifacts.Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256) OrElse Not String.IsNullOrWhiteSpace(a.Blake3)).Count()
+        Dim activeHashes = If(_catalog?.ActiveHashes, HashRegistry.DefaultActiveHashes)
+        Dim activeHashIds = HashRegistry.ParseActiveHashIds(HashRegistry.NormalizeActiveHashes(activeHashes))
+        Dim indexed = Artifacts.Where(Function(a) activeHashIds.Any(Function(hashId) Not String.IsNullOrWhiteSpace(HashRegistry.GetArtifactHashValue(a, hashId)))).Count()
         Dim rebuilt = New List(Of StatCardModel) From {
             New StatCardModel With {.Label = "Total Items", .Value = Artifacts.Count.ToString("N0"), .Icon = "", .IconBrush = "#38BDF8", .IconBackground = "#123044"},
             New StatCardModel With {.Label = "Vault Size", .Value = FormatSize(Artifacts.Sum(Function(a) a.SizeBytes)), .Icon = "", .IconBrush = "#A78BFA", .IconBackground = "#2A214D"},
@@ -3107,19 +3182,28 @@ Public Class MainViewModel
         End If
     End Sub
 
-    Public Shared Function BuildRepairReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, healthReport As VaultHealthReport, Optional orphanFiles As IEnumerable(Of String) = Nothing) As VaultRepairReport
+    Public Shared Function BuildRepairReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, healthReport As VaultHealthReport, Optional orphanFiles As IEnumerable(Of String) = Nothing, Optional activeHashes As String = "") As VaultRepairReport
         Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).Where(Function(a) a IsNot Nothing).ToList()
         Dim missingArtifacts = artifactList.Where(Function(a) String.IsNullOrWhiteSpace(a.Path) OrElse Not File.Exists(a.Path)).ToList()
-        Dim duplicateGroups = artifactList.
-            Where(Function(a) Not String.IsNullOrWhiteSpace(a.Sha256)).
-            GroupBy(Function(a) a.Sha256, StringComparer.OrdinalIgnoreCase).
-            Where(Function(g) g.Count() > 1).
+        Dim activeHashIds = HashRegistry.ParseActiveHashIds(HashRegistry.NormalizeActiveHashes(activeHashes))
+        Dim derivedDuplicateGroups = activeHashIds.
+            SelectMany(Function(hashId)
+                           Return artifactList.
+                               Where(Function(a) Not String.IsNullOrWhiteSpace(HashRegistry.GetArtifactHashValue(a, hashId))).
+                               GroupBy(Function(a) HashRegistry.GetArtifactHashValue(a, hashId), StringComparer.OrdinalIgnoreCase).
+                               Where(Function(g) g.Count() > 1).
+                               Select(Function(g) $"{hashId}: {g.Key}")
+                       End Function).
             ToList()
+        Dim duplicateFindings = If(healthReport?.Findings, Enumerable.Empty(Of VaultHealthFinding)()).
+            Where(Function(finding) String.Equals(finding.FindingType, "Duplicate hash", StringComparison.OrdinalIgnoreCase)).
+            ToList()
+        Dim duplicateSamples = If(duplicateFindings.Count > 0, duplicateFindings.Select(Function(finding) finding.Subject).ToList(), derivedDuplicateGroups)
         Dim report As New VaultRepairReport With {
             .MissingFiles = missingArtifacts.Count,
-            .DuplicateHashGroups = duplicateGroups.Count,
+            .DuplicateHashGroups = If(duplicateFindings.Count > 0, duplicateFindings.Count, derivedDuplicateGroups.Count),
             .MissingSamples = missingArtifacts.Select(Function(a) a.Name).Take(3).ToList(),
-            .DuplicateSamples = duplicateGroups.Select(Function(g) g.First().Name).Take(3).ToList()
+            .DuplicateSamples = duplicateSamples.Take(3).ToList()
         }
 
         Dim missingThumbnailArtifacts = If(healthReport?.Findings, Enumerable.Empty(Of VaultHealthFinding)()).
@@ -3144,7 +3228,7 @@ Public Class MainViewModel
     Private Function BuildRescanResult(artifactSnapshot As List(Of ArtifactModel), vaultRootPath As String, Optional progress As IProgress(Of VaultMaintenanceProgress) = Nothing) As VaultMaintenanceResult
         Dim healthReport = BuildVaultHealthReport(artifactSnapshot, vaultRootPath, New ThumbnailService(), New HashService(), progress, _catalog.ActiveHashes)
         Dim orphanFiles = FindOrphanStoredFiles(artifactSnapshot, vaultRootPath).ToList()
-        Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRootPath, healthReport, orphanFiles)
+        Dim repairReport = BuildRepairReport(artifactSnapshot, vaultRootPath, healthReport, orphanFiles, _catalog.ActiveHashes)
         Dim result As New VaultMaintenanceResult With {
             .HealthReport = healthReport,
             .RepairReport = repairReport
@@ -3172,7 +3256,7 @@ Public Class MainViewModel
 
         For Each orphan In orphanFiles
             Try
-                Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, vaultRootPath)
+                Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, vaultRootPath, "", _catalog.ActiveHashes)
                 adopted.Notes = $"Adopted during vault rescan at {DateTime.Now:yyyy-MM-dd HH:mm}"
                 result.AdoptedArtifacts.Add(adopted)
                 repairReport.AdoptedFiles += 1
@@ -3707,21 +3791,23 @@ Public Class MainViewModel
             End If
         Next
 
-        Dim duplicateGroups = artifactList.
-            Where(Function(artifact) artifact IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(artifact.Sha256)).
-            GroupBy(Function(artifact) artifact.Sha256, StringComparer.OrdinalIgnoreCase).
-            Where(Function(group) group.Count() > 1)
+        For Each hashId In activeHashIds
+            Dim duplicateGroups = artifactList.
+                Where(Function(artifact) artifact IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(HashRegistry.GetArtifactHashValue(artifact, hashId))).
+                GroupBy(Function(artifact) HashRegistry.GetArtifactHashValue(artifact, hashId), StringComparer.OrdinalIgnoreCase).
+                Where(Function(group) group.Count() > 1)
 
-        For Each duplicateGroup In duplicateGroups
-            report.Findings.Add(New VaultHealthFinding With {
-                .FindingType = "Duplicate hash",
-                .Subject = duplicateGroup.First().Sha256,
-                .Detail = String.Join(", ", duplicateGroup.Select(Function(artifact) artifact.Name).Take(5)),
-                .ProposedAction = "Review duplicate candidates; keep or remove only by operator decision.",
-                .RiskLevel = "Low",
-                .MutatesCatalog = False,
-                .TouchesRetainedFiles = False
-            })
+            For Each duplicateGroup In duplicateGroups
+                report.Findings.Add(New VaultHealthFinding With {
+                    .FindingType = "Duplicate hash",
+                    .Subject = $"{hashId}: {duplicateGroup.Key}",
+                    .Detail = String.Join(", ", duplicateGroup.Select(Function(artifact) artifact.Name).Take(5)),
+                    .ProposedAction = "Review duplicate candidates; keep or remove only by operator decision.",
+                    .RiskLevel = "Low",
+                    .MutatesCatalog = False,
+                    .TouchesRetainedFiles = False
+                })
+            Next
         Next
 
         AddOrphanGeneratedAssetFindings(report, artifactList, vaultRootPath, "thumbnails", Function(artifact) artifact.ThumbnailRelativePath, "Orphan thumbnail", "Generated thumbnail file is not referenced by any catalog artifact.", "Review generated asset; cleanup should require operator approval.")

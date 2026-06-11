@@ -14,6 +14,13 @@ Class MainWindow
                                    Await viewModel.IngestPathsAsync(shellRequest.Paths, shellRequest.Mode)
                                End Sub
         End If
+
+        AddHandler Loaded, Sub()
+                               ApplyWorkAreaBounds()
+                           End Sub
+        AddHandler StateChanged, Sub()
+                                     ApplyWorkAreaBounds()
+                                 End Sub
     End Sub
 
     Private Sub TitleBar_MouseLeftButtonDown(sender As Object, e As MouseButtonEventArgs)
@@ -138,8 +145,15 @@ Class MainWindow
         If WindowState = WindowState.Maximized Then
             WindowState = WindowState.Normal
         Else
+            ApplyWorkAreaBounds()
             WindowState = WindowState.Maximized
         End If
+    End Sub
+
+    Private Sub ApplyWorkAreaBounds()
+        Dim workArea = SystemParameters.WorkArea
+        MaxWidth = workArea.Width
+        MaxHeight = workArea.Height
     End Sub
 
     Private Async Sub IngestPathsAsync(paths As IEnumerable(Of String))

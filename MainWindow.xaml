@@ -13,6 +13,9 @@
         ResizeMode="CanResize"
         Background="{StaticResource WindowBgBrush}"
         Foreground="{StaticResource PrimaryTextBrush}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" />
+    </WindowChrome.WindowChrome>
     <Window.Resources>
         <local:BindingProxy x:Key="VmProxy" Data="{Binding}" />
 
@@ -552,6 +555,13 @@
                                 <Button Content="Duplicate Candidates" Command="{Binding ShowDuplicateCandidatesCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                                 <Button Content="Same Source Batch" Command="{Binding ShowSameSourceBatchCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
                                 <Button Content="Large Artifacts" Command="{Binding ShowLargeArtifactsCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+                                <Border BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="0,1,0,0" Margin="0,12,0,4" />
+                                <Button Command="{Binding ShowVaultHealthCommand}" Style="{StaticResource NavCommandButton}">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE9D9;" Style="{StaticResource IconText}" Foreground="{StaticResource NeonInk.FeaturedBrush}" />
+                                        <TextBlock Text="Vault Health Dashboard" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" Margin="10,0,0,0" />
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </Border>
 
@@ -863,8 +873,8 @@
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Border Width="20" Height="20" CornerRadius="10" Background="{StaticResource NeonInk.StructureBrush}" Margin="0,0,12,0">
-                                                            <TextBlock Text="&#xEA86;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource NeonInk.InverseTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" />
+                                                        <Border Width="20" Height="20" CornerRadius="10" Background="{Binding IconBackground}" Margin="0,0,12,0" ToolTip="{Binding MaterialSymbolName}">
+                                                            <TextBlock Text="{Binding IconGlyph}" FontFamily="Segoe MDL2 Assets" Foreground="{Binding IconBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" />
                                                         </Border>
                                                         <TextBlock Text="{Binding Name}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" />
                                                     </StackPanel>
@@ -926,7 +936,8 @@
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
                                         <RadioButton Content="Preview" GroupName="RightPanelTabs" IsChecked="{Binding IsPreviewTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
                                         <RadioButton Content="Details" GroupName="RightPanelTabs" IsChecked="{Binding IsDetailsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
-                                        <RadioButton Content="Relations" GroupName="RightPanelTabs" IsChecked="{Binding IsRelationsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" Margin="0" />
+                                        <RadioButton Content="Relations" GroupName="RightPanelTabs" IsChecked="{Binding IsRelationsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
+                                        <RadioButton Content="Health" GroupName="RightPanelTabs" IsChecked="{Binding IsHealthTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" Margin="0" />
                                     </StackPanel>
 
                                     <StackPanel Visibility="{Binding IsPreviewTabSelected, Converter={StaticResource BoolToVisibility}}">
@@ -1011,6 +1022,91 @@
                                             </ItemsControl>
                                         </StackPanel>
                                     </Border>
+                                    </StackPanel>
+
+                                    <StackPanel Visibility="{Binding IsHealthTabSelected, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Vault Health" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="11" Margin="0,0,0,8" />
+                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.SuccessBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,4" />
+                                            <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,0,0,3" />
+                                            <TextBlock Text="{Binding VaultMaintenanceDetail}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" />
+                                            <WrapPanel Margin="0,12,0,0">
+                                                <Button Content="Analyze" Command="{Binding RepairCatalogCommand}" ToolTip="Analyze vault health without mutating files" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Rescan" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Apply Selected" Click="ApplyRepairCandidatesButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Backup" Command="{Binding BackupCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <TextBlock Text="Findings" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
+                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,12">
+                                        <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding VaultHealthFindings}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,0,0,10">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding Subject}" Style="{StaticResource SmallLabel}" TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding Detail}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="1" Text="{Binding RiskLevel}" Foreground="{StaticResource AccentBrush}" FontSize="11" Margin="8,0,0,0" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+
+                                    <TextBlock Text="Repair Candidates" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
+                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,12">
+                                        <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding RepairCandidates}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,0,0,10">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding CanRepairAutomatically}" Margin="0,0,8,0" VerticalAlignment="Top" />
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding ProposedAction}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="2" Text="{Binding ActionType}" Foreground="{StaticResource AccentBrush}" FontSize="11" Margin="8,0,0,0" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+
+                                    <TextBlock Text="Repair History" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
+                                    <ItemsControl ItemsSource="{Binding RepairHistory}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,0,0,9">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="70" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Result}" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Subject}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding Detail}" Style="{StaticResource SmallLabel}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                     </StackPanel>
 
                                     <StackPanel Visibility="{Binding IsDetailsTabSelected, Converter={StaticResource BoolToVisibility}}">
@@ -1102,16 +1198,26 @@
                                         <TextBlock Text="Modified" Style="{StaticResource SmallLabel}" />
                                         <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.DateModified}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
-                                    <Grid Margin="0,0,0,18">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <TextBlock Text="BLAKE3" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedBlake3Display}" Style="{StaticResource DataCell}" FontSize="12" />
-                                    </Grid>
-                                    <Grid Margin="0,0,0,10">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <TextBlock Text="SHA-256" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedSha256Display}" Style="{StaticResource DataCell}" FontSize="12" />
-                                    </Grid>
+                                    <TextBlock Text="Integrity Hashes" Foreground="{StaticResource NeonInk.VerifiedBrush}" FontSize="11" Margin="0,0,0,8" />
+                                    <ItemsControl ItemsSource="{Binding SelectedHashDisplays}" Margin="0,0,0,14">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding AccentBackground}" BorderBrush="{Binding AccentBrush}" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,0,0,8">
+                                                    <StackPanel>
+                                                        <Grid Margin="0,0,0,4">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" />
+                                                            <TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{Binding AccentBrush}" FontSize="11" />
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding Value}" Style="{StaticResource DataCell}" FontSize="11" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="File" Style="{StaticResource SmallLabel}" />
@@ -1352,6 +1458,80 @@
                     </Grid>
                 </Border>
             </Grid>
+            <!-- Vault Health Modal Overlay -->
+            <Grid Grid.RowSpan="2" Visibility="{Binding IsVaultHealthVisible, Converter={StaticResource BoolToVisibility}}" Panel.ZIndex="90">
+                <Border Background="#A0000000">
+                    <Border.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding CloseVaultHealthCommand}" />
+                    </Border.InputBindings>
+                </Border>
+                <Border Background="{StaticResource CardBgBrush}" 
+                        BorderBrush="{StaticResource BorderDimBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Width="900" 
+                        Height="700" 
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center">
+                    <Grid Margin="24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Vault Health Dashboard" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" />
+                        <Button Content="&#xE711;" 
+                                Command="{Binding CloseVaultHealthCommand}" 
+                                Style="{StaticResource ChromeButton}" 
+                                HorizontalAlignment="Right" 
+                                Margin="0,-10,-10,0" />
+
+                        <Grid Grid.Row="1" Margin="0,20,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                                <TextBlock Text="Findings &amp; Issues" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
+                                <DataGrid ItemsSource="{Binding VaultHealthFindings}" Height="250" Margin="0,0,0,16">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Risk" Binding="{Binding RiskLevel}" Width="80" />
+                                        <DataGridTextColumn Header="Type" Binding="{Binding FindingType}" Width="150" />
+                                        <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Text="Repair Capabilities" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
+                                <WrapPanel Margin="0,0,0,16">
+                                    <Button Content="Verify Vault" Command="{Binding RefreshCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                    <Button Content="Repair Catalog" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                    <Button Content="Rescan Items" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                    <Button Content="Apply Selected Repairs" Command="{Binding ApplySelectedRepairCandidatesCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <Border Grid.Column="1" Background="{StaticResource PanelBgBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="Status" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+                                    <TextBlock Text="Maintenance Running:" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,0,0,4" />
+                                    <TextBlock Text="{Binding IsVaultMaintenanceRunning}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,16" />
+                                    
+                                    <TextBlock Text="Current Task:" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,0,0,4" />
+                                    <TextBlock Text="{Binding VaultMaintenanceStatus}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,8" />
+                                    <TextBlock Text="{Binding VaultMaintenanceDetail}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                            <Button Content="Done" Command="{Binding CloseVaultHealthCommand}" Style="{StaticResource ToolButton}" Width="80" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
             <!-- Settings Modal Overlay -->
             <Grid Grid.RowSpan="2" Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}" Panel.ZIndex="100">
                 <Border Background="#A0000000">

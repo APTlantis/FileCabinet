@@ -36,6 +36,21 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub ComputeHashesOnlyComputesRequestedActiveHashes()
+            Using workspace As New TestWorkspace()
+                Dim path = workspace.SourcePath("legacy.txt")
+                File.WriteAllText(path, "legacy")
+
+                Dim hashes = New Global.FileCabinet.HashService().ComputeHashes(path, "MD5")
+
+                Assert.AreEqual("228c70bfc5589c58c044e03fff0e17eb", hashes.Md5)
+                Assert.AreEqual("", hashes.Sha256)
+                Assert.AreEqual("", hashes.Blake3)
+                Assert.AreEqual("", hashes.KangarooTwelve)
+            End Using
+        End Sub
+
+        <TestMethod>
         Sub HashRegistryNormalizesUnknownAndEmptySelectionsToDefaults()
             Assert.AreEqual("SHA256,BLAKE3,KangarooTwelve", Global.FileCabinet.HashRegistry.NormalizeActiveHashes(""))
             Assert.AreEqual("SHA256,BLAKE3,KangarooTwelve", Global.FileCabinet.HashRegistry.NormalizeActiveHashes("not-a-hash"))

@@ -94,7 +94,7 @@ Namespace FileCabinet.Tests
                     New List(Of String) From {
                         "Missing file:missing.iso",
                         "Hash mismatch:kept.txt",
-                        "Duplicate hash:duplicate-sha256"
+                        "Duplicate hash:SHA256: duplicate-sha256"
                     },
                     orderedFindings)
 

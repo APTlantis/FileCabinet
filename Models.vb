@@ -1,5 +1,6 @@
 Imports System.Text.Json.Serialization
 Imports System.ComponentModel
+Imports System.IO
 Imports System.Runtime.CompilerServices
 
 Public Class CatalogData
@@ -300,6 +301,80 @@ Public Class CategoryModel
     Public Property Count As String = ""
 End Class
 
+Public Class HashDisplayModel
+    Public Property Id As String = ""
+    Public Property DisplayName As String = ""
+    Public Property Value As String = ""
+    Public Property Status As String = ""
+    Public Property IsActive As Boolean
+    Public Property AccentBrush As String = "#64748B"
+    Public Property AccentBackground As String = "#162033"
+End Class
+
+Public Class ArtifactIconModel
+    Public Property Glyph As String = ChrW(&HE8A5)
+    Public Property Brush As String = "#CBD5E1"
+    Public Property Background As String = "#162033"
+    Public Property SymbolName As String = "draft"
+End Class
+
+Public Class ArtifactIconRegistry
+    Public Shared Function Resolve(artifact As ArtifactModel) As ArtifactIconModel
+        Dim category = If(artifact?.Category, "")
+        Dim extension = ""
+
+        Try
+            extension = If(Path.GetExtension(artifact?.Path), "").ToLowerInvariant()
+        Catch
+            extension = ""
+        End Try
+
+        Select Case True
+            Case String.Equals(category, "Images", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE91B), "#EC4899", "#3B1733", "image")
+            Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
+                Return If(extension = ".pdf", Icon(ChrW(&HE8A5), "#F43F5E", "#3B1720", "picture_as_pdf"), Icon(ChrW(&HE8A5), "#22D3EE", "#123044", "description"))
+            Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE9D2), "#34D399", "#123522", "table")
+            Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HEBC6), "#F472B6", "#3B1733", "present_to_all")
+            Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE713), "#818CF8", "#1F264B", "settings")
+            Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE8D6), "#EC4899", "#3B1733", "audio_file")
+            Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE8B2), "#F472B6", "#3B1733", "video_file")
+            Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE7B8), "#FB923C", "#3A2712", "folder_zip")
+            Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE896), "#C084FC", "#2A214D", "deployed_code")
+            Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE958), "#818CF8", "#1F264B", "album")
+            Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE72E), "#F43F5E", "#3B1720", "key")
+            Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE896), "#2DD4BF", "#12343A", "hub")
+            Case String.Equals(category, "Quarantine", StringComparison.OrdinalIgnoreCase)
+                Return Icon(ChrW(&HE74D), "#F43F5E", "#3B1720", "dangerous")
+            Case extension = ".pdf"
+                Return Icon(ChrW(&HE8A5), "#F43F5E", "#3B1720", "picture_as_pdf")
+            Case extension = ".zip" OrElse extension = ".7z" OrElse extension = ".rar"
+                Return Icon(ChrW(&HE7B8), "#FB923C", "#3A2712", "folder_zip")
+            Case Else
+                Return Icon(ChrW(&HE8A5), "#CBD5E1", "#162033", "draft")
+        End Select
+    End Function
+
+    Private Shared Function Icon(glyph As String, brush As String, background As String, symbolName As String) As ArtifactIconModel
+        Return New ArtifactIconModel With {
+            .Glyph = glyph,
+            .Brush = brush,
+            .Background = background,
+            .SymbolName = symbolName
+        }
+    End Function
+End Class
+
 Public Class ActivityEntryModel
     Public Property ActionText As String = ""
     Public Property DetailText As String = ""
@@ -418,8 +493,10 @@ Public Class ArtifactModel
             Return _type
         End Get
         Set(value As String)
-            SetValue(_type, If(value, ""))
-            OnPropertyChanged(NameOf(SummaryText))
+            If SetValue(_type, If(value, "")) Then
+                OnPropertyChanged(NameOf(SummaryText))
+                RaiseIconPropertiesChanged()
+            End If
         End Set
     End Property
 
@@ -428,7 +505,9 @@ Public Class ArtifactModel
             Return _typeFamily
         End Get
         Set(value As String)
-            SetValue(_typeFamily, If(value, ""))
+            If SetValue(_typeFamily, If(value, "")) Then
+                RaiseIconPropertiesChanged()
+            End If
         End Set
     End Property
 
@@ -437,7 +516,9 @@ Public Class ArtifactModel
             Return _category
         End Get
         Set(value As String)
-            SetValue(_category, If(value, ""))
+            If SetValue(_category, If(value, "")) Then
+                RaiseIconPropertiesChanged()
+            End If
         End Set
     End Property
 
@@ -474,7 +555,9 @@ Public Class ArtifactModel
             Return _path
         End Get
         Set(value As String)
-            SetValue(_path, If(value, ""))
+            If SetValue(_path, If(value, "")) Then
+                RaiseIconPropertiesChanged()
+            End If
         End Set
     End Property
 
@@ -683,7 +766,9 @@ Public Class ArtifactModel
             Return _archiveStatus
         End Get
         Set(value As String)
-            SetValue(_archiveStatus, If(value, "Active"))
+            If SetValue(_archiveStatus, If(value, "Active")) Then
+                RaiseIconPropertiesChanged()
+            End If
         End Set
     End Property
 
@@ -764,6 +849,34 @@ Public Class ArtifactModel
         End Get
     End Property
 
+    <JsonIgnore>
+    Public ReadOnly Property IconGlyph As String
+        Get
+            Return ArtifactIconRegistry.Resolve(Me).Glyph
+        End Get
+    End Property
+
+    <JsonIgnore>
+    Public ReadOnly Property IconBrush As String
+        Get
+            Return ArtifactIconRegistry.Resolve(Me).Brush
+        End Get
+    End Property
+
+    <JsonIgnore>
+    Public ReadOnly Property IconBackground As String
+        Get
+            Return ArtifactIconRegistry.Resolve(Me).Background
+        End Get
+    End Property
+
+    <JsonIgnore>
+    Public ReadOnly Property MaterialSymbolName As String
+        Get
+            Return ArtifactIconRegistry.Resolve(Me).SymbolName
+        End Get
+    End Property
+
     Private Function SetValue(Of T)(ByRef storage As T, value As T, <CallerMemberName> Optional propertyName As String = Nothing) As Boolean
         If EqualityComparer(Of T).Default.Equals(storage, value) Then
             Return False
@@ -776,5 +889,12 @@ Public Class ArtifactModel
 
     Private Sub OnPropertyChanged(<CallerMemberName> Optional propertyName As String = Nothing)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(propertyName))
+    End Sub
+
+    Private Sub RaiseIconPropertiesChanged()
+        OnPropertyChanged(NameOf(IconGlyph))
+        OnPropertyChanged(NameOf(IconBrush))
+        OnPropertyChanged(NameOf(IconBackground))
+        OnPropertyChanged(NameOf(MaterialSymbolName))
     End Sub
 End Class

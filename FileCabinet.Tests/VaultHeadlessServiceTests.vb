@@ -178,6 +178,67 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub RepairApplyRecomputesOnlyActiveHashesAndPreservesInactiveValues()
+            Dim workspace = TestWorkspace()
+
+            Try
+                Dim catalogService = CreateCatalogService(workspace)
+                Dim catalog = catalogService.LoadOrCreate()
+                catalog.ActiveHashes = "MD5"
+                Dim storedPath = Path.Combine(workspace, "vault", "items", "needs-md5.txt")
+                Directory.CreateDirectory(Path.GetDirectoryName(storedPath))
+                File.WriteAllText(storedPath, "legacy")
+                catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {
+                    .Name = "needs-md5.txt",
+                    .Path = storedPath,
+                    .RelativePath = Path.GetRelativePath(catalog.VaultRootPath, storedPath),
+                    .Sha256 = "inactive-sha"
+                })
+                catalogService.Save(catalog)
+
+                Dim result = CreateService(workspace).Repair(apply:=True)
+                Dim reloaded = catalogService.LoadOrCreate()
+                Dim repaired = reloaded.Artifacts(0)
+
+                Assert.AreEqual(1, result.AppliedCount)
+                Assert.IsFalse(String.IsNullOrWhiteSpace(repaired.Md5))
+                Assert.AreEqual("inactive-sha", repaired.Sha256)
+                Assert.AreEqual("", repaired.Blake3)
+                Assert.AreEqual("", repaired.KangarooTwelve)
+            Finally
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub HeadlessVerifyHonorsCatalogActiveHashes()
+            Dim workspace = TestWorkspace()
+
+            Try
+                Dim catalogService = CreateCatalogService(workspace)
+                Dim catalog = catalogService.LoadOrCreate()
+                catalog.ActiveHashes = "MD5"
+                Dim storedPath = Path.Combine(workspace, "vault", "items", "legacy.txt")
+                Directory.CreateDirectory(Path.GetDirectoryName(storedPath))
+                File.WriteAllText(storedPath, "legacy")
+                catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {
+                    .Name = "legacy.txt",
+                    .Path = storedPath,
+                    .RelativePath = Path.GetRelativePath(catalog.VaultRootPath, storedPath),
+                    .Md5 = New Global.FileCabinet.HashService().ComputeHashes(storedPath, "MD5").Md5
+                })
+                catalogService.Save(catalog)
+
+                Dim result = CreateService(workspace).Verify("high")
+
+                Assert.AreEqual(0, result.ExitCode)
+                Assert.IsFalse(result.HealthReport.Findings.Any(Function(finding) finding.FindingType = "Missing hash"))
+            Finally
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub RepairApplyRebindsMovedVaultPathAndPreselectsCandidate()
             Dim workspace = TestWorkspace()
 

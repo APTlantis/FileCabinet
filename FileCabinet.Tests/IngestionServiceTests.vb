@@ -68,6 +68,32 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub IngestStoresOnlyRequestedActiveHashes()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim sourceRoot = Path.Combine(workspace, "source")
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Directory.CreateDirectory(sourceRoot)
+            Dim sourcePath = Path.Combine(sourceRoot, "legacy.txt")
+            File.WriteAllText(sourcePath, "legacy")
+
+            Try
+                Dim service As New Global.FileCabinet.IngestionService()
+                Dim artifacts = service.Ingest({sourcePath}, vaultRoot, Nothing, Global.FileCabinet.IngestMode.Copy, "MD5")
+                Dim artifact = artifacts(0)
+
+                Assert.IsFalse(String.IsNullOrWhiteSpace(artifact.Md5))
+                Assert.AreEqual("", artifact.Sha256)
+                Assert.AreEqual("", artifact.Blake3)
+                Assert.AreEqual("", artifact.KangarooTwelve)
+                Assert.AreEqual("", artifact.Sha3_256)
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub StoredFileAdoptionCreatesCatalogReadyArtifact()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim vaultRoot = Path.Combine(workspace, "vault")

@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "tags": [
       "local-first",
       "desktop",
@@ -64,11 +64,12 @@
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
-      "artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig",
+      "artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi",
       "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
+      "docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
       "Assets/FileCabinet.ico",
       "Assets/FileCabinetLogoMark.png",
+      "Assets/MaterialSymbolsIconMap.md",
       "FileCabinet.Cli.exe",
       "Vault catalog JSON",
       "Vault thumbnail PNG assets",
@@ -84,41 +85,41 @@
     ]
   },
   "release": {
-    "version": "1.6.0",
-    "name": "FileCabinet v1.6.0 — Health and Settings Release",
-    "date": "2026-06-10",
+    "version": "1.7.0",
+    "name": "FileCabinet v1.7.0 — Vault Health and Iconography Release",
+    "date": "2026-06-11",
     "installer": {
-      "path": "artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
+      "path": "artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi",
       "runtime": "win-x64",
-      "package_version": "1.6.0.0",
-      "size_bytes": 127868928,
-      "sha256": "e2efe9935378a557432f0c2443d476a0b8ba548572db9656ef2d437b63e2d2af",
-      "blake3": "6ffa5c250f07d5b86d3e6c0d76218f4732f842fba8b757089e402d5095cd3d63",
-      "kangaroo12": "4f934e3bb6a3615b8abce7e0112c90131985496d126409bddda86dc28aaec13b"
+      "package_version": "1.7.0.0",
+      "size_bytes": 127877120,
+      "sha256": "b4959b990408d902ded07da35e3e4ea95fa211038ce5924fa0fdbb12b38eee82",
+      "blake3": "264e282d39659bc0f43d9ae93dd36119196db7f566e68cfa67b99dda03f49c90",
+      "kangaroo12": "2685ac125ba94ffb1a7eab9643db00e0b956fbe63f4d7324ddb7fcee768cbdc1"
     },
     "signatures": {
       "pq": {
-        "path": "artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig",
+        "path": "artifacts/installer/FileCabinet-1.7.0.0-win-x64.pq.sig",
         "algorithm": "SPHINCS+",
         "size_bytes": 17088,
-        "sha256": "4e17345a485d32e4cc0c7a560e87f111f31d0539f7f96eeb9c17f1a7ec875dae",
-        "blake3": "610c5e1f97fe49af51eb0a307fe319ace4ff970335b54421d471d37a0082016d",
-        "kangaroo12": "8c090a9892a5abb22b13b74d87cbd2c4176324a709564336083b18efbcfbd652",
+        "sha256": "7be43edb78ea10ef88ef81f5cb5d41939ceb98d894bbf49473409fe43c87f6ec",
+        "blake3": "9ad3fd1d0b7de88bc0a3e294e511e232094ab679a6db7a8aea1892837ea8a632",
+        "kangaroo12": "4033afe0f56bd049aac06f1900b6ae3001d495bb49355d23356913e6d5331e40",
         "status": "created by ReleaseHasher sign-pq"
       },
       "pgp": {
         "path": "",
         "algorithm": "PGP",
-        "status": "blocked",
-        "detail": "ReleaseHasher sign-pgp was attempted with D:/200-CTS/230-HASHING/ReleaseHasher/keys/AptlantisSigningKey-Private.asc and returned: No signing key found in certificate."
+        "status": "not generated",
+        "detail": "v1.7.0 validation generated the detached post-quantum signature; PGP signing was not attempted for this release."
       }
     },
     "verified": {
-      "date": "2026-06-10",
-      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 87 tests",
-      "installer_build": "installer/build-installer.ps1 -Version 1.6.0.0 completed",
-      "release_hashing": "ReleaseHasher hash completed for artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi",
-      "release_signing": "ReleaseHasher sign-pq completed; ReleaseHasher sign-pgp blocked by key compatibility"
+      "date": "2026-06-11",
+      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 93 tests",
+      "installer_build": "installer/build-installer.ps1 -Version 1.7.0.0 completed",
+      "release_hashing": "ReleaseHasher hash completed for artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi",
+      "release_signing": "ReleaseHasher sign-pq completed"
     }
   },
   "datasets": [
@@ -149,7 +150,7 @@
   "documentation": {
     "writerside_topic": "",
     "readme": "README.md",
-    "release_notes": "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
+    "release_notes": "docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
     "theme_overview": "docs/NeonInk-Theme-Integration-Overview.md",
     "core_docs": [
       "docs/FileCabinet — Vault Lifecycle.md",
@@ -174,17 +175,17 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.6.0.0; release-hasher hash artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi; release-hasher sign-pq artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi --key D:/200-CTS/230-HASHING/ReleaseHasher/mykey.sec",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi and artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig to the GitHub v1.6.0 release; PGP signing is blocked until ReleaseHasher accepts the available PGP signing key.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.7.0.0; release-hasher hash artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi; release-hasher sign-pq artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi --key D:/200-CTS/230-HASHING/ReleaseHasher/mykey.sec",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi and artifacts/installer/FileCabinet-1.7.0.0-win-x64.pq.sig to the GitHub v1.7.0 release.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.6.0 — Health and Settings Release.md",
+      "Include release notes from docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
       "Generate ARHS hashes with D:/200-CTS/230-HASHING/ReleaseHasher",
       "Sign release artifact with ReleaseHasher PQ key",
-      "Resolve ReleaseHasher PGP key compatibility before publishing a PGP detached signature"
+      "Publish the detached post-quantum signature"
     ]
   },
   "theme": {
@@ -209,12 +210,14 @@
       "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
       "Preview and activity accents were refreshed to match Neon Ink semantics",
       "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
-      "Application, CLI, and manifest version updated to 1.6.0",
-      "Settings panel hardened around canonical hash options",
-      "Real KangarooTwelve hashing replaces the previous SHA3 fallback",
-      "Vault health progress and moved-vault path rebind repairs improved",
+      "Application, CLI, and manifest version updated to 1.7.0",
+      "Active hash computation now respects Settings across ingest, health, repair, rescan, and headless paths",
+      "Details shows dynamic hash rows for all supported algorithms",
+      "Vault Health promoted to a right-panel tab with findings, repair candidates, progress, actions, and repair history",
+      "Material Symbols source vocabulary mapped to category-specific artifact list and preview icons",
+      "Borderless maximize now respects the Windows taskbar work area",
       "Release verification references ARHS at D:/010-CITY-HALL/ARHS and ReleaseHasher at D:/200-CTS/230-HASHING/ReleaseHasher",
-      "FileCabinet-1.6.0.0-win-x64.msi was built, ARHS-hashed, and PQ-signed on 2026-06-10"
+      "FileCabinet-1.7.0.0-win-x64.msi was built, ARHS-hashed, and PQ-signed on 2026-06-11"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -227,6 +230,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 87 tests on 2026-06-10; installer/build-installer.ps1 -Version 1.6.0.0 completed; ReleaseHasher hash and sign-pq completed; sign-pgp blocked by key compatibility"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 93 tests on 2026-06-11; installer/build-installer.ps1 -Version 1.7.0.0 completed; ReleaseHasher hash and sign-pq completed"
   }
 }

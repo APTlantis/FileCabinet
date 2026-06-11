@@ -128,7 +128,7 @@ Public Class VaultHeadlessService
     Public Function Verify(Optional failOn As String = "any") As HeadlessVerifyResult
         Dim catalog = LoadCatalog()
         Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService(), Nothing, catalog.ActiveHashes)
-        Dim repairReport = MainViewModel.BuildRepairReport(catalog.Artifacts, catalog.VaultRootPath, healthReport)
+        Dim repairReport = MainViewModel.BuildRepairReport(catalog.Artifacts, catalog.VaultRootPath, healthReport, Nothing, catalog.ActiveHashes)
         Dim thresholdMet = FindingsMeetThreshold(healthReport, failOn)
 
         Return New HeadlessVerifyResult With {
@@ -153,7 +153,7 @@ Public Class VaultHeadlessService
     Public Function GenerateReport(outputPath As String, format As String) As HeadlessReportResult
         Dim catalog = LoadCatalog()
         Dim healthReport = MainViewModel.BuildVaultHealthReport(catalog.Artifacts, catalog.VaultRootPath, New ThumbnailService(), New HashService(), Nothing, catalog.ActiveHashes)
-        Dim repairReport = MainViewModel.BuildRepairReport(catalog.Artifacts, catalog.VaultRootPath, healthReport)
+        Dim repairReport = MainViewModel.BuildRepairReport(catalog.Artifacts, catalog.VaultRootPath, healthReport, Nothing, catalog.ActiveHashes)
         Dim normalizedFormat = If(format, "text").Trim().ToLowerInvariant()
         Dim destination = If(String.IsNullOrWhiteSpace(outputPath), BuildDefaultReportPath(catalog.VaultRootPath, normalizedFormat), outputPath)
         Dim directoryPath = Path.GetDirectoryName(destination)
@@ -239,7 +239,7 @@ Public Class VaultHeadlessService
 
         For Each orphan In result.OrphanFiles
             Try
-                Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, catalog.VaultRootPath)
+                Dim adopted = _ingestionService.CreateArtifactFromStoredFile(orphan, catalog.VaultRootPath, "", catalog.ActiveHashes)
                 adopted.Notes = $"Adopted during CLI vault rescan at {DateTime.Now:yyyy-MM-dd HH:mm}"
                 catalog.Artifacts.Insert(0, adopted)
                 result.AdoptedArtifacts.Add(adopted)

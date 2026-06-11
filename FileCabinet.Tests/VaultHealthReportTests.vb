@@ -166,6 +166,62 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub HealthReportMissingHashesUsesOnlyActiveHashIds()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "legacy.txt")
+            File.WriteAllText(storedPath, "legacy")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "legacy.txt",
+                    .Path = storedPath,
+                    .Md5 = "228c70bfc5589c58c044e03fff0e17eb"
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "MD5")
+
+                Assert.IsFalse(report.Findings.Any(Function(finding) finding.FindingType = "Missing hash"))
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub HealthReportMismatchUsesOnlyActiveHashIds()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "kept.txt")
+            File.WriteAllText(storedPath, "retained")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "kept.txt",
+                    .Path = storedPath,
+                    .Md5 = "not-the-md5",
+                    .Sha256 = "inactive-sha-value"
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "MD5")
+                Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Hash mismatch")
+
+                Assert.IsNotNull(finding)
+                StringAssert.Contains(finding.Detail, "MD5")
+                Assert.IsFalse(finding.Detail.Contains("SHA256"))
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub HealthReportDetectsFilesOutsideActiveVault()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim vaultRoot = Path.Combine(workspace, "vault")

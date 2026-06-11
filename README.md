@@ -18,18 +18,13 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 ## Current Release
 
-Current version: **FileCabinet v1.6.0**.
+Current version: **FileCabinet v1.7.0**.
 
-The v1.6.0 release hardens Settings, replaces the KangarooTwelve placeholder with real K12 hashing, and expands vault health repair workflows for moved vaults and regenerated generated assets.
+The v1.7.0 release fixes active hash computation, adds a dedicated Vault Health tab, expands dynamic hash details, adds category-specific iconography, sharpens Neon Ink desktop styling, and fixes borderless maximize behavior around the Windows taskbar.
 
-Installer:
+Release notes:
 
-- `artifacts/installer/FileCabinet-1.6.0.0-win-x64.msi`
-- Size: `127868928` bytes
-- SHA-256: `e2efe9935378a557432f0c2443d476a0b8ba548572db9656ef2d437b63e2d2af`
-- BLAKE3: `6ffa5c250f07d5b86d3e6c0d76218f4732f842fba8b757089e402d5095cd3d63`
-- KangarooTwelve: `4f934e3bb6a3615b8abce7e0112c90131985496d126409bddda86dc28aaec13b`
-- PQ signature: `artifacts/installer/FileCabinet-1.6.0.0-win-x64.pq.sig`
+- `docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md`
 
 ## Who FileCabinet Is For
 
@@ -99,7 +94,7 @@ When a file is ingested, FileCabinet:
 - places it under `items\yyyy\MM\`
 - avoids filename collisions by renaming safely
 - records the original path
-- computes BLAKE3 and SHA-256 hashes
+- computes the active hashes selected in Settings
 - infers type, category, and starter tags
 - extracts searchable text for text-like files
 - updates activity, stats, categories, and tags
@@ -294,6 +289,7 @@ FileCabinet's preservation model is documented in:
 
 ### Release Notes
 
+- [v1.7.0 — Vault Health and Iconography Release](docs/FileCabinet%20v1.7.0%20%E2%80%94%20Vault%20Health%20and%20Iconography%20Release.md)
 - [v1.4.4 — Neon Ink Theme Patch](docs/FileCabinet%20v1.4.4%20%E2%80%94%20Neon%20Ink%20Theme%20Patch.md)
 - [v1.6.0 — Health and Settings Release](docs/FileCabinet%20v1.6.0%20%E2%80%94%20Health%20and%20Settings%20Release.md)
 - [v1.4.3 — Quality Gate and Installer Patch](docs/FileCabinet%20v1.4.3%20%E2%80%94%20Quality%20Gate%20and%20Installer%20Patch.md)

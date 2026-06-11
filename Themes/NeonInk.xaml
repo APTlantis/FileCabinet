@@ -13,17 +13,27 @@
     <Color x:Key="NeonInk.InverseTextColor">#050816</Color>
 
     <Color x:Key="NeonInk.InfoColor">#22D3EE</Color>
+    <Color x:Key="NeonInk.InfoDimColor">#155E75</Color>
+    <Color x:Key="NeonInk.InfoGlowColor">#67E8F9</Color>
     <Color x:Key="NeonInk.StructureColor">#06B6D4</Color>
     <Color x:Key="NeonInk.NavigationColor">#38BDF8</Color>
     <Color x:Key="NeonInk.NavigationSurfaceColor">#0E7490</Color>
     <Color x:Key="NeonInk.SuccessColor">#34D399</Color>
+    <Color x:Key="NeonInk.SuccessDimColor">#14532D</Color>
+    <Color x:Key="NeonInk.SuccessGlowColor">#86EFAC</Color>
     <Color x:Key="NeonInk.VerifiedColor">#22C55E</Color>
     <Color x:Key="NeonInk.ReproducibleColor">#2DD4BF</Color>
     <Color x:Key="NeonInk.ImportantColor">#FACC15</Color>
     <Color x:Key="NeonInk.CautionColor">#FBBF24</Color>
+    <Color x:Key="NeonInk.CautionDimColor">#713F12</Color>
+    <Color x:Key="NeonInk.CautionGlowColor">#FDE68A</Color>
     <Color x:Key="NeonInk.CriticalColor">#F43F5E</Color>
+    <Color x:Key="NeonInk.CriticalDimColor">#881337</Color>
+    <Color x:Key="NeonInk.CriticalGlowColor">#FDA4AF</Color>
     <Color x:Key="NeonInk.ErrorColor">#EF4444</Color>
     <Color x:Key="NeonInk.ProcessColor">#A78BFA</Color>
+    <Color x:Key="NeonInk.ProcessDimColor">#4C1D95</Color>
+    <Color x:Key="NeonInk.ProcessGlowColor">#C4B5FD</Color>
     <Color x:Key="NeonInk.PipelineColor">#C084FC</Color>
     <Color x:Key="NeonInk.CodeHeatColor">#F97316</Color>
     <Color x:Key="NeonInk.BuildColor">#FB923C</Color>
@@ -46,17 +56,27 @@
     <SolidColorBrush x:Key="NeonInk.InverseTextBrush" Color="{StaticResource NeonInk.InverseTextColor}" />
 
     <SolidColorBrush x:Key="NeonInk.InfoBrush" Color="{StaticResource NeonInk.InfoColor}" />
+    <SolidColorBrush x:Key="NeonInk.InfoDimBrush" Color="{StaticResource NeonInk.InfoDimColor}" />
+    <SolidColorBrush x:Key="NeonInk.InfoGlowBrush" Color="{StaticResource NeonInk.InfoGlowColor}" />
     <SolidColorBrush x:Key="NeonInk.StructureBrush" Color="{StaticResource NeonInk.StructureColor}" />
     <SolidColorBrush x:Key="NeonInk.NavigationBrush" Color="{StaticResource NeonInk.NavigationColor}" />
     <SolidColorBrush x:Key="NeonInk.NavigationSurfaceBrush" Color="{StaticResource NeonInk.NavigationSurfaceColor}" />
     <SolidColorBrush x:Key="NeonInk.SuccessBrush" Color="{StaticResource NeonInk.SuccessColor}" />
+    <SolidColorBrush x:Key="NeonInk.SuccessDimBrush" Color="{StaticResource NeonInk.SuccessDimColor}" />
+    <SolidColorBrush x:Key="NeonInk.SuccessGlowBrush" Color="{StaticResource NeonInk.SuccessGlowColor}" />
     <SolidColorBrush x:Key="NeonInk.VerifiedBrush" Color="{StaticResource NeonInk.VerifiedColor}" />
     <SolidColorBrush x:Key="NeonInk.ReproducibleBrush" Color="{StaticResource NeonInk.ReproducibleColor}" />
     <SolidColorBrush x:Key="NeonInk.ImportantBrush" Color="{StaticResource NeonInk.ImportantColor}" />
     <SolidColorBrush x:Key="NeonInk.CautionBrush" Color="{StaticResource NeonInk.CautionColor}" />
+    <SolidColorBrush x:Key="NeonInk.CautionDimBrush" Color="{StaticResource NeonInk.CautionDimColor}" />
+    <SolidColorBrush x:Key="NeonInk.CautionGlowBrush" Color="{StaticResource NeonInk.CautionGlowColor}" />
     <SolidColorBrush x:Key="NeonInk.CriticalBrush" Color="{StaticResource NeonInk.CriticalColor}" />
+    <SolidColorBrush x:Key="NeonInk.CriticalDimBrush" Color="{StaticResource NeonInk.CriticalDimColor}" />
+    <SolidColorBrush x:Key="NeonInk.CriticalGlowBrush" Color="{StaticResource NeonInk.CriticalGlowColor}" />
     <SolidColorBrush x:Key="NeonInk.ErrorBrush" Color="{StaticResource NeonInk.ErrorColor}" />
     <SolidColorBrush x:Key="NeonInk.ProcessBrush" Color="{StaticResource NeonInk.ProcessColor}" />
+    <SolidColorBrush x:Key="NeonInk.ProcessDimBrush" Color="{StaticResource NeonInk.ProcessDimColor}" />
+    <SolidColorBrush x:Key="NeonInk.ProcessGlowBrush" Color="{StaticResource NeonInk.ProcessGlowColor}" />
     <SolidColorBrush x:Key="NeonInk.PipelineBrush" Color="{StaticResource NeonInk.PipelineColor}" />
     <SolidColorBrush x:Key="NeonInk.CodeHeatBrush" Color="{StaticResource NeonInk.CodeHeatColor}" />
     <SolidColorBrush x:Key="NeonInk.BuildBrush" Color="{StaticResource NeonInk.BuildColor}" />
@@ -70,7 +90,8 @@
     <SolidColorBrush x:Key="PanelBgBrush" Color="{StaticResource NeonInk.PanelColor}" />
     <SolidColorBrush x:Key="CardBgBrush" Color="{StaticResource NeonInk.PanelColor}" />
     <SolidColorBrush x:Key="CardAltBrush" Color="{StaticResource NeonInk.SoftColor}" />
-    <SolidColorBrush x:Key="BorderDimBrush" Color="#26364D" />
+    <SolidColorBrush x:Key="BorderDimBrush" Color="#2F4260" />
+    <SolidColorBrush x:Key="BorderGlowBrush" Color="#38BDF8" />
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource NeonInk.NavigationColor}" />
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource NeonInk.PrimaryTextColor}" />
     <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource NeonInk.SecondaryTextColor}" />
@@ -82,4 +103,9 @@
         <GradientStop Color="{StaticResource NeonInk.BaseColor}" Offset="0.55" />
         <GradientStop Color="{StaticResource NeonInk.SoftColor}" Offset="1" />
     </LinearGradientBrush>
+
+    <DropShadowEffect x:Key="NeonInk.SubtleCyanGlow" Color="{StaticResource NeonInk.InfoGlowColor}" BlurRadius="14" ShadowDepth="0" Opacity="0.24" />
+    <DropShadowEffect x:Key="NeonInk.SuccessGlow" Color="{StaticResource NeonInk.SuccessGlowColor}" BlurRadius="14" ShadowDepth="0" Opacity="0.22" />
+    <DropShadowEffect x:Key="NeonInk.CautionGlow" Color="{StaticResource NeonInk.CautionGlowColor}" BlurRadius="12" ShadowDepth="0" Opacity="0.2" />
+    <DropShadowEffect x:Key="NeonInk.CriticalGlow" Color="{StaticResource NeonInk.CriticalGlowColor}" BlurRadius="16" ShadowDepth="0" Opacity="0.26" />
 </ResourceDictionary>
