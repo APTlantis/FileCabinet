@@ -5,7 +5,7 @@
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "tags": [
       "local-first",
       "desktop",
@@ -22,7 +22,7 @@
   },
   "metadata": {
     "created": "2026-05-23",
-    "last_updated": "2026-06-10",
+    "last_updated": "2026-06-11",
     "maintainer": "APTlantis",
     "license": "Unspecified",
     "language_primary": "VB.NET",
@@ -59,14 +59,16 @@
       "WiX Toolset 6.0.2",
       "Blake3 2.2.1",
       "StreamHash 1.11.3",
+      "System.IO.Hashing 10.0.5",
       "MSTest"
     ]
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi",
+      "artifacts/installer/FileCabinet-1.7.1.0-win-x64.msi",
       "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
       "docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
+      "docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md",
       "Assets/FileCabinet.ico",
       "Assets/FileCabinetLogoMark.png",
       "Assets/MaterialSymbolsIconMap.md",
@@ -85,41 +87,41 @@
     ]
   },
   "release": {
-    "version": "1.7.0",
-    "name": "FileCabinet v1.7.0 — Vault Health and Iconography Release",
+    "version": "1.7.1",
+    "name": "FileCabinet v1.7.1 — Hash Compatibility Patch",
     "date": "2026-06-11",
     "installer": {
-      "path": "artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi",
+      "path": "artifacts/installer/FileCabinet-1.7.1.0-win-x64.msi",
       "runtime": "win-x64",
-      "package_version": "1.7.0.0",
-      "size_bytes": 127877120,
-      "sha256": "b4959b990408d902ded07da35e3e4ea95fa211038ce5924fa0fdbb12b38eee82",
-      "blake3": "264e282d39659bc0f43d9ae93dd36119196db7f566e68cfa67b99dda03f49c90",
-      "kangaroo12": "2685ac125ba94ffb1a7eab9643db00e0b956fbe63f4d7324ddb7fcee768cbdc1"
+      "package_version": "1.7.1.0",
+      "size_bytes": 0,
+      "sha256": "",
+      "blake3": "",
+      "kangaroo12": ""
     },
     "signatures": {
       "pq": {
-        "path": "artifacts/installer/FileCabinet-1.7.0.0-win-x64.pq.sig",
+        "path": "artifacts/installer/FileCabinet-1.7.1.0-win-x64.pq.sig",
         "algorithm": "SPHINCS+",
-        "size_bytes": 17088,
-        "sha256": "7be43edb78ea10ef88ef81f5cb5d41939ceb98d894bbf49473409fe43c87f6ec",
-        "blake3": "9ad3fd1d0b7de88bc0a3e294e511e232094ab679a6db7a8aea1892837ea8a632",
-        "kangaroo12": "4033afe0f56bd049aac06f1900b6ae3001d495bb49355d23356913e6d5331e40",
-        "status": "created by ReleaseHasher sign-pq"
+        "size_bytes": 0,
+        "sha256": "",
+        "blake3": "",
+        "kangaroo12": "",
+        "status": "pending ReleaseHasher sign-pq"
       },
       "pgp": {
         "path": "",
         "algorithm": "PGP",
         "status": "not generated",
-        "detail": "v1.7.0 validation generated the detached post-quantum signature; PGP signing was not attempted for this release."
+        "detail": "v1.7.1 installer validation has not generated a detached PGP signature."
       }
     },
     "verified": {
       "date": "2026-06-11",
-      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 93 tests",
-      "installer_build": "installer/build-installer.ps1 -Version 1.7.0.0 completed",
-      "release_hashing": "ReleaseHasher hash completed for artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi",
-      "release_signing": "ReleaseHasher sign-pq completed"
+      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 98 tests",
+      "installer_build": "pending installer/build-installer.ps1 -Version 1.7.1.0",
+      "release_hashing": "pending ReleaseHasher hash for artifacts/installer/FileCabinet-1.7.1.0-win-x64.msi",
+      "release_signing": "pending ReleaseHasher sign-pq"
     }
   },
   "datasets": [
@@ -150,7 +152,7 @@
   "documentation": {
     "writerside_topic": "",
     "readme": "README.md",
-    "release_notes": "docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
+    "release_notes": "docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md",
     "theme_overview": "docs/NeonInk-Theme-Integration-Overview.md",
     "core_docs": [
       "docs/FileCabinet — Vault Lifecycle.md",
@@ -175,14 +177,14 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.7.0.0; release-hasher hash artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi; release-hasher sign-pq artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi --key D:/200-CTS/230-HASHING/ReleaseHasher/mykey.sec",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.7.0.0-win-x64.msi and artifacts/installer/FileCabinet-1.7.0.0-win-x64.pq.sig to the GitHub v1.7.0 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.7.1.0; release-hasher hash artifacts/installer/FileCabinet-1.7.1.0-win-x64.msi; release-hasher sign-pq artifacts/installer/FileCabinet-1.7.1.0-win-x64.msi --key D:/200-CTS/230-HASHING/ReleaseHasher/mykey.sec",
+    "deploy": "Publish artifacts/installer/FileCabinet-1.7.1.0-win-x64.msi and artifacts/installer/FileCabinet-1.7.1.0-win-x64.pq.sig to the GitHub v1.7.1 release.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
       "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
+      "Include release notes from docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md",
       "Generate ARHS hashes with D:/200-CTS/230-HASHING/ReleaseHasher",
       "Sign release artifact with ReleaseHasher PQ key",
       "Publish the detached post-quantum signature"
@@ -210,14 +212,16 @@
       "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
       "Preview and activity accents were refreshed to match Neon Ink semantics",
       "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
-      "Application, CLI, and manifest version updated to 1.7.0",
+      "Application, CLI, and manifest version updated to 1.7.1",
+      "Added 24 optional compatibility hashes and checksums across archival, legacy, and fast hash families",
+      "New non-legacy hash values are stored in the extensible artifact hashes dictionary",
       "Active hash computation now respects Settings across ingest, health, repair, rescan, and headless paths",
       "Details shows dynamic hash rows for all supported algorithms",
       "Vault Health promoted to a right-panel tab with findings, repair candidates, progress, actions, and repair history",
       "Material Symbols source vocabulary mapped to category-specific artifact list and preview icons",
       "Borderless maximize now respects the Windows taskbar work area",
       "Release verification references ARHS at D:/010-CITY-HALL/ARHS and ReleaseHasher at D:/200-CTS/230-HASHING/ReleaseHasher",
-      "FileCabinet-1.7.0.0-win-x64.msi was built, ARHS-hashed, and PQ-signed on 2026-06-11"
+      "FileCabinet-1.7.1.0-win-x64.msi build, ARHS hash, and PQ signing are pending"
     ],
     "not_in_scope": [
       "Automatic restore execution",
@@ -230,6 +234,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 93 tests on 2026-06-11; installer/build-installer.ps1 -Version 1.7.0.0 completed; ReleaseHasher hash and sign-pq completed"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --no-restore passed 98 tests on 2026-06-11; installer build, ReleaseHasher hash, and sign-pq pending for 1.7.1"
   }
 }

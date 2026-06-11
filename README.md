@@ -290,8 +290,8 @@ FileCabinet's preservation model is documented in:
 
 ### Release Notes
 
-- [v1.7.0 — Vault Health and Iconography Release](docs/FileCabinet%20v1.7.0%20%E2%80%94%20Vault%20Health%20and%20Iconography%20Release.md)
 - [v1.7.1 — Hash Compatibility Patch](docs/FileCabinet%20v1.7.1%20%E2%80%94%20Hash%20Compatibility%20Patch.md)
+- [v1.7.0 — Vault Health and Iconography Release](docs/FileCabinet%20v1.7.0%20%E2%80%94%20Vault%20Health%20and%20Iconography%20Release.md)
 - [v1.4.4 — Neon Ink Theme Patch](docs/FileCabinet%20v1.4.4%20%E2%80%94%20Neon%20Ink%20Theme%20Patch.md)
 - [v1.6.0 — Health and Settings Release](docs/FileCabinet%20v1.6.0%20%E2%80%94%20Health%20and%20Settings%20Release.md)
 - [v1.4.3 — Quality Gate and Installer Patch](docs/FileCabinet%20v1.4.3%20%E2%80%94%20Quality%20Gate%20and%20Installer%20Patch.md)
