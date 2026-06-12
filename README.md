@@ -20,7 +20,7 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 Current version: **FileCabinet v1.7.2**.
 
-The v1.7.2 patch hardens repair and hash verification for very large retained files, reduces repeated large-file reads during explicit hashing, and aligns release metadata after the recent repair workflow updates.
+The v1.7.2 patch hardens repair and hash verification for very large retained files, adds a comprehensive Analyze & Fix Health tab for moved-vault repair, and aligns release metadata after the repair workflow updates.
 
 Release notes:
 
@@ -291,7 +291,7 @@ FileCabinet's preservation model is documented in:
 
 ### Release Notes
 
-- [v1.7.2 — Repair Scalability Patch](docs/FileCabinet%20v1.7.2%20%E2%80%94%20Repair%20Scalability%20Patch.md)
+- [v1.7.2 — Repair Scalability and Analyze/Fix Patch](docs/FileCabinet%20v1.7.2%20%E2%80%94%20Repair%20Scalability%20Patch.md)
 - [v1.7.1 — Hash Compatibility Patch](docs/FileCabinet%20v1.7.1%20%E2%80%94%20Hash%20Compatibility%20Patch.md)
 - [v1.7.0 — Vault Health and Iconography Release](docs/FileCabinet%20v1.7.0%20%E2%80%94%20Vault%20Health%20and%20Iconography%20Release.md)
 - [v1.4.4 — Neon Ink Theme Patch](docs/FileCabinet%20v1.4.4%20%E2%80%94%20Neon%20Ink%20Theme%20Patch.md)

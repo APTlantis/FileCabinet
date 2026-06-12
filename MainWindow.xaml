@@ -1025,69 +1025,99 @@
                                     </StackPanel>
 
                                     <StackPanel Visibility="{Binding IsHealthTabSelected, Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Text="Vault Health" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="11" Margin="0,0,0,8" />
+                                    <TextBlock Text="Vault Analyze &amp; Fix" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="11" Margin="0,0,0,8" />
                                     <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.SuccessBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
                                         <StackPanel>
-                                            <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,4" />
+                                            <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,4" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding VaultHealthBreakdown}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,0,0,8" />
                                             <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,0,0,3" />
                                             <TextBlock Text="{Binding VaultMaintenanceDetail}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" />
                                             <WrapPanel Margin="0,12,0,0">
                                                 <Button Content="Analyze" Command="{Binding RepairCatalogCommand}" ToolTip="Analyze vault health without mutating files" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
-                                                <Button Content="Rescan" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Select Safe" Command="{Binding SelectSafeRepairCandidatesCommand}" ToolTip="Select safe default repairs: path rebinds and generated thumbnails" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Clear" Command="{Binding ClearRepairSelectionCommand}" ToolTip="Clear selected repair candidates" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
                                                 <Button Content="Apply Selected" Click="ApplyRepairCandidatesButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
-                                                <Button Content="Backup" Command="{Binding BackupCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Rescan Orphans" Command="{Binding RescanVaultCommand}" ToolTip="Discover/adopt orphan stored files and recover generated assets" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
                                             </WrapPanel>
+                                            <TextBlock Text="{Binding SelectedRepairSummary}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,4,0,0" />
                                         </StackPanel>
                                     </Border>
 
-                                    <TextBlock Text="Findings" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
                                     <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,12">
-                                        <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
-                                            <ItemsControl ItemsSource="{Binding VaultHealthFindings}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="0,0,0,10">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="Auto" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <StackPanel>
-                                                                <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                                <TextBlock Text="{Binding Subject}" Style="{StaticResource SmallLabel}" TextTrimming="CharacterEllipsis" />
-                                                                <TextBlock Text="{Binding Detail}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
-                                                            </StackPanel>
-                                                            <TextBlock Grid.Column="1" Text="{Binding RiskLevel}" Foreground="{StaticResource AccentBrush}" FontSize="11" Margin="8,0,0,0" />
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </ScrollViewer>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="Vault State" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
+                                            <Grid Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="64" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="Vault" Style="{StaticResource SmallLabel}" />
+                                                <TextBlock Grid.Column="1" Text="{Binding VaultRootPath}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding VaultRootPath}" />
+                                                <TextBlock Grid.Row="1" Text="Catalog" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CatalogPath}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding CatalogPath}" Margin="0,7,0,0" />
+                                                <TextBlock Grid.Row="2" Text="Backup" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
+                                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LastBackupDisplay}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding LastBackupDisplay}" Margin="0,7,0,0" />
+                                            </Grid>
+                                            <Button Grid.Row="2" Content="Backup Catalog" Command="{Binding BackupCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" HorizontalAlignment="Left" Margin="0,10,0,0" />
+                                        </Grid>
                                     </Border>
 
-                                    <TextBlock Text="Repair Candidates" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
-                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,12">
-                                        <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto">
-                                            <ItemsControl ItemsSource="{Binding RepairCandidates}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="0,0,0,10">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto" />
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="Auto" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding CanRepairAutomatically}" Margin="0,0,8,0" VerticalAlignment="Top" />
-                                                            <StackPanel Grid.Column="1">
-                                                                <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                                <TextBlock Text="{Binding ProposedAction}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
-                                                            </StackPanel>
-                                                            <TextBlock Grid.Column="2" Text="{Binding ActionType}" Foreground="{StaticResource AccentBrush}" FontSize="11" Margin="8,0,0,0" />
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </ScrollViewer>
-                                    </Border>
+                                    <TextBlock Text="Findings" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
+                                    <ScrollViewer MaxHeight="230" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,0,12">
+                                        <DataGrid ItemsSource="{Binding VaultHealthFindings}" MinWidth="760" IsReadOnly="True" AutoGenerateColumns="False" CanUserAddRows="False">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Risk" Binding="{Binding RiskLevel}" Width="70" />
+                                                <DataGridTextColumn Header="Type" Binding="{Binding FindingType}" Width="140" />
+                                                <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="170" />
+                                                <DataGridTextColumn Header="Detail" Binding="{Binding Detail}" Width="230" />
+                                                <DataGridTextColumn Header="Proposed Action" Binding="{Binding ProposedAction}" Width="260" />
+                                                <DataGridCheckBoxColumn Header="Catalog" Binding="{Binding MutatesCatalog}" Width="70" />
+                                                <DataGridCheckBoxColumn Header="Files" Binding="{Binding TouchesRetainedFiles}" Width="60" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="120" />
+                                            <ColumnDefinition Width="8" />
+                                            <ColumnDefinition Width="120" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Repair Candidates" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                                        <ComboBox Grid.Column="1" ItemsSource="{Binding FindingTypeFilterOptions}" SelectedItem="{Binding FindingTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorComboBox}" Height="30" />
+                                        <ComboBox Grid.Column="3" ItemsSource="{Binding RepairCandidateFilterOptions}" SelectedItem="{Binding RepairCandidateFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorComboBox}" Height="30" />
+                                    </Grid>
+                                    <ScrollViewer MaxHeight="260" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,0,0,12">
+                                        <DataGrid ItemsSource="{Binding FilteredRepairCandidates}" MinWidth="840" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn Header="Apply" Width="58">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanRepairAutomatically}" HorizontalAlignment="Center" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTextColumn Header="Action" Binding="{Binding ActionType}" Width="130" IsReadOnly="True" />
+                                                <DataGridTextColumn Header="Type" Binding="{Binding FindingType}" Width="140" IsReadOnly="True" />
+                                                <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="160" IsReadOnly="True" />
+                                                <DataGridTextColumn Header="Proposed Action" Binding="{Binding ProposedAction}" Width="260" IsReadOnly="True" />
+                                                <DataGridTextColumn Header="Selection / Result" Binding="{Binding SelectionState}" Width="150" IsReadOnly="True" />
+                                                <DataGridCheckBoxColumn Header="Catalog" Binding="{Binding MutatesCatalog}" Width="70" IsReadOnly="True" />
+                                                <DataGridCheckBoxColumn Header="Files" Binding="{Binding TouchesRetainedFiles}" Width="60" IsReadOnly="True" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
 
                                     <TextBlock Text="Repair History" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
                                     <ItemsControl ItemsSource="{Binding RepairHistory}">
@@ -1097,11 +1127,16 @@
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="70" />
                                                         <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Text="{Binding Result}" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                    <StackPanel Grid.Column="1">
+                                                    <StackPanel Grid.Column="1" Margin="8,0,8,0">
                                                         <TextBlock Text="{Binding Subject}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
                                                         <TextBlock Text="{Binding Detail}" Style="{StaticResource SmallLabel}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding ActionType}" Style="{StaticResource SmallLabel}" FontSize="11" HorizontalAlignment="Right" />
+                                                        <TextBlock Text="{Binding Timestamp}" Style="{StaticResource SmallLabel}" FontSize="11" HorizontalAlignment="Right" />
                                                     </StackPanel>
                                                 </Grid>
                                             </DataTemplate>
@@ -1376,72 +1411,21 @@
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupDisplay}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
 
                                     <Border Grid.Row="4" Grid.ColumnSpan="2" Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="8">
-                                        <ScrollViewer MaxHeight="88" VerticalScrollBarVisibility="Auto">
-                                            <ItemsControl ItemsSource="{Binding RepairCandidates}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="0,0,0,10">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="Auto" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <StackPanel>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding CanRepairAutomatically}" Margin="0,0,6,0" VerticalAlignment="Center" />
-                                                                    <TextBlock Text="{Binding FindingType}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                                </StackPanel>
-                                                                <TextBlock Text="{Binding Subject}" Style="{StaticResource SmallLabel}" TextTrimming="CharacterEllipsis" />
-                                                                <TextBlock Text="{Binding ActionType}" Foreground="{StaticResource AccentBrush}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
-                                                                <TextBlock Text="{Binding ProposedAction}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,0" />
-                                                            </StackPanel>
-                                                            <StackPanel Grid.Column="1" Margin="8,0,0,0" HorizontalAlignment="Right">
-                                                                <TextBlock Text="{Binding RiskLevel}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
-                                                                <TextBlock Text="{Binding ApprovalText}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" Margin="0,3,0,0" />
-                                                                <TextBlock Text="{Binding MutatesCatalog, StringFormat=Catalog: {0}}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" Margin="0,3,0,0" />
-                                                                <TextBlock Text="{Binding TouchesRetainedFiles, StringFormat=Files: {0}}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
-                                                            </StackPanel>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </ScrollViewer>
+                                        <StackPanel>
+                                            <TextBlock Text="Selected Repairs" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding SelectedRepairSummary}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                        </StackPanel>
                                     </Border>
 
                                     <Border Grid.Row="5" Grid.ColumnSpan="2" Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0" Padding="8">
-                                        <StackPanel>
-                                            <Grid Margin="0,0,0,6">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="Repair History" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" />
-                                                <TextBlock Grid.Column="1" Text="{Binding RepairHistorySummary}" Style="{StaticResource SmallLabel}" FontSize="11" />
-                                            </Grid>
-                                            <ScrollViewer MaxHeight="76" VerticalScrollBarVisibility="Auto">
-                                                <ItemsControl ItemsSource="{Binding RepairHistory}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid Margin="0,0,0,8">
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="70" />
-                                                                    <ColumnDefinition Width="*" />
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                </Grid.ColumnDefinitions>
-                                                                <TextBlock Text="{Binding Result}" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                                                <StackPanel Grid.Column="1" Margin="8,0,8,0">
-                                                                    <TextBlock Text="{Binding Subject}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
-                                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource SmallLabel}" FontSize="11" TextTrimming="CharacterEllipsis" />
-                                                                </StackPanel>
-                                                                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
-                                                                    <TextBlock Text="{Binding ActionType}" Style="{StaticResource SmallLabel}" FontSize="11" HorizontalAlignment="Right" />
-                                                                    <TextBlock Text="{Binding Timestamp}" Style="{StaticResource SmallLabel}" FontSize="11" HorizontalAlignment="Right" />
-                                                                </StackPanel>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </ScrollViewer>
-                                        </StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Repair History" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" />
+                                            <TextBlock Grid.Column="1" Text="{Binding RepairHistorySummary}" Style="{StaticResource SmallLabel}" FontSize="11" />
+                                        </Grid>
                                     </Border>
                                 </Grid>
 

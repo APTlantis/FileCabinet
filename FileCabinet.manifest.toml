@@ -89,15 +89,15 @@ consumes = [
 
 [release]
 version = "1.7.2"
-name = "FileCabinet v1.7.2 — Repair Scalability Patch"
+name = "FileCabinet v1.7.2 — Repair Scalability and Analyze/Fix Patch"
 date = "2026-06-12"
 
 [release.installer]
 path = "artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi"
 runtime = "win-x64"
 package_version = "1.7.2.0"
-size_bytes = 127893504
-sha256 = "9C14866B2CAB42C1B92DAEC08C12BF3C6E7F9E7617A4DE41C1D6AFAF66C7F13D"
+size_bytes = 127905792
+sha256 = "04572DF20C96A1E618338DD614FC3E627FA59D6386A6FD2867EE692A7EEF888F"
 blake3 = ""
 kangaroo12 = ""
 
@@ -118,7 +118,7 @@ detail = "v1.7.2 installer validation has not generated a detached PGP signature
 
 [release.verified]
 date = "2026-06-12"
-tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 100 tests"
+tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 102 tests"
 installer_build = "installer/build-installer.ps1 -Version 1.7.2.0 completed"
 release_hashing = "Get-FileHash -Algorithm SHA256 completed for artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi"
 release_signing = "not generated for this SHA-256-only patch release"
@@ -212,6 +212,7 @@ current_highlights = [
   "Active hash computation now respects Settings across ingest, health, repair, rescan, and headless paths",
   "Details shows dynamic hash rows for all supported algorithms",
   "Vault Health promoted to a right-panel tab with findings, repair candidates, progress, actions, and repair history",
+  "Health tab now provides a comprehensive Analyze & Fix workspace with grouped findings, repairable/review-only counts, filters, safe selection controls, and bulk path rebind support",
   "Material Symbols source vocabulary mapped to category-specific artifact list and preview icons",
   "Borderless maximize now respects the Windows taskbar work area",
   "Release verification for v1.7.2 records SHA-256 only with Get-FileHash",
@@ -232,4 +233,4 @@ design_boundaries = [
   "Inspectable metadata over opaque ranking",
   "Repairable local vault state over cloud dependency"
 ]
-last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 100 tests on 2026-06-12; installer/build-installer.ps1 -Version 1.7.2.0 completed; SHA-256 recorded with Get-FileHash; signing not generated"
+last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 102 tests on 2026-06-12; installer/build-installer.ps1 -Version 1.7.2.0 completed; SHA-256 recorded with Get-FileHash; signing not generated"

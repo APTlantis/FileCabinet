@@ -451,6 +451,31 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub RepairCandidateSelectionDefaultsToSafeCatalogAndGeneratedAssetRepairs()
+            Dim rebind = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {
+                .FindingType = "Path rebind candidate"
+            })
+            Dim thumbnail = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {
+                .FindingType = "Missing thumbnail"
+            })
+            Dim missingHash = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {
+                .FindingType = "Missing hash"
+            })
+            Dim reviewOnly = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {
+                .FindingType = "Hash mismatch"
+            })
+
+            Assert.IsTrue(rebind.CanRepairAutomatically)
+            Assert.IsTrue(rebind.IsSelected)
+            Assert.IsTrue(thumbnail.CanRepairAutomatically)
+            Assert.IsTrue(thumbnail.IsSelected)
+            Assert.IsTrue(missingHash.CanRepairAutomatically)
+            Assert.IsFalse(missingHash.IsSelected)
+            Assert.IsFalse(reviewOnly.CanRepairAutomatically)
+            Assert.IsFalse(reviewOnly.IsSelected)
+        End Sub
+
+        <TestMethod>
         Sub RepairReportDerivesCountsFromExistingHealthReport()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim vaultRoot = Path.Combine(workspace, "vault")

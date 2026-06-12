@@ -276,6 +276,49 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub RepairApplyRebindsMultipleMovedVaultPathsInOneBatch()
+            Dim workspace = TestWorkspace()
+
+            Try
+                Dim catalogService = CreateCatalogService(workspace)
+                Dim catalog = catalogService.LoadOrCreate()
+                Dim expectedPaths As New List(Of String)
+
+                For index = 1 To 3
+                    Dim storedPath = Path.Combine(catalog.VaultRootPath, "items", $"moved-{index}.txt")
+                    Directory.CreateDirectory(Path.GetDirectoryName(storedPath))
+                    File.WriteAllText(storedPath, $"moved vault content {index}")
+                    Dim hashes = New Global.FileCabinet.HashService().ComputeHashes(storedPath)
+                    expectedPaths.Add(storedPath)
+                    catalog.Artifacts.Add(New Global.FileCabinet.ArtifactModel With {
+                        .Name = $"moved-{index}.txt",
+                        .Path = Path.Combine(workspace, "old-k-drive", "items", $"moved-{index}.txt"),
+                        .RelativePath = Path.GetRelativePath(catalog.VaultRootPath, storedPath),
+                        .Sha256 = hashes.Sha256,
+                        .Blake3 = hashes.Blake3,
+                        .KangarooTwelve = hashes.KangarooTwelve,
+                        .HashStatus = "Verified"
+                    })
+                Next
+
+                catalogService.Save(catalog)
+
+                Dim service = CreateService(workspace)
+                Dim preview = service.RepairPreview()
+                Dim rebindCandidates = preview.RepairCandidates.Where(Function(item) item.ActionType = "RebindPath").ToList()
+                Dim result = service.Repair(apply:=True)
+                Dim reloaded = service.LoadCatalog()
+
+                Assert.AreEqual(3, rebindCandidates.Count)
+                Assert.IsTrue(rebindCandidates.All(Function(item) item.IsSelected))
+                Assert.AreEqual(3, result.AppliedCount)
+                CollectionAssert.AreEquivalent(expectedPaths, reloaded.Artifacts.Select(Function(item) item.Path).ToList())
+            Finally
+                DeleteWorkspace(workspace)
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub RescanPreviewAndApplyAdoptsOrphanStoredFile()
             Dim workspace = TestWorkspace()
 

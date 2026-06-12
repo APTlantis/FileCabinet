@@ -74,6 +74,9 @@ Public Class MainViewModel
     Private _isRefreshingFilters As Boolean
     Private _isSettingsVisible As Boolean
     Private _isVaultHealthVisible As Boolean
+    Private _hasVaultHealthAnalysis As Boolean
+    Private _repairCandidateFilter As String = "All"
+    Private _findingTypeFilter As String = "All"
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
@@ -89,6 +92,7 @@ Public Class MainViewModel
     Public Property RepairHistory As New ObservableCollection(Of RepairLogEntry)
     Public Property HelpDocuments As New ObservableCollection(Of HelpDocumentModel)
     Private _filteredTags As ICollectionView
+    Private _filteredRepairCandidates As ICollectionView
     Public Property ClearFiltersCommand As ICommand
     Public Property ShowAllItemsCommand As ICommand
     Public Property ShowRecentCommand As ICommand
@@ -122,6 +126,8 @@ Public Class MainViewModel
     Public Property RepairCatalogCommand As ICommand
     Public Property RescanVaultCommand As ICommand
     Public Property ApplySelectedRepairCandidatesCommand As ICommand
+    Public Property SelectSafeRepairCandidatesCommand As ICommand
+    Public Property ClearRepairSelectionCommand As ICommand
     Public Property SortByNameCommand As ICommand
     Public Property SortByDateCommand As ICommand
     Public Property ToggleDensityCommand As ICommand
@@ -169,7 +175,9 @@ Public Class MainViewModel
         BackupCatalogCommand = New RelayCommand(Sub(parameter) BackupCatalog())
         RepairCatalogCommand = New AsyncRelayCommand(Function(parameter) RepairCatalogAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
         RescanVaultCommand = New AsyncRelayCommand(Function(parameter) RescanVaultAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
-        ApplySelectedRepairCandidatesCommand = New AsyncRelayCommand(Function(parameter) ApplySelectedRepairCandidatesAsync(), Function(parameter) Not IsVaultMaintenanceRunning AndAlso RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically), AddressOf HandleAsyncCommandException)
+        ApplySelectedRepairCandidatesCommand = New AsyncRelayCommand(Function(parameter) ApplySelectedRepairCandidatesAsync(), Function(parameter) Not IsVaultMaintenanceRunning AndAlso RepairCandidates.Any(Function(candidate) candidate.IsSelected AndAlso candidate.CanRepairAutomatically), AddressOf HandleAsyncCommandException)
+        SelectSafeRepairCandidatesCommand = New RelayCommand(Sub(parameter) SelectSafeRepairCandidates(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
+        ClearRepairSelectionCommand = New RelayCommand(Sub(parameter) ClearRepairSelection(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.IsSelected))
         SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
@@ -251,6 +259,46 @@ Public Class MainViewModel
             If Not ReferenceEquals(_filteredTags, value) Then
                 _filteredTags = value
                 OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
+    Public Property FilteredRepairCandidates As ICollectionView
+        Get
+            Return _filteredRepairCandidates
+        End Get
+        Private Set(value As ICollectionView)
+            If Not ReferenceEquals(_filteredRepairCandidates, value) Then
+                _filteredRepairCandidates = value
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
+    Public Property RepairCandidateFilter As String
+        Get
+            Return _repairCandidateFilter
+        End Get
+        Set(value As String)
+            Dim normalized = If(String.IsNullOrWhiteSpace(value), "All", value)
+            If _repairCandidateFilter <> normalized Then
+                _repairCandidateFilter = normalized
+                OnPropertyChanged()
+                RefreshRepairCandidateView()
+            End If
+        End Set
+    End Property
+
+    Public Property FindingTypeFilter As String
+        Get
+            Return _findingTypeFilter
+        End Get
+        Set(value As String)
+            Dim normalized = If(String.IsNullOrWhiteSpace(value), "All", value)
+            If _findingTypeFilter <> normalized Then
+                _findingTypeFilter = normalized
+                OnPropertyChanged()
+                RefreshRepairCandidateView()
             End If
         End Set
     End Property
@@ -952,11 +1000,65 @@ Public Class MainViewModel
 
     Public ReadOnly Property VaultHealthSummary As String
         Get
-            If RepairCandidates.Count = 0 Then
+            If Not _hasVaultHealthAnalysis Then
                 Return "No health analysis run"
             End If
 
-            Return $"{RepairCandidates.Count:N0} repair candidate(s)"
+            Dim findings = VaultHealthFindings.Count
+            Dim repairable = RepairCandidates.Where(Function(candidate) candidate.CanRepairAutomatically).Count()
+            Dim reviewOnly = RepairCandidates.Count - repairable
+            Dim selected = RepairCandidates.Where(Function(candidate) candidate.IsSelected).Count()
+            Return $"{findings:N0} finding(s), {repairable:N0} repairable, {reviewOnly:N0} review-only, {selected:N0} selected"
+        End Get
+    End Property
+
+    Public ReadOnly Property VaultHealthBreakdown As String
+        Get
+            If Not _hasVaultHealthAnalysis Then
+                Return "Analysis pending"
+            End If
+
+            If VaultHealthFindings.Count = 0 Then
+                Return "Analysis complete: no findings."
+            End If
+
+            Dim groups = VaultHealthFindings.
+                GroupBy(Function(finding) finding.FindingType).
+                OrderBy(Function(group) group.Key).
+                Select(Function(group) $"{group.Count():N0} {group.Key}")
+
+            Return String.Join("  |  ", groups)
+        End Get
+    End Property
+
+    Public ReadOnly Property SelectedRepairSummary As String
+        Get
+            Dim selected = RepairCandidates.Where(Function(candidate) candidate.IsSelected).ToList()
+            If selected.Count = 0 Then
+                Return "No repair candidates selected"
+            End If
+
+            Dim repairable = selected.Where(Function(candidate) candidate.CanRepairAutomatically).Count()
+            Dim reviewOnly = selected.Count - repairable
+            Return $"{repairable:N0} selected safe repair(s); {reviewOnly:N0} selected review-only row(s) will be skipped"
+        End Get
+    End Property
+
+    Public ReadOnly Property RepairCandidateFilterOptions As IEnumerable(Of String)
+        Get
+            Return {"All", "Repairable", "Review-only", "Selected", "Unselected"}
+        End Get
+    End Property
+
+    Public ReadOnly Property FindingTypeFilterOptions As IEnumerable(Of String)
+        Get
+            Dim options As New List(Of String) From {"All"}
+            options.AddRange(VaultHealthFindings.
+                Select(Function(finding) finding.FindingType).
+                Where(Function(value) Not String.IsNullOrWhiteSpace(value)).
+                Distinct(StringComparer.OrdinalIgnoreCase).
+                OrderBy(Function(value) value))
+            Return options
         End Get
     End Property
 
@@ -1780,7 +1882,7 @@ Public Class MainViewModel
             VaultMaintenanceStatus = "Analysis complete"
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = _repairStatus
-            ShowSettings()
+            RightPanelTab = "Health"
         Catch ex As Exception
             VaultMaintenanceStatus = "Analysis failed"
             VaultMaintenanceDetail = ex.Message
@@ -1829,7 +1931,7 @@ Public Class MainViewModel
             VaultMaintenanceStatus = "Rescan complete"
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = $"Rescan complete: {_repairStatus}"
-            ShowSettings()
+            RightPanelTab = "Health"
         Catch ex As Exception
             VaultMaintenanceStatus = "Rescan failed"
             VaultMaintenanceDetail = ex.Message
@@ -3256,17 +3358,93 @@ Public Class MainViewModel
     End Sub
 
     Private Sub PublishVaultHealthReport(report As VaultHealthReport)
+        For Each candidate In RepairCandidates
+            RemoveHandler candidate.PropertyChanged, AddressOf RepairCandidate_PropertyChanged
+        Next
+
+        _hasVaultHealthAnalysis = True
         VaultHealthFindings.Clear()
         RepairCandidates.Clear()
 
         If report IsNot Nothing Then
             For Each finding In report.Findings
+                Dim candidate = BuildRepairCandidate(finding)
                 VaultHealthFindings.Add(finding)
-                RepairCandidates.Add(BuildRepairCandidate(finding))
+                AddHandler candidate.PropertyChanged, AddressOf RepairCandidate_PropertyChanged
+                RepairCandidates.Add(candidate)
             Next
         End If
 
+        If FilteredRepairCandidates Is Nothing Then
+            FilteredRepairCandidates = CollectionViewSource.GetDefaultView(RepairCandidates)
+            FilteredRepairCandidates.Filter = AddressOf FilterRepairCandidate
+        End If
+
+        RefreshRepairCandidateView()
         OnPropertyChanged(NameOf(VaultHealthSummary))
+        OnPropertyChanged(NameOf(VaultHealthBreakdown))
+        OnPropertyChanged(NameOf(SelectedRepairSummary))
+        OnPropertyChanged(NameOf(FindingTypeFilterOptions))
+        RaiseRepairCandidateCommandState()
+    End Sub
+
+    Private Sub RepairCandidate_PropertyChanged(sender As Object, e As PropertyChangedEventArgs)
+        If String.Equals(e.PropertyName, NameOf(RepairCandidate.IsSelected), StringComparison.OrdinalIgnoreCase) Then
+            OnPropertyChanged(NameOf(VaultHealthSummary))
+            OnPropertyChanged(NameOf(SelectedRepairSummary))
+            RefreshRepairCandidateView()
+            RaiseRepairCandidateCommandState()
+        End If
+    End Sub
+
+    Private Function FilterRepairCandidate(candidateObject As Object) As Boolean
+        Dim candidate = TryCast(candidateObject, RepairCandidate)
+        If candidate Is Nothing Then
+            Return False
+        End If
+
+        If Not String.Equals(FindingTypeFilter, "All", StringComparison.OrdinalIgnoreCase) AndAlso
+            Not String.Equals(candidate.FindingType, FindingTypeFilter, StringComparison.OrdinalIgnoreCase) Then
+            Return False
+        End If
+
+        Select Case If(RepairCandidateFilter, "All").Trim().ToLowerInvariant()
+            Case "repairable"
+                Return candidate.CanRepairAutomatically
+            Case "review-only"
+                Return Not candidate.CanRepairAutomatically
+            Case "selected"
+                Return candidate.IsSelected
+            Case "unselected"
+                Return Not candidate.IsSelected
+            Case Else
+                Return True
+        End Select
+    End Function
+
+    Private Sub RefreshRepairCandidateView()
+        If FilteredRepairCandidates IsNot Nothing Then
+            FilteredRepairCandidates.Refresh()
+        End If
+    End Sub
+
+    Private Sub SelectSafeRepairCandidates()
+        For Each candidate In RepairCandidates
+            candidate.IsSelected = IsSafeDefaultRepairCandidate(candidate.ActionType)
+        Next
+
+        OnPropertyChanged(NameOf(VaultHealthSummary))
+        OnPropertyChanged(NameOf(SelectedRepairSummary))
+        RaiseRepairCandidateCommandState()
+    End Sub
+
+    Private Sub ClearRepairSelection()
+        For Each candidate In RepairCandidates
+            candidate.IsSelected = False
+        Next
+
+        OnPropertyChanged(NameOf(VaultHealthSummary))
+        OnPropertyChanged(NameOf(SelectedRepairSummary))
         RaiseRepairCandidateCommandState()
     End Sub
 
@@ -3354,6 +3532,7 @@ Public Class MainViewModel
             VaultMaintenanceStatus = "Repairs complete"
             VaultMaintenanceDetail = healthReport.Summary
             ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed; {skipped:N0} skipped"
+            RightPanelTab = "Health"
         Catch ex As Exception
             VaultMaintenanceStatus = "Repair failed"
             VaultMaintenanceDetail = ex.Message
@@ -3547,12 +3726,16 @@ Public Class MainViewModel
 
     Private Sub RaiseRepairCandidateCommandState()
         RaiseCommandState(ApplySelectedRepairCandidatesCommand)
+        RaiseCommandState(SelectSafeRepairCandidatesCommand)
+        RaiseCommandState(ClearRepairSelectionCommand)
     End Sub
 
     Private Sub RaiseMaintenanceCommandState()
         RaiseCommandState(RepairCatalogCommand)
         RaiseCommandState(RescanVaultCommand)
         RaiseCommandState(ApplySelectedRepairCandidatesCommand)
+        RaiseCommandState(SelectSafeRepairCandidatesCommand)
+        RaiseCommandState(ClearRepairSelectionCommand)
         RaiseCommandState(HashCheckCommand)
         RaiseCommandState(RefreshCommand)
     End Sub
@@ -3604,7 +3787,7 @@ Public Class MainViewModel
             .ActionType = actionType,
             .CanRepairAutomatically = IsAutomaticRepairCandidate(actionType),
             .RequiresOperatorApproval = True,
-            .IsSelected = String.Equals(actionType, "RebindPath", StringComparison.OrdinalIgnoreCase)
+            .IsSelected = IsSafeDefaultRepairCandidate(actionType)
         }
     End Function
 
@@ -3628,6 +3811,15 @@ Public Class MainViewModel
     Private Shared Function IsAutomaticRepairCandidate(actionType As String) As Boolean
         Select Case actionType
             Case "RegenerateThumbnail", "RecomputeHash", "ReExtractText", "RebindPath"
+                Return True
+            Case Else
+                Return False
+        End Select
+    End Function
+
+    Private Shared Function IsSafeDefaultRepairCandidate(actionType As String) As Boolean
+        Select Case actionType
+            Case "RebindPath", "RegenerateThumbnail"
                 Return True
             Case Else
                 Return False

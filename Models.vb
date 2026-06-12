@@ -118,11 +118,29 @@ Public Class VaultHealthReport
 End Class
 
 Public Class RepairCandidate
+    Implements INotifyPropertyChanged
+
+    Private _isSelected As Boolean
+
+    Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
+
     Public Property Finding As VaultHealthFinding
     Public Property ActionType As String = "ReviewOnly"
     Public Property CanRepairAutomatically As Boolean
     Public Property RequiresOperatorApproval As Boolean = True
+
     Public Property IsSelected As Boolean
+        Get
+            Return _isSelected
+        End Get
+        Set(value As Boolean)
+            If _isSelected <> value Then
+                _isSelected = value
+                OnPropertyChanged()
+                OnPropertyChanged(NameOf(SelectionState))
+            End If
+        End Set
+    End Property
 
     Public ReadOnly Property FindingType As String
         Get
@@ -169,6 +187,24 @@ Public Class RepairCandidate
             Return "Safe automatic repair"
         End Get
     End Property
+
+    Public ReadOnly Property SelectionState As String
+        Get
+            If Not CanRepairAutomatically Then
+                Return "Manual review required"
+            End If
+
+            If IsSelected Then
+                Return "Selected for Apply"
+            End If
+
+            Return "Repairable, not selected"
+        End Get
+    End Property
+
+    Private Sub OnPropertyChanged(<CallerMemberName> Optional propertyName As String = Nothing)
+        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(propertyName))
+    End Sub
 End Class
 
 Public Class VaultMaintenanceProgress
