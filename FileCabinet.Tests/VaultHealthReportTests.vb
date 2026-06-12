@@ -166,6 +166,65 @@ Namespace FileCabinet.Tests
         End Sub
 
         <TestMethod>
+        Sub HealthReportDoesNotHashWhenNoComparableActiveHashesExist()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "unhashed.bin")
+            File.WriteAllText(storedPath, "missing hash")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "unhashed.bin",
+                    .Path = storedPath
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New ThrowingHashService())
+
+                Assert.IsTrue(report.Findings.Any(Function(finding) finding.FindingType = "Missing hash"))
+                Assert.IsFalse(report.Findings.Any(Function(finding) finding.FindingType = "Hash verification failed"))
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub HealthReportDefersAutomaticHashVerificationForLargeRetainedFiles()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "archive.iso")
+            File.WriteAllText(storedPath, "small test fixture")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "archive.iso",
+                    .Path = storedPath,
+                    .SizeBytes = Global.FileCabinet.MainViewModel.AutoHashVerificationLimitBytes + 1,
+                    .Sha256 = "catalog-sha",
+                    .Blake3 = "catalog-blake"
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New ThrowingHashService())
+                Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Hash verification deferred")
+
+                Assert.IsNotNull(finding)
+                Assert.AreEqual("archive.iso", finding.Subject)
+                Assert.AreEqual("Low", finding.RiskLevel)
+                Assert.IsFalse(finding.MutatesCatalog)
+                Assert.IsFalse(finding.TouchesRetainedFiles)
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
         Sub HealthReportMissingHashesUsesOnlyActiveHashIds()
             Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
             Dim vaultRoot = Path.Combine(workspace, "vault")
@@ -438,5 +497,13 @@ Namespace FileCabinet.Tests
                 End If
             End Try
         End Sub
+
+        Private Class ThrowingHashService
+            Inherits Global.FileCabinet.HashService
+
+            Public Overrides Function ComputeHashes(path As String, Optional activeHashes As String = "") As Global.FileCabinet.FileHashes
+                Throw New InvalidOperationException("Hashing should not be called.")
+            End Function
+        End Class
     End Class
 End Namespace

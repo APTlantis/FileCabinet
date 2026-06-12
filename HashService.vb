@@ -238,23 +238,81 @@ Public Class HashRegistry
 End Class
 
 Public Class HashService
-    Private Const BufferSize As Integer = 8192
+    Private Const BufferSize As Integer = 1024 * 1024
     Private Const Mask32 As ULong = &HFFFFFFFFUL
     Private Shared ReadOnly Mask64Big As BigInteger = (BigInteger.One << 64) - BigInteger.One
     Private Const Crc64EcmaPolynomial As ULong = &H42F0E1EBA9EA3693UL
     Private Shared ReadOnly Crc32Table As UInteger() = BuildReflectedCrc32Table()
     Private Shared ReadOnly Crc64EcmaTable As ULong() = BuildCrc64EcmaTable()
 
-    Public Function ComputeHashes(path As String, Optional activeHashes As String = "") As FileHashes
+    Public Overridable Function ComputeHashes(path As String, Optional activeHashes As String = "") As FileHashes
         Dim hashes As New FileHashes()
         Dim activeList = HashRegistry.ParseActiveHashIds(HashRegistry.NormalizeActiveHashes(activeHashes))
+        Dim remaining = New List(Of String)(activeList)
 
-        For Each hashId In activeList
+        ComputeSharedStreamingHashes(path, remaining, hashes)
+
+        For Each hashId In remaining
             HashRegistry.SetHashValue(hashes, hashId, ComputeHash(path, hashId))
         Next
 
         Return hashes
     End Function
+
+    Private Shared Sub ComputeSharedStreamingHashes(path As String, activeList As List(Of String), hashes As FileHashes)
+        If activeList Is Nothing OrElse activeList.Count = 0 Then
+            Return
+        End If
+
+        Dim useSha256 = activeList.Remove("SHA256")
+        Dim useBlake3 = activeList.Remove("BLAKE3")
+        Dim useKangarooTwelve = activeList.Remove("KangarooTwelve")
+        Dim useSha3 = activeList.Remove("SHA3-256")
+        Dim useMd5 = activeList.Remove("MD5")
+        Dim useWhirlpool = activeList.Remove("Whirlpool")
+        Dim useSkein = activeList.Remove("Skein")
+
+        If Not (useSha256 OrElse useBlake3 OrElse useKangarooTwelve OrElse useSha3 OrElse useMd5 OrElse useWhirlpool OrElse useSkein) Then
+            Return
+        End If
+
+        Using sha256 = If(useSha256, IncrementalHash.CreateHash(HashAlgorithmName.SHA256), Nothing),
+              md5 = If(useMd5, IncrementalHash.CreateHash(HashAlgorithmName.MD5), Nothing),
+              kangaroo = If(useKangarooTwelve, New Global.StreamHash.Core.KangarooTwelve(32, Array.Empty(Of Byte)()), Nothing)
+            Dim blakeHasher = Blake3.Hasher.[New]()
+            Try
+                Dim sha3 = If(useSha3, New Sha3Digest(256), Nothing)
+                Dim whirlpool = If(useWhirlpool, New WhirlpoolDigest(), Nothing)
+                Dim skein = If(useSkein, New SkeinDigest(512, 512), Nothing)
+
+                ReadChunks(path,
+                    Sub(buffer, count)
+                        Dim chunk = buffer.AsSpan(0, count)
+                        If sha256 IsNot Nothing Then sha256.AppendData(chunk)
+                        If useBlake3 Then blakeHasher.Update(chunk)
+                        If kangaroo IsNot Nothing Then kangaroo.Update(buffer, 0, count)
+                        If sha3 IsNot Nothing Then sha3.BlockUpdate(buffer, 0, count)
+                        If md5 IsNot Nothing Then md5.AppendData(chunk)
+                        If whirlpool IsNot Nothing Then whirlpool.BlockUpdate(buffer, 0, count)
+                        If skein IsNot Nothing Then skein.BlockUpdate(buffer, 0, count)
+                    End Sub)
+
+                If sha256 IsNot Nothing Then hashes.Sha256 = Convert.ToHexString(sha256.GetHashAndReset()).ToLowerInvariant()
+                If useBlake3 Then
+                    Dim blakeOutput(Blake3.Hash.Size - 1) As Byte
+                    blakeHasher.Finalize(blakeOutput)
+                    hashes.Blake3 = Convert.ToHexString(blakeOutput).ToLowerInvariant()
+                End If
+                If kangaroo IsNot Nothing Then hashes.KangarooTwelve = kangaroo.FinalizeHex()
+                If sha3 IsNot Nothing Then hashes.Sha3_256 = FinalizeBouncyDigest(sha3)
+                If md5 IsNot Nothing Then hashes.Md5 = Convert.ToHexString(md5.GetHashAndReset()).ToLowerInvariant()
+                If whirlpool IsNot Nothing Then hashes.Whirlpool = FinalizeBouncyDigest(whirlpool)
+                If skein IsNot Nothing Then hashes.Skein = FinalizeBouncyDigest(skein)
+            Finally
+                blakeHasher.Dispose()
+            End Try
+        End Using
+    End Sub
 
     Public Function ComputeBlake3(path As String) As String
         Using stream = File.OpenRead(path)
@@ -369,6 +427,10 @@ Public Class HashService
 
     Private Shared Function ComputeBouncyDigest(path As String, digest As Org.BouncyCastle.Crypto.IDigest) As String
         ReadChunks(path, Sub(buffer, count) digest.BlockUpdate(buffer, 0, count))
+        Return FinalizeBouncyDigest(digest)
+    End Function
+
+    Private Shared Function FinalizeBouncyDigest(digest As Org.BouncyCastle.Crypto.IDigest) As String
         Dim output As Byte() = New Byte(digest.GetDigestSize() - 1) {}
         digest.DoFinal(output, 0)
         Return Convert.ToHexString(output).ToLowerInvariant()
@@ -679,43 +741,71 @@ Public Class HashService
     End Function
 
     Private Shared Function ComputeMurmur3_32(path As String) As String
-        Dim data = File.ReadAllBytes(path)
         Const c1 As UInteger = &HCC9E2D51UI
         Const c2 As UInteger = &H1B873593UI
         Dim hash As UInteger = 0UI
-        Dim offset = 0
+        Dim totalLength As ULong = 0UL
+        Dim tailBytes As New List(Of Byte)(4)
 
-        While offset + 4 <= data.Length
-            Dim k = CUInt(data(offset)) Or (CUInt(data(offset + 1)) << 8) Or (CUInt(data(offset + 2)) << 16) Or (CUInt(data(offset + 3)) << 24)
-            k = Mul32(k, c1)
-            k = RotateLeft32(k, 15)
-            k = Mul32(k, c2)
-            hash = hash Xor k
-            hash = RotateLeft32(hash, 13)
-            hash = Add32(Mul32(hash, 5UI), &HE6546B64UI)
-            offset += 4
-        End While
+        ReadChunks(path,
+            Sub(buffer, count)
+                totalLength += CULng(count)
+                Dim offset = 0
+
+                If tailBytes.Count > 0 Then
+                    While tailBytes.Count < 4 AndAlso offset < count
+                        tailBytes.Add(buffer(offset))
+                        offset += 1
+                    End While
+
+                    If tailBytes.Count = 4 Then
+                        MixMurmurBlock(hash, tailBytes(0), tailBytes(1), tailBytes(2), tailBytes(3), c1, c2)
+                        tailBytes.Clear()
+                    End If
+                End If
+
+                While offset + 4 <= count
+                    MixMurmurBlock(hash, buffer(offset), buffer(offset + 1), buffer(offset + 2), buffer(offset + 3), c1, c2)
+                    offset += 4
+                End While
+
+                While offset < count
+                    tailBytes.Add(buffer(offset))
+                    offset += 1
+                End While
+            End Sub)
 
         Dim tail As UInteger = 0UI
-        Dim remaining = data.Length And 3
-        If remaining = 3 Then tail = tail Xor (CUInt(data(offset + 2)) << 16)
-        If remaining >= 2 Then tail = tail Xor (CUInt(data(offset + 1)) << 8)
+        Dim remaining = tailBytes.Count
+        If remaining = 3 Then tail = tail Xor (CUInt(tailBytes(2)) << 16)
+        If remaining >= 2 Then tail = tail Xor (CUInt(tailBytes(1)) << 8)
         If remaining >= 1 Then
-            tail = tail Xor data(offset)
+            tail = tail Xor tailBytes(0)
             tail = Mul32(tail, c1)
             tail = RotateLeft32(tail, 15)
             tail = Mul32(tail, c2)
             hash = hash Xor tail
         End If
 
-        hash = hash Xor CUInt(data.Length)
+        hash = hash Xor CUInt(totalLength And &HFFFFFFFFUL)
         hash = Fmix32(hash)
         Return hash.ToString("x8")
     End Function
 
+    Private Shared Sub MixMurmurBlock(ByRef hash As UInteger, b0 As Byte, b1 As Byte, b2 As Byte, b3 As Byte, c1 As UInteger, c2 As UInteger)
+        Dim k = CUInt(b0) Or (CUInt(b1) << 8) Or (CUInt(b2) << 16) Or (CUInt(b3) << 24)
+        k = Mul32(k, c1)
+        k = RotateLeft32(k, 15)
+        k = Mul32(k, c2)
+        hash = hash Xor k
+        hash = RotateLeft32(hash, 13)
+        hash = Add32(Mul32(hash, 5UI), &HE6546B64UI)
+    End Sub
+
     Private Shared Function ComputeXxHash64(path As String) As String
-        Dim data = File.ReadAllBytes(path)
-        Return Convert.ToHexString(System.IO.Hashing.XxHash64.Hash(data)).ToLowerInvariant()
+        Dim hash As New System.IO.Hashing.XxHash64()
+        ReadChunks(path, Sub(buffer, count) hash.Append(buffer.AsSpan(0, count)))
+        Return Convert.ToHexString(hash.GetCurrentHash()).ToLowerInvariant()
     End Function
 
     Private Shared Sub ReadChunks(path As String, onChunk As Action(Of Byte(), Integer))

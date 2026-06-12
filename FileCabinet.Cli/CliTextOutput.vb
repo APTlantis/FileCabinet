@@ -24,7 +24,8 @@ Namespace FileCabinet.Cli
         End Function
 
         Public Shared Function Version() As String
-            Return "FileCabinet.Cli 1.6.0"
+            Dim assemblyVersion = GetType(CliTextOutput).Assembly.GetName().Version
+            Return $"FileCabinet.Cli {assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}"
         End Function
 
         Public Shared Function Ingest(result As HeadlessIngestResult) As String

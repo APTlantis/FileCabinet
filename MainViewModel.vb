@@ -15,6 +15,7 @@ Public Class MainViewModel
     Implements INotifyPropertyChanged
 
     Private Const LargeArtifactThresholdBytes As Long = 1024L * 1024L * 1024L
+    Public Const AutoHashVerificationLimitBytes As Long = 16L * 1024L * 1024L * 1024L
     Private Shared ReadOnly ReleaseMarkerRegexTimeout As TimeSpan = TimeSpan.FromMilliseconds(250)
 
     Private ReadOnly _catalogService As CatalogService
@@ -3776,15 +3777,33 @@ Public Class MainViewModel
 
     Private Shared Sub AddHashMismatchFinding(report As VaultHealthReport, artifact As ArtifactModel, hashService As HashService, activeHashes As String)
         Try
-            Dim hashes = hashService.ComputeHashes(artifact.Path, activeHashes)
             Dim activeList = HashRegistry.ParseActiveHashIds(activeHashes)
-            Dim mismatchParts As New List(Of String)
-            For Each hashId In activeList
-                Dim catalogValue = HashRegistry.GetArtifactHashValue(artifact, hashId)
-                If String.IsNullOrWhiteSpace(catalogValue) Then
-                    Continue For
-                End If
+            Dim comparableHashIds = activeList.
+                Where(Function(hashId) Not String.IsNullOrWhiteSpace(HashRegistry.GetArtifactHashValue(artifact, hashId))).
+                ToList()
 
+            If comparableHashIds.Count = 0 Then
+                Return
+            End If
+
+            Dim fileSize = GetRetainedFileSizeForHashPolicy(artifact)
+            If fileSize > AutoHashVerificationLimitBytes Then
+                report.Findings.Add(New VaultHealthFinding With {
+                    .FindingType = "Hash verification deferred",
+                    .Subject = artifact.Name,
+                    .Detail = $"Retained file is {FormatSize(fileSize)}, above the automatic verification limit of {FormatSize(AutoHashVerificationLimitBytes)}.",
+                    .ProposedAction = "Use Hash Check or a selected hash repair when you want to read and verify this large retained file.",
+                    .RiskLevel = "Low",
+                    .MutatesCatalog = False,
+                    .TouchesRetainedFiles = False
+                })
+                Return
+            End If
+
+            Dim hashes = hashService.ComputeHashes(artifact.Path, activeHashes)
+            Dim mismatchParts As New List(Of String)
+            For Each hashId In comparableHashIds
+                Dim catalogValue = HashRegistry.GetArtifactHashValue(artifact, hashId)
                 If Not String.Equals(catalogValue, HashRegistry.GetHashValue(hashes, hashId), StringComparison.OrdinalIgnoreCase) Then
                     mismatchParts.Add(hashId)
                 End If
@@ -3815,6 +3834,25 @@ Public Class MainViewModel
             })
         End Try
     End Sub
+
+    Private Shared Function GetRetainedFileSizeForHashPolicy(artifact As ArtifactModel) As Long
+        If artifact Is Nothing Then
+            Return 0
+        End If
+
+        If artifact.SizeBytes > 0 Then
+            Return artifact.SizeBytes
+        End If
+
+        Try
+            If Not String.IsNullOrWhiteSpace(artifact.Path) AndAlso File.Exists(artifact.Path) Then
+                Return New FileInfo(artifact.Path).Length
+            End If
+        Catch
+        End Try
+
+        Return 0
+    End Function
 
     Private Shared Sub AddIncompleteMetadataFinding(report As VaultHealthReport, artifact As ArtifactModel)
         If Not HasIncompleteMetadata(artifact) Then
