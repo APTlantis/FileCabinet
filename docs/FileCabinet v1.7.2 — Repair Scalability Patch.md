@@ -9,6 +9,7 @@ FileCabinet v1.7.2 is a maintenance patch focused on making repair and verificat
 - Repair candidates can be filtered by finding type and by repair state: all, repairable, review-only, selected, or unselected.
 - Safe repair selection now defaults to catalog-only path rebinds and generated thumbnail recovery, while hash recomputation and text extraction remain explicit operator choices.
 - Bulk path rebinds are supported for vault moves: when old absolute paths are missing but vault-relative files resolve under the active vault root, selected `RebindPath` candidates can be applied in one batch.
+- Display-only repair candidate impact columns no longer attempt to write back to read-only values after Apply refreshes the analysis results.
 - Analyze, Apply Selected, and Rescan now return focus to the Health tab instead of opening Settings.
 - Health analysis now defers automatic hash mismatch verification for retained files larger than 16 GB instead of reading those files end to end during every Analyze, Verify, or Repair Preview run.
 - Deferred large-file checks are reported as `Hash verification deferred` findings so the operator can still see which artifacts were intentionally skipped.
@@ -40,5 +41,5 @@ FileCabinet v1.7.2 is a maintenance patch focused on making repair and verificat
 
 - File: `artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi`
 - Runtime: `win-x64`
-- Size: `127,905,792` bytes
-- SHA-256: `04572DF20C96A1E618338DD614FC3E627FA59D6386A6FD2867EE692A7EEF888F`
+- Size: `127,897,600` bytes
+- SHA-256: `2F0F73A993FB94EE1B15A810C5D9FA841B79F215077E78EE07E1148874500AC0`

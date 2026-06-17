@@ -61,6 +61,7 @@ Public Class MainViewModel
     Private _columnPresetIndex As Integer
     Private _isLoadingCatalog As Boolean
     Private _isVaultMaintenanceRunning As Boolean
+    Private _vaultMaintenanceProgress As Double
     Private _vaultMaintenanceStatus As String = "Vault maintenance ready"
     Private _vaultMaintenanceDetail As String = ""
     Private _quarantineCount As Integer
@@ -573,6 +574,19 @@ Public Class MainViewModel
         End Set
     End Property
 
+    Public Property VaultMaintenanceProgress As Double
+        Get
+            Return _vaultMaintenanceProgress
+        End Get
+        Private Set(value As Double)
+            Dim normalized = Math.Max(0, Math.Min(100, value))
+            If Math.Abs(_vaultMaintenanceProgress - normalized) > 0.01 Then
+                _vaultMaintenanceProgress = normalized
+                OnPropertyChanged()
+            End If
+        End Set
+    End Property
+
     Public Property VaultMaintenanceStatus As String
         Get
             Return _vaultMaintenanceStatus
@@ -802,6 +816,7 @@ Public Class MainViewModel
 
     Private Sub ShowVaultHealth()
         RightPanelTab = "Health"
+        IsVaultHealthVisible = True
         If RefreshCommand.CanExecute(Nothing) Then
             RefreshCommand.Execute(Nothing)
         End If
@@ -1857,14 +1872,17 @@ Public Class MainViewModel
         End If
 
         IsVaultMaintenanceRunning = True
+        VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Analyzing vault health"
         VaultMaintenanceDetail = "Checking retained files, hashes, thumbnails, and generated indexes"
         ActionStatus = "Analyzing vault health..."
+        RightPanelTab = "Health"
 
         Try
             Dim artifactSnapshot = Artifacts.ToList()
             Dim vaultRoot = VaultRootPath
             Dim analyzeProgress As New Progress(Of VaultMaintenanceProgress)(Sub(progressUpdate)
+                                                               VaultMaintenanceProgress = progressUpdate.Percent
                                                                VaultMaintenanceDetail = progressUpdate.ToString()
                                                            End Sub)
             Dim result = Await Task.Run(Function()
@@ -1879,6 +1897,7 @@ Public Class MainViewModel
             _repairStatus = BuildRepairStatus(result.RepairReport)
             PublishVaultHealthReport(result.HealthReport)
             OnPropertyChanged(NameOf(RepairStatus))
+            VaultMaintenanceProgress = 100
             VaultMaintenanceStatus = "Analysis complete"
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = _repairStatus
@@ -1898,14 +1917,17 @@ Public Class MainViewModel
         End If
 
         IsVaultMaintenanceRunning = True
+        VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Rescanning vault"
         VaultMaintenanceDetail = "Preparing generated asset recovery and orphan adoption"
         ActionStatus = "Rescanning vault..."
+        RightPanelTab = "Health"
 
         Try
             Dim artifactSnapshot = Artifacts.ToList()
             Dim vaultRoot = VaultRootPath
             Dim rescanProgress As New Progress(Of VaultMaintenanceProgress)(Sub(progressUpdate)
+                                                              VaultMaintenanceProgress = progressUpdate.Percent
                                                               VaultMaintenanceDetail = progressUpdate.ToString()
                                                           End Sub)
             Dim result = Await Task.Run(Function() BuildRescanResult(artifactSnapshot, vaultRoot, rescanProgress))
@@ -1915,6 +1937,7 @@ Public Class MainViewModel
             VaultMaintenanceDetail = "Finalizing health report"
             Dim refreshedSnapshot = Artifacts.ToList()
             Dim finalizeProgress As New Progress(Of VaultMaintenanceProgress)(Sub(progressUpdate)
+                                                                VaultMaintenanceProgress = progressUpdate.Percent
                                                                 VaultMaintenanceDetail = progressUpdate.ToString()
                                                             End Sub)
             result.HealthReport = Await Task.Run(Function() BuildVaultHealthReport(refreshedSnapshot, vaultRoot, New ThumbnailService(), New HashService(), finalizeProgress, _catalog.ActiveHashes))
@@ -1928,6 +1951,7 @@ Public Class MainViewModel
             RefreshDerivedUiState()
             PublishVaultHealthReport(result.HealthReport)
             OnPropertyChanged(NameOf(RepairStatus))
+            VaultMaintenanceProgress = 100
             VaultMaintenanceStatus = "Rescan complete"
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = $"Rescan complete: {_repairStatus}"
@@ -3472,9 +3496,11 @@ Public Class MainViewModel
         End If
 
         IsVaultMaintenanceRunning = True
+        VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Applying selected repairs"
         VaultMaintenanceDetail = $"{selected.Count:N0} selected candidate(s)"
         ActionStatus = "Applying selected repairs..."
+        RightPanelTab = "Health"
 
         Try
             Dim workItems = selected.
@@ -3524,11 +3550,13 @@ Public Class MainViewModel
             Dim artifactSnapshot = Artifacts.ToList()
             Dim vaultRootSnapshot = VaultRootPath
             Dim postRepairProgress As New Progress(Of VaultMaintenanceProgress)(Sub(progressUpdate)
+                                                                  VaultMaintenanceProgress = progressUpdate.Percent
                                                                   VaultMaintenanceDetail = progressUpdate.ToString()
                                                               End Sub)
             Dim healthReport = Await Task.Run(Function() BuildVaultHealthReport(artifactSnapshot, vaultRootSnapshot, New ThumbnailService(), New HashService(), postRepairProgress, _catalog.ActiveHashes))
             PublishVaultHealthReport(healthReport)
             RefreshDerivedUiState()
+            VaultMaintenanceProgress = 100
             VaultMaintenanceStatus = "Repairs complete"
             VaultMaintenanceDetail = healthReport.Summary
             ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed; {skipped:N0} skipped"

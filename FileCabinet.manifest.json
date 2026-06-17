@@ -95,8 +95,8 @@
       "path": "artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi",
       "runtime": "win-x64",
       "package_version": "1.7.2.0",
-      "size_bytes": 127905792,
-      "sha256": "04572DF20C96A1E618338DD614FC3E627FA59D6386A6FD2867EE692A7EEF888F",
+      "size_bytes": 127897600,
+      "sha256": "2F0F73A993FB94EE1B15A810C5D9FA841B79F215077E78EE07E1148874500AC0",
       "blake3": "",
       "kangaroo12": ""
     },

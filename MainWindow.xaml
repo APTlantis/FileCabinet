@@ -454,14 +454,14 @@
                           Foreground="{StaticResource SecondaryTextBrush}"
                           Margin="18,0,0,0"
                           VerticalAlignment="Center">
-                        <MenuItem Header="Settings" Command="{Binding ShowSettingsCommand}" />
+                        <MenuItem Header="Settings" Command="{Binding ShowSettingsCommand}" ToolTip="Choose which hashes FileCabinet records and verifies." />
                         <MenuItem Header="Help">
-                            <MenuItem Header="User Guide" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" />
-                            <MenuItem Header="Deliberate Retention Tradeoff" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" />
-                            <MenuItem Header="Trust and Verification Model" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" />
-                            <MenuItem Header="Why SHA-256 and BLAKE3" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Why SHA-256 and BLAKE3.md" />
-                            <MenuItem Header="Repair and Recovery Guide" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" />
-                            <MenuItem Header="Deterministic Vault Roadmap" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" />
+                            <MenuItem Header="User Guide" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" ToolTip="Open the main FileCabinet user guide." />
+                            <MenuItem Header="Retention Choices" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" ToolTip="Explain why FileCabinet keeps retained files deliberately instead of cleaning them up automatically." />
+                            <MenuItem Header="Trust and Verification" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" ToolTip="Explain how FileCabinet uses hashes, paths, and catalog data to verify artifacts." />
+                            <MenuItem Header="Hash Choices" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Why SHA-256 and BLAKE3.md" ToolTip="Explain the default integrity hashes and when compatibility hashes are useful." />
+                            <MenuItem Header="Repair and Recovery" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" ToolTip="Explain health findings, safe repairs, and review-only issues." />
+                            <MenuItem Header="Roadmap" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" ToolTip="Open planned reliability and preservation improvements." />
                             <Separator />
                             <MenuItem Header="Open Docs Folder" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenDocsFolderCommand}" />
                             <MenuItem Header="About FileCabinet" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding ShowAboutCommand}" />
@@ -807,7 +807,7 @@
                                         <TextBlock Text="Auto-Process" Style="{StaticResource SectionTitle}" Margin="0,0,0,9" />
                                         <TextBlock Text="{Binding ActiveHashSummary}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,7" />
                                         <TextBlock Text="{Binding IngestModeDetail}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10" />
-                                        <Button Content="More options..." Command="{Binding ShowSettingsCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Left" />
+                                        <Button Content="Hash Settings" Command="{Binding ShowSettingsCommand}" ToolTip="Choose which integrity hashes are computed during ingest, repair, and health checks." Style="{StaticResource ToolButton}" HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -1032,12 +1032,17 @@
                                             <TextBlock Text="{Binding VaultHealthBreakdown}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,0,0,8" />
                                             <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,0,0,3" />
                                             <TextBlock Text="{Binding VaultMaintenanceDetail}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" />
+                                            <ProgressBar Height="6"
+                                                         Minimum="0"
+                                                         Maximum="100"
+                                                         Value="{Binding VaultMaintenanceProgress}"
+                                                         Margin="0,8,0,0" />
                                             <WrapPanel Margin="0,12,0,0">
-                                                <Button Content="Analyze" Command="{Binding RepairCatalogCommand}" ToolTip="Analyze vault health without mutating files" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
-                                                <Button Content="Select Safe" Command="{Binding SelectSafeRepairCandidatesCommand}" ToolTip="Select safe default repairs: path rebinds and generated thumbnails" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
-                                                <Button Content="Clear" Command="{Binding ClearRepairSelectionCommand}" ToolTip="Clear selected repair candidates" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
-                                                <Button Content="Apply Selected" Click="ApplyRepairCandidatesButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
-                                                <Button Content="Rescan Orphans" Command="{Binding RescanVaultCommand}" ToolTip="Discover/adopt orphan stored files and recover generated assets" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Analyze Health" Command="{Binding RepairCatalogCommand}" ToolTip="Check catalog paths, retained files, hashes, thumbnails, extracted text, and duplicate hashes without changing files." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Select Safe Repairs" Command="{Binding SelectSafeRepairCandidatesCommand}" ToolTip="Select repairs that only update catalog paths or regenerate generated assets." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Clear Selection" Command="{Binding ClearRepairSelectionCommand}" ToolTip="Clear selected repair candidates." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Apply Selected Repairs" Click="ApplyRepairCandidatesButton_Click" ToolTip="Apply the selected repairable candidates after confirmation." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
+                                                <Button Content="Rescan Orphan Files" Command="{Binding RescanVaultCommand}" ToolTip="Find retained files that are in the vault but missing from the catalog, then adopt recoverable orphans." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
                                             </WrapPanel>
                                             <TextBlock Text="{Binding SelectedRepairSummary}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,4,0,0" />
                                         </StackPanel>
@@ -1113,8 +1118,8 @@
                                                 <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="160" IsReadOnly="True" />
                                                 <DataGridTextColumn Header="Proposed Action" Binding="{Binding ProposedAction}" Width="260" IsReadOnly="True" />
                                                 <DataGridTextColumn Header="Selection / Result" Binding="{Binding SelectionState}" Width="150" IsReadOnly="True" />
-                                                <DataGridCheckBoxColumn Header="Catalog" Binding="{Binding MutatesCatalog}" Width="70" IsReadOnly="True" />
-                                                <DataGridCheckBoxColumn Header="Files" Binding="{Binding TouchesRetainedFiles}" Width="60" IsReadOnly="True" />
+                                                <DataGridCheckBoxColumn Header="Catalog" Binding="{Binding MutatesCatalog, Mode=OneWay}" Width="70" IsReadOnly="True" />
+                                                <DataGridCheckBoxColumn Header="Files" Binding="{Binding TouchesRetainedFiles, Mode=OneWay}" Width="60" IsReadOnly="True" />
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </ScrollViewer>
@@ -1380,8 +1385,13 @@
                                         <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding VaultMaintenanceDetail}" Style="{StaticResource SmallLabel}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" MaxWidth="520" />
+                                        <ProgressBar Height="5"
+                                                     Minimum="0"
+                                                     Maximum="100"
+                                                     Value="{Binding VaultMaintenanceProgress}"
+                                                     Margin="0,7,0,0" />
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="Analyze" Command="{Binding RepairCatalogCommand}" ToolTip="Analyze vault health without mutating files" Style="{StaticResource ToolButton}" Height="30" />
+                                    <Button Grid.Column="1" Content="Analyze Health" Command="{Binding RepairCatalogCommand}" ToolTip="Check vault health without changing retained files." Style="{StaticResource ToolButton}" Height="30" />
                                 </Grid>
 
                                 <Grid Grid.Row="1" Margin="0,12,0,10">
@@ -1430,12 +1440,12 @@
                                 </Grid>
 
                                 <WrapPanel Grid.Row="2">
-                                    <Button Content="Vault..." Click="ChooseVaultButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
-                                    <Button Content="{Binding IngestModeText}" Command="{Binding ToggleIngestModeCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
-                                    <Button Content="Backup" Command="{Binding BackupCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
-                                    <Button Content="Analyze" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
-                                    <Button Content="Apply Selected" Click="ApplyRepairCandidatesButton_Click" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
-                                    <Button Content="Rescan" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" />
+                                    <Button Content="Choose Vault" Click="ChooseVaultButton_Click" ToolTip="Select the vault folder FileCabinet should use." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="{Binding IngestModeText}" Command="{Binding ToggleIngestModeCommand}" ToolTip="Switch between moving files into the vault and copying files into the vault." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Backup Catalog" Command="{Binding BackupCatalogCommand}" ToolTip="Create and validate a catalog backup." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Analyze Health" Command="{Binding RepairCatalogCommand}" ToolTip="Check vault health without changing retained files." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Apply Selected Repairs" Click="ApplyRepairCandidatesButton_Click" ToolTip="Apply selected repairable candidates after confirmation." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Rescan Orphan Files" Command="{Binding RescanVaultCommand}" ToolTip="Find vault files that are missing from the catalog and adopt recoverable orphans." Style="{StaticResource ToolButton}" Height="30" />
                                 </WrapPanel>
                             </Grid>
                         </Border>
@@ -1489,10 +1499,10 @@
 
                                 <TextBlock Text="Repair Capabilities" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
                                 <WrapPanel Margin="0,0,0,16">
-                                    <Button Content="Verify Vault" Command="{Binding RefreshCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
-                                    <Button Content="Repair Catalog" Command="{Binding RepairCatalogCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
-                                    <Button Content="Rescan Items" Command="{Binding RescanVaultCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
-                                    <Button Content="Apply Selected Repairs" Command="{Binding ApplySelectedRepairCandidatesCommand}" Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                    <Button Content="Refresh View" Command="{Binding RefreshCommand}" ToolTip="Reload the catalog and visible vault state." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                    <Button Content="Analyze Health" Command="{Binding RepairCatalogCommand}" ToolTip="Check catalog paths, retained files, hashes, thumbnails, extracted text, and duplicate hashes without changing files." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                    <Button Content="Rescan Orphan Files" Command="{Binding RescanVaultCommand}" ToolTip="Find retained files that are in the vault but missing from the catalog, then adopt recoverable orphans." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
+                                    <Button Content="Apply Selected Repairs" Command="{Binding ApplySelectedRepairCandidatesCommand}" ToolTip="Apply selected repairable candidates." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,8,8" />
                                 </WrapPanel>
                             </StackPanel>
 
@@ -1505,6 +1515,10 @@
                                     <TextBlock Text="Current Task:" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding VaultMaintenanceStatus}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,8" />
                                     <TextBlock Text="{Binding VaultMaintenanceDetail}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16" />
+                                    <ProgressBar Height="6"
+                                                 Minimum="0"
+                                                 Maximum="100"
+                                                 Value="{Binding VaultMaintenanceProgress}" />
                                 </StackPanel>
                             </Border>
                         </Grid>
