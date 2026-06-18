@@ -1035,7 +1035,7 @@
                                             <ProgressBar Height="6"
                                                          Minimum="0"
                                                          Maximum="100"
-                                                         Value="{Binding VaultMaintenanceProgress}"
+                                                         Value="{Binding VaultMaintenanceProgress, Mode=OneWay}"
                                                          Margin="0,8,0,0" />
                                             <WrapPanel Margin="0,12,0,0">
                                                 <Button Content="Analyze Health" Command="{Binding RepairCatalogCommand}" ToolTip="Check catalog paths, retained files, hashes, thumbnails, extracted text, and duplicate hashes without changing files." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,6" />
@@ -1388,7 +1388,7 @@
                                         <ProgressBar Height="5"
                                                      Minimum="0"
                                                      Maximum="100"
-                                                     Value="{Binding VaultMaintenanceProgress}"
+                                                     Value="{Binding VaultMaintenanceProgress, Mode=OneWay}"
                                                      Margin="0,7,0,0" />
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="Analyze Health" Command="{Binding RepairCatalogCommand}" ToolTip="Check vault health without changing retained files." Style="{StaticResource ToolButton}" Height="30" />
@@ -1518,7 +1518,7 @@
                                     <ProgressBar Height="6"
                                                  Minimum="0"
                                                  Maximum="100"
-                                                 Value="{Binding VaultMaintenanceProgress}" />
+                                                 Value="{Binding VaultMaintenanceProgress, Mode=OneWay}" />
                                 </StackPanel>
                             </Border>
                         </Grid>
