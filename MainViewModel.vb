@@ -823,6 +823,11 @@ Public Class MainViewModel
     End Sub
 
     Private Sub CloseVaultHealth()
+        If IsVaultMaintenanceRunning Then
+            ActionStatus = "Vault health is still running; wait for the results before closing."
+            Return
+        End If
+
         IsVaultHealthVisible = False
     End Sub
 
@@ -1871,6 +1876,7 @@ Public Class MainViewModel
             Return
         End If
 
+        Dim keepHealthDashboardVisible = IsVaultHealthVisible
         IsVaultMaintenanceRunning = True
         VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Analyzing vault health"
@@ -1902,10 +1908,16 @@ Public Class MainViewModel
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = _repairStatus
             RightPanelTab = "Health"
+            If keepHealthDashboardVisible Then
+                IsVaultHealthVisible = True
+            End If
         Catch ex As Exception
             VaultMaintenanceStatus = "Analysis failed"
             VaultMaintenanceDetail = ex.Message
             ActionStatus = $"Analyze failed: {ex.Message}"
+            If keepHealthDashboardVisible Then
+                IsVaultHealthVisible = True
+            End If
         Finally
             IsVaultMaintenanceRunning = False
         End Try
@@ -1916,6 +1928,7 @@ Public Class MainViewModel
             Return
         End If
 
+        Dim keepHealthDashboardVisible = IsVaultHealthVisible
         IsVaultMaintenanceRunning = True
         VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Rescanning vault"
@@ -1956,10 +1969,16 @@ Public Class MainViewModel
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = $"Rescan complete: {_repairStatus}"
             RightPanelTab = "Health"
+            If keepHealthDashboardVisible Then
+                IsVaultHealthVisible = True
+            End If
         Catch ex As Exception
             VaultMaintenanceStatus = "Rescan failed"
             VaultMaintenanceDetail = ex.Message
             ActionStatus = $"Rescan failed: {ex.Message}"
+            If keepHealthDashboardVisible Then
+                IsVaultHealthVisible = True
+            End If
         Finally
             IsVaultMaintenanceRunning = False
         End Try
@@ -3495,6 +3514,7 @@ Public Class MainViewModel
             Return
         End If
 
+        Dim keepHealthDashboardVisible = IsVaultHealthVisible
         IsVaultMaintenanceRunning = True
         VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Applying selected repairs"
@@ -3561,10 +3581,16 @@ Public Class MainViewModel
             VaultMaintenanceDetail = healthReport.Summary
             ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed; {skipped:N0} skipped"
             RightPanelTab = "Health"
+            If keepHealthDashboardVisible Then
+                IsVaultHealthVisible = True
+            End If
         Catch ex As Exception
             VaultMaintenanceStatus = "Repair failed"
             VaultMaintenanceDetail = ex.Message
             ActionStatus = $"Repair failed: {ex.Message}"
+            If keepHealthDashboardVisible Then
+                IsVaultHealthVisible = True
+            End If
         Finally
             IsVaultMaintenanceRunning = False
         End Try
