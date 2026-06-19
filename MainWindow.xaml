@@ -108,9 +108,9 @@
 
         <Style x:Key="RightPanelTabButton" TargetType="RadioButton">
             <Setter Property="Height" Value="32" />
-            <Setter Property="MinWidth" Value="82" />
-            <Setter Property="Padding" Value="12,0" />
-            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="Margin" Value="0,0,6,6" />
             <Setter Property="Background" Value="{StaticResource CardAltBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -869,7 +869,7 @@
                                           VirtualizingPanel.VirtualizationMode="Recycling"
                                           AlternationCount="2">
                                     <DataGrid.Columns>
-                                        <DataGridTemplateColumn Header="Name" Width="2.2*">
+                                        <DataGridTemplateColumn Header="Name" SortMemberPath="Name" Width="2.2*">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal">
@@ -883,7 +883,7 @@
                                         </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="1*" Visibility="{Binding Data.ShowTypeColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
                                         <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="1.45*" Visibility="{Binding Data.ShowCategoryColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
-                                        <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="0.9*" Visibility="{Binding Data.ShowSizeColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
+                                        <DataGridTextColumn Header="Size" Binding="{Binding Size}" SortMemberPath="SizeBytes" Width="0.9*" Visibility="{Binding Data.ShowSizeColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
                                         <DataGridTextColumn Header="Date Modified" Binding="{Binding DateModified}" Width="1.15*" Visibility="{Binding Data.ShowDateColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}" />
                                         <DataGridTemplateColumn Header="Tags" Width="1.9*" Visibility="{Binding Data.ShowTagsColumn, Source={StaticResource VmProxy}, Converter={StaticResource BoolToVisibility}}">
                                             <DataGridTemplateColumn.CellTemplate>
@@ -933,12 +933,12 @@
                         <Border Style="{StaticResource PanelBorder}" BorderBrush="{StaticResource NeonInk.ExperimentalBrush}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Margin="16">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                    <UniformGrid Columns="2" Margin="0,0,0,12">
                                         <RadioButton Content="Preview" GroupName="RightPanelTabs" IsChecked="{Binding IsPreviewTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
-                                        <RadioButton Content="Details" GroupName="RightPanelTabs" IsChecked="{Binding IsDetailsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
+                                        <RadioButton Content="Details" GroupName="RightPanelTabs" IsChecked="{Binding IsDetailsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" Margin="0,0,0,6" />
                                         <RadioButton Content="Relations" GroupName="RightPanelTabs" IsChecked="{Binding IsRelationsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
                                         <RadioButton Content="Health" GroupName="RightPanelTabs" IsChecked="{Binding IsHealthTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" Margin="0" />
-                                    </StackPanel>
+                                    </UniformGrid>
 
                                     <StackPanel Visibility="{Binding IsPreviewTabSelected, Converter={StaticResource BoolToVisibility}}">
                                     <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.ExperimentalBrush}" BorderThickness="1" CornerRadius="6" MinHeight="260" Margin="0,8,0,24" Padding="10">
