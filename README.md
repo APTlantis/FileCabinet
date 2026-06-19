@@ -20,7 +20,7 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 Current version: **FileCabinet v1.7.3**.
 
-The v1.7.3 patch promotes Vault Health into a dedicated workspace, makes default analysis metadata-first, keeps large-file hash reads explicit, and adds bulk repair selection controls for large repair lists.
+The v1.7.3 patch promotes Vault Health into a dedicated workspace, makes default analysis metadata-first, keeps large-file hash reads explicit, and adds bulk repair selection controls for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
 
 Release notes:
 
@@ -28,6 +28,7 @@ Release notes:
 - `docs/FileCabinet v1.7.2 — Repair Scalability Patch.md`
 - `docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md`
 - `docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md`
+- `docs/FileCabinet — Hash Choices and Compatibility.md`
 
 ## Who FileCabinet Is For
 
@@ -102,6 +103,8 @@ When a file is ingested, FileCabinet:
 - extracts searchable text for text-like files
 - updates activity, stats, categories, and tags
 
+New catalogs start with SHA-256 as the only active hash. Settings can add BLAKE3, KangarooTwelve, SHA3-256, Skein, legacy digests such as MD5 or Whirlpool, and compatibility checksums when you need to match an existing vendor, archive, firmware, or release record.
+
 ## Finding Files
 
 The search box at the top searches the catalog and extracted text. It can match names, types, categories, paths, original paths, notes, tags, hashes, and extracted text content.
@@ -130,11 +133,13 @@ The table toolbar includes:
 
 The density toggle is only a display preference. It does not change catalog data. The `Health` button opens the Vault Health workspace without starting a scan or repair.
 
-## Preview And Details
+## Preview, Relations, And Details
 
 The right panel shows the selected artifact.
 
 For images, FileCabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card with a category-aware Neon Ink accent.
+
+The **Preview & Relations** tab pairs the preview box with the top related-artifact matches. Relations are capped to a compact top-five list in the panel and show inspectable reasons such as shared tags, same category, same source folder, shared extension family, release markers, source provenance, and nearby hash evidence.
 
 The details area shows editable metadata and file facts:
 
@@ -152,7 +157,7 @@ The details area shows editable metadata and file facts:
 - stored path
 - type
 - created and modified timestamps
-- BLAKE3 and SHA-256 hashes
+- a focused integrity hash summary
 - hash verification status
 - extracted text status and index path
 - thumbnail/preview generation status
@@ -163,9 +168,22 @@ Use **Save** to persist metadata edits. Use **Revert** to reload the selected ar
 
 Structured operator metadata is separate from free-form notes. Use it to preserve the human reason an artifact was retained, where it came from, how it was acquired, how much you trust it, and whether it is active, archived, quarantined, or waiting for review.
 
+The Details hash summary shows a standard set of current strong hashes plus any active or retained legacy values. It does not list every optional checksum by default, so broad compatibility support stays available without crowding the artifact view.
+
+## Settings And Hash Choices
+
+The Settings panel groups hash choices by purpose:
+
+- **Recommended** starts with SHA-256, the default industry-standard integrity hash.
+- **Modern strong hashes** includes BLAKE3, KangarooTwelve, SHA3-256, and Skein for operators who want additional cryptographic evidence.
+- **Legacy cryptographic hashes** includes MD5 and Whirlpool for matching older published digests.
+- **Compatibility checksums** and **compatibility non-crypto hashes** are for matching existing records from old tools, archives, devices, or manifests. They are not security evidence.
+
+At least one hash must remain active. Changing the active hash selection changes future ingest, explicit hash checks, health verification, and recompute-hash repairs. Existing retained hash values remain in the catalog so old evidence can still be reviewed.
+
 ## Metadata And Recall
 
-The **Relations** tab uses deterministic catalog signals only. Relation reasons remain inspectable, such as duplicate hashes, shared tags, same original folder, same ingest session, matching filename tokens, shared extension family, shared provenance tokens, shared release markers, shared hash prefixes, and shared extracted-text keywords.
+The **Relations** area uses deterministic catalog signals only. Relation reasons remain inspectable, such as duplicate hashes, shared tags, same original folder, same ingest session, matching filename tokens, shared extension family, shared provenance tokens, shared release markers, shared hash prefixes, and shared extracted-text keywords.
 
 The navigation panel includes built-in discovery scopes for common recall and cleanup tasks:
 
@@ -214,13 +232,7 @@ Non-renderable retained artifacts such as installers, archives, torrents, and di
 
 ## Related Items
 
-The **Relations** section in the right panel shows a first-pass related-artifacts list. Related items are ranked by:
-
-- duplicate SHA-256 hash
-- shared category
-- shared tags
-
-This is deterministic local matching with explainable reasons. It is meant to help you quickly spot nearby artifacts such as a manifest and archive, related images, or files with matching tags.
+The **Relations** section in the right panel shows the top related artifacts directly under the preview. Related items are deterministic local matches with explainable reasons. They are meant to help you quickly spot nearby artifacts such as a manifest and archive, related images, sibling installers, release documents, or files with matching tags.
 
 ## Repair, Rescan, And Backups
 
@@ -230,13 +242,13 @@ FileCabinet includes a few recovery-oriented tools.
 
 **Apply Selected** runs only safe repair candidates after confirmation, such as recomputing missing hashes, regenerating missing thumbnails, re-extracting missing text indexes, and rebinding stale absolute paths when the vault-relative file exists under the active vault. Review-only findings remain visible but are skipped by controlled execution.
 
-Repair activity is written to the vault-local `catalog\repair-log.jsonl` history and summarized in the Vault Health panel.
+Repair activity is written to the vault-local `catalog\repair-log.jsonl` history and summarized in the Vault Health workspace.
 
 **Rescan** looks for files under the vault's `items` folder that are not yet in the catalog and adopts them as cataloged artifacts.
 
 **Back up catalog** writes a portable catalog snapshot into the vault's `exports` folder and validates that the exported JSON can be read back as a usable catalog. This is useful before manual vault work, experimentation, or moving data between machines.
 
-The settings/status strip at the bottom right summarizes vault path, catalog path, last backup, intake mode, duplicate behavior, repair status, and deterministic recall status.
+The bottom status strip summarizes vault storage, cataloged size, free space, active scope, and repair status.
 
 ## CLI And Headless Operations
 
@@ -276,6 +288,7 @@ FileCabinet's preservation model is documented in:
 ### Technical Rationale
 
 - [Why Determinism Matters](docs/FileCabinet%20%E2%80%94%20Why%20Determinism%20Matters.md)
+- [Hash Choices and Compatibility](docs/FileCabinet%20%E2%80%94%20Hash%20Choices%20and%20Compatibility.md)
 - [Why SHA-256 and BLAKE3](docs/FileCabinet%20%E2%80%94%20Why%20SHA-256%20and%20BLAKE3.md)
 - [Why VB.NET and WPF](docs/FileCabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
 - [Neon Ink Theme Integration Overview](docs/NeonInk-Theme-Integration-Overview.md)

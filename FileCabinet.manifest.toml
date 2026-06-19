@@ -71,6 +71,7 @@ produces = [
   "docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md",
   "docs/FileCabinet v1.7.2 — Repair Scalability Patch.md",
   "docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md",
+  "docs/FileCabinet — Hash Choices and Compatibility.md",
   "Assets/MaterialSymbolsIconMap.md",
   "Assets/FileCabinet.ico",
   "Assets/FileCabinetLogoMark.png",
@@ -158,6 +159,7 @@ core_docs = [
   "docs/FileCabinet — Repair and Recovery Guide.md",
   "docs/FileCabinet — Designing for Context Preservation.md",
   "docs/FileCabinet — Why Determinism Matters.md",
+  "docs/FileCabinet — Hash Choices and Compatibility.md",
   "docs/FileCabinet — Why SHA-256 and BLAKE3.md",
   "docs/FileCabinet — Why VB.NET and WPF.md"
 ]
@@ -211,8 +213,10 @@ current_highlights = [
   "Added 24 optional compatibility hashes and checksums across archival, legacy, and fast hash families",
   "New non-legacy hash values are stored in the extensible artifact hashes dictionary",
   "Active hash computation now respects Settings across ingest, health, repair, rescan, and headless paths",
-  "Details shows dynamic hash rows for all supported algorithms",
-  "Vault Health promoted to a right-panel tab with findings, repair candidates, progress, actions, and repair history",
+  "New catalogs default to SHA-256 only while preserving opt-in BLAKE3, KangarooTwelve, SHA3-256, Skein, legacy, checksum, and non-cryptographic compatibility hashes",
+  "Settings groups hash choices by recommended, modern strong, legacy cryptographic, compatibility checksum, and compatibility non-cryptographic purposes",
+  "Details shows a focused standard hash summary plus active or retained legacy hash values instead of every supported checksum",
+  "Preview and Relations are combined in the right panel, with the top five related artifacts directly below the preview",
   "Health tab now provides a comprehensive Analyze & Fix workspace with grouped findings, repairable/review-only counts, filters, safe selection controls, and bulk path rebind support",
   "Material Symbols source vocabulary mapped to category-specific artifact list and preview icons",
   "Borderless maximize now respects the Windows taskbar work area",
@@ -222,10 +226,12 @@ current_highlights = [
   "Default Vault Health analysis is metadata-first and does not automatically compute or verify retained-file hashes",
   "Verify small hashes is limited to retained files up to 1 GB",
   "Bulk repair selection supports safe automatic, visible-only, and per-action selection while excluding review-only rows",
+  "Selected repair application reports per-item progress during hash recompute and generated-asset repair actions",
   "Health analysis defers automatic hash mismatch verification for retained files larger than 16 GB",
   "Missing-hash analysis no longer hashes files when there are no comparable active catalog hashes",
   "Default cryptographic hash computation shares one sequential read pass for explicit ingest and repair hashing",
-  "Murmur3-32 and xxHash64 compatibility hashes now stream instead of loading full files into memory"
+  "Murmur3-32 and xxHash64 compatibility hashes now stream instead of loading full files into memory",
+  "Hash Choices and Compatibility help documentation explains recommended, modern, legacy, checksum, and non-cryptographic hash families"
 ]
 not_in_scope = [
   "Automatic restore execution",
