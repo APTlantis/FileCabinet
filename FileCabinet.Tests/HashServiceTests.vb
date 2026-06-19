@@ -15,7 +15,7 @@ Namespace FileCabinet.Tests
                 Dim hashes = New Global.FileCabinet.HashService().ComputeHashes(path)
 
                 Assert.AreEqual("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", hashes.Sha256)
-                Assert.AreEqual("6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85", hashes.Blake3)
+                Assert.AreEqual("", hashes.Blake3)
             End Using
         End Sub
 
@@ -96,8 +96,8 @@ Namespace FileCabinet.Tests
 
         <TestMethod>
         Sub HashRegistryNormalizesUnknownAndEmptySelectionsToDefaults()
-            Assert.AreEqual("SHA256,BLAKE3,KangarooTwelve", Global.FileCabinet.HashRegistry.NormalizeActiveHashes(""))
-            Assert.AreEqual("SHA256,BLAKE3,KangarooTwelve", Global.FileCabinet.HashRegistry.NormalizeActiveHashes("not-a-hash"))
+            Assert.AreEqual("SHA256", Global.FileCabinet.HashRegistry.NormalizeActiveHashes(""))
+            Assert.AreEqual("SHA256", Global.FileCabinet.HashRegistry.NormalizeActiveHashes("not-a-hash"))
             Assert.AreEqual("BLAKE3,MD5,crc32", Global.FileCabinet.HashRegistry.NormalizeActiveHashes("blake3, md5, crc32, nope"))
             Assert.AreEqual(31, Global.FileCabinet.HashRegistry.Options.Count)
         End Sub
@@ -138,10 +138,13 @@ Namespace FileCabinet.Tests
         Sub DynamicHashSettingsExposeAllRegistryOptions()
             Dim viewModel = New Global.FileCabinet.MainViewModel()
             Dim settings = viewModel.HashSettingOptions.ToList()
+            Dim groups = viewModel.HashSettingGroups.ToList()
 
             Assert.AreEqual(Global.FileCabinet.HashRegistry.Options.Count, settings.Count)
             Assert.IsTrue(settings.Any(Function(optionItem) optionItem.Id = "cksum-posix"))
             Assert.IsTrue(settings.Any(Function(optionItem) optionItem.Id = "xxhash64"))
+            Assert.IsTrue(groups.Any(Function(group) group.Name = "Recommended" AndAlso group.Options.Any(Function(optionItem) optionItem.Id = "SHA256")))
+            Assert.IsTrue(groups.Any(Function(group) group.Name = "Legacy cryptographic hashes"))
         End Sub
 
         <TestMethod>

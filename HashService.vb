@@ -9,6 +9,8 @@ Public Class HashOption
     Public Property CatalogPropertyName As String = ""
     Public Property IsDefaultEnabled As Boolean
     Public Property Note As String = ""
+    Public Property Category As String = "Compatibility"
+    Public Property Detail As String = ""
 End Class
 
 Public Class FileHashes
@@ -38,37 +40,37 @@ End Class
 
 Public Class HashRegistry
     Public Shared ReadOnly Property Options As IReadOnlyList(Of HashOption) = New List(Of HashOption) From {
-        New HashOption With {.Id = "SHA256", .DisplayName = "SHA-256", .CatalogPropertyName = NameOf(FileHashes.Sha256), .IsDefaultEnabled = True},
-        New HashOption With {.Id = "BLAKE3", .DisplayName = "BLAKE3", .CatalogPropertyName = NameOf(FileHashes.Blake3), .IsDefaultEnabled = True},
-        New HashOption With {.Id = "KangarooTwelve", .DisplayName = "KangarooTwelve", .CatalogPropertyName = NameOf(FileHashes.KangarooTwelve), .IsDefaultEnabled = True},
-        New HashOption With {.Id = "SHA3-256", .DisplayName = "SHA3-256", .CatalogPropertyName = NameOf(FileHashes.Sha3_256), .IsDefaultEnabled = False},
-        New HashOption With {.Id = "MD5", .DisplayName = "MD5", .CatalogPropertyName = NameOf(FileHashes.Md5), .IsDefaultEnabled = False, .Note = "Legacy compatibility only; not collision-resistant."},
-        New HashOption With {.Id = "Whirlpool", .DisplayName = "Whirlpool", .CatalogPropertyName = NameOf(FileHashes.Whirlpool), .IsDefaultEnabled = False},
-        New HashOption With {.Id = "Skein", .DisplayName = "Skein-512", .CatalogPropertyName = NameOf(FileHashes.Skein), .IsDefaultEnabled = False},
-        New HashOption With {.Id = "cksum-posix", .DisplayName = "cksum (POSIX)", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "crc8", .DisplayName = "CRC-8/SMBus", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "crc16", .DisplayName = "CRC-16/ARC", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "crc32", .DisplayName = "CRC-32/IEEE", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "crc64", .DisplayName = "CRC-64/ECMA", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "adler32", .DisplayName = "Adler-32", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "bsd-sum16", .DisplayName = "BSD sum16", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "sysv-sum16", .DisplayName = "SYSV sum16", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "internet-checksum16", .DisplayName = "Internet checksum", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "sum8", .DisplayName = "sum8", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "sum24", .DisplayName = "sum24", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "sum32", .DisplayName = "sum32", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "fletcher8", .DisplayName = "Fletcher-8", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "fletcher16", .DisplayName = "Fletcher-16", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "fletcher32", .DisplayName = "Fletcher-32", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "xor8", .DisplayName = "xor8", .IsDefaultEnabled = False, .Note = "Compatibility checksum; not cryptographic."},
-        New HashOption With {.Id = "fnv1-32", .DisplayName = "FNV-1 32", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."},
-        New HashOption With {.Id = "fnv1a-32", .DisplayName = "FNV-1a 32", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."},
-        New HashOption With {.Id = "fnv1a-64", .DisplayName = "FNV-1a 64", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."},
-        New HashOption With {.Id = "jenkins-one-at-a-time32", .DisplayName = "Jenkins one-at-a-time", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."},
-        New HashOption With {.Id = "djb2-32", .DisplayName = "djb2 32", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."},
-        New HashOption With {.Id = "sdbm-32", .DisplayName = "SDBM 32", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."},
-        New HashOption With {.Id = "murmur3-32", .DisplayName = "Murmur3 32", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."},
-        New HashOption With {.Id = "xxhash64", .DisplayName = "xxHash64", .IsDefaultEnabled = False, .Note = "Compatibility hash; not cryptographic."}
+        New HashOption With {.Id = "SHA256", .DisplayName = "SHA-256", .CatalogPropertyName = NameOf(FileHashes.Sha256), .IsDefaultEnabled = True, .Category = "Recommended", .Detail = "Default industry-standard integrity hash."},
+        New HashOption With {.Id = "BLAKE3", .DisplayName = "BLAKE3", .CatalogPropertyName = NameOf(FileHashes.Blake3), .IsDefaultEnabled = False, .Category = "Modern strong hashes", .Detail = "Fast modern verification for large local vaults."},
+        New HashOption With {.Id = "KangarooTwelve", .DisplayName = "KangarooTwelve", .CatalogPropertyName = NameOf(FileHashes.KangarooTwelve), .IsDefaultEnabled = False, .Category = "Modern strong hashes", .Detail = "Keccak-family XOF used by ARHS release workflows."},
+        New HashOption With {.Id = "SHA3-256", .DisplayName = "SHA3-256", .CatalogPropertyName = NameOf(FileHashes.Sha3_256), .IsDefaultEnabled = False, .Category = "Modern strong hashes", .Detail = "NIST SHA-3 family hash for alternate cryptographic evidence."},
+        New HashOption With {.Id = "MD5", .DisplayName = "MD5", .CatalogPropertyName = NameOf(FileHashes.Md5), .IsDefaultEnabled = False, .Category = "Legacy cryptographic hashes", .Detail = "Legacy installer and archive verification only.", .Note = "Susceptible to collision attacks; do not use for new trust decisions."},
+        New HashOption With {.Id = "Whirlpool", .DisplayName = "Whirlpool", .CatalogPropertyName = NameOf(FileHashes.Whirlpool), .IsDefaultEnabled = False, .Category = "Legacy cryptographic hashes", .Detail = "Older strong-hash compatibility for existing published digests."},
+        New HashOption With {.Id = "Skein", .DisplayName = "Skein-512", .CatalogPropertyName = NameOf(FileHashes.Skein), .IsDefaultEnabled = False, .Category = "Modern strong hashes", .Detail = "SHA-3 finalist useful when matching existing Skein digests."},
+        New HashOption With {.Id = "cksum-posix", .DisplayName = "cksum (POSIX)", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Match POSIX cksum output; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "crc8", .DisplayName = "CRC-8/SMBus", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Small-device checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "crc16", .DisplayName = "CRC-16/ARC", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Archive/device checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "crc32", .DisplayName = "CRC-32/IEEE", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "ZIP and transport checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "crc64", .DisplayName = "CRC-64/ECMA", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Large-file checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "adler32", .DisplayName = "Adler-32", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "zlib-style checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "bsd-sum16", .DisplayName = "BSD sum16", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Legacy Unix sum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "sysv-sum16", .DisplayName = "SYSV sum16", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Legacy System V sum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "internet-checksum16", .DisplayName = "Internet checksum", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "RFC 1071-style checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "sum8", .DisplayName = "sum8", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Simple byte-sum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "sum24", .DisplayName = "sum24", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Simple 24-bit sum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "sum32", .DisplayName = "sum32", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Simple 32-bit sum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "fletcher8", .DisplayName = "Fletcher-8", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Fletcher checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "fletcher16", .DisplayName = "Fletcher-16", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Fletcher checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "fletcher32", .DisplayName = "Fletcher-32", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "Fletcher checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "xor8", .DisplayName = "xor8", .IsDefaultEnabled = False, .Category = "Compatibility checksums", .Detail = "XOR checksum matching; not cryptographic.", .Note = "Compatibility checksum; not cryptographic."},
+        New HashOption With {.Id = "fnv1-32", .DisplayName = "FNV-1 32", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Legacy FNV lookup/hash matching; not cryptographic.", .Note = "Compatibility hash; not cryptographic."},
+        New HashOption With {.Id = "fnv1a-32", .DisplayName = "FNV-1a 32", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Legacy FNV-1a matching; not cryptographic.", .Note = "Compatibility hash; not cryptographic."},
+        New HashOption With {.Id = "fnv1a-64", .DisplayName = "FNV-1a 64", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Legacy 64-bit FNV-1a matching; not cryptographic.", .Note = "Compatibility hash; not cryptographic."},
+        New HashOption With {.Id = "jenkins-one-at-a-time32", .DisplayName = "Jenkins one-at-a-time", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Legacy lookup/hash matching; not cryptographic.", .Note = "Compatibility hash; not cryptographic."},
+        New HashOption With {.Id = "djb2-32", .DisplayName = "djb2 32", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Legacy string-hash matching; not cryptographic.", .Note = "Compatibility hash; not cryptographic."},
+        New HashOption With {.Id = "sdbm-32", .DisplayName = "SDBM 32", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Legacy string-hash matching; not cryptographic.", .Note = "Compatibility hash; not cryptographic."},
+        New HashOption With {.Id = "murmur3-32", .DisplayName = "Murmur3 32", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Legacy non-crypto hash matching.", .Note = "Compatibility hash; not cryptographic."},
+        New HashOption With {.Id = "xxhash64", .DisplayName = "xxHash64", .IsDefaultEnabled = False, .Category = "Compatibility non-crypto hashes", .Detail = "Fast non-crypto checksum matching.", .Note = "Compatibility hash; not cryptographic."}
     }
 
     Public Shared ReadOnly Property DefaultActiveHashes As String

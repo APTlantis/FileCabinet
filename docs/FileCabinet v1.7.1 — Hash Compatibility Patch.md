@@ -20,7 +20,7 @@ Existing vaults remain readable. The original named catalog fields for SHA-256, 
 
 ### Dynamic Hash Settings
 
-The Settings panel now renders hash choices from the registry, so future additions do not need one-off UI properties. The default active hash set remains `SHA256,BLAKE3,KangarooTwelve`.
+The Settings panel now renders hash choices from the registry, so future additions do not need one-off UI properties. At the time of this patch, the default active hash set was `SHA256,BLAKE3,KangarooTwelve`; newer builds start with SHA-256 only and let operators opt into additional hashes.
 
 ---
 

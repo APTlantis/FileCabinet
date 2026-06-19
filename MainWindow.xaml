@@ -459,7 +459,7 @@
                             <MenuItem Header="User Guide" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" ToolTip="Open the main FileCabinet user guide." />
                             <MenuItem Header="Retention Choices" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" ToolTip="Explain why FileCabinet keeps retained files deliberately instead of cleaning them up automatically." />
                             <MenuItem Header="Trust and Verification" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" ToolTip="Explain how FileCabinet uses hashes, paths, and catalog data to verify artifacts." />
-                            <MenuItem Header="Hash Choices" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Why SHA-256 and BLAKE3.md" ToolTip="Explain the default integrity hashes and when compatibility hashes are useful." />
+                            <MenuItem Header="Hash Choices" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Hash Choices and Compatibility.md" ToolTip="Explain integrity hashes and compatibility checksums." />
                             <MenuItem Header="Repair and Recovery" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" ToolTip="Explain health findings, safe repairs, and review-only issues." />
                             <MenuItem Header="Roadmap" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" ToolTip="Open planned reliability and preservation improvements." />
                             <Separator />
@@ -1075,15 +1075,14 @@
                     <Grid Margin="12,14">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="230" />
+                            <RowDefinition Height="0" />
                         </Grid.RowDefinitions>
                         <Border Style="{StaticResource PanelBorder}" BorderBrush="{StaticResource NeonInk.ExperimentalBrush}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Margin="16">
-                                    <UniformGrid Columns="3" Margin="0,0,0,12">
-                                        <RadioButton Content="Preview" GroupName="RightPanelTabs" IsChecked="{Binding IsPreviewTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
+                                    <UniformGrid Columns="2" Margin="0,0,0,12">
+                                        <RadioButton Content="Preview &amp; Relations" GroupName="RightPanelTabs" IsChecked="{Binding IsPreviewTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" />
                                         <RadioButton Content="Details" GroupName="RightPanelTabs" IsChecked="{Binding IsDetailsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" Margin="0,0,0,6" />
-                                        <RadioButton Content="Relations" GroupName="RightPanelTabs" IsChecked="{Binding IsRelationsTabSelected, Mode=TwoWay}" Style="{StaticResource RightPanelTabButton}" Margin="0,0,0,6" />
                                     </UniformGrid>
 
                                     <StackPanel Visibility="{Binding IsPreviewTabSelected, Converter={StaticResource BoolToVisibility}}">
@@ -1138,14 +1137,12 @@
                                             </StackPanel>
                                         </Grid>
                                     </Border>
-                                    </StackPanel>
 
-                                    <StackPanel Visibility="{Binding IsRelationsTabSelected, Converter={StaticResource BoolToVisibility}}">
                                     <TextBlock Text="Relations" Foreground="{StaticResource NeonInk.StructureBrush}" FontSize="11" Margin="0,0,0,8" />
                                     <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.StructureBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,20">
                                         <StackPanel>
                                             <TextBlock Text="{Binding RelatedArtifactsSummary}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,8" />
-                                            <ItemsControl ItemsSource="{Binding RelatedArtifacts}">
+                                            <ItemsControl ItemsSource="{Binding PreviewRelatedArtifacts}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
                                                         <Grid Margin="0,0,0,12">
@@ -1687,8 +1684,8 @@
                         BorderBrush="{StaticResource BorderDimBrush}" 
                         BorderThickness="1" 
                         CornerRadius="8" 
-                        Width="450" 
-                        Height="400" 
+                        Width="560"
+                        Height="620"
                         HorizontalAlignment="Center" 
                         VerticalAlignment="Center">
                     <Grid Margin="24">
@@ -1707,22 +1704,38 @@
 
                         <StackPanel Grid.Row="1" Margin="0,20,0,0">
                             <TextBlock Text="Active Hashes" Style="{StaticResource SectionTitle}" Margin="0,0,0,8" />
-                            <ScrollViewer Height="118" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16">
-                                <ItemsControl ItemsSource="{Binding HashSettingOptions}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
+                            <ScrollViewer Height="310" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16">
+                                <ItemsControl ItemsSource="{Binding HashSettingGroups}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <CheckBox Content="{Binding DisplayName}"
-                                                      IsChecked="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                      Command="{Binding ToggleCommand}"
-                                                      CommandParameter="{Binding}"
-                                                      ToolTip="{Binding Note}"
-                                                      Foreground="{StaticResource PrimaryTextBrush}"
-                                                      Margin="0,0,10,5" />
+                                            <StackPanel Margin="0,0,0,14">
+                                                <TextBlock Text="{Binding Name}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Summary}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,3,0,7" />
+                                                <ItemsControl ItemsSource="{Binding Options}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,0,0,7">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <CheckBox IsChecked="{Binding IsActive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                          Command="{Binding ToggleCommand}"
+                                                                          CommandParameter="{Binding}"
+                                                                          ToolTip="{Binding Note}"
+                                                                          Foreground="{StaticResource PrimaryTextBrush}"
+                                                                          VerticalAlignment="Top"
+                                                                          Margin="0,2,8,0" />
+                                                                <StackPanel Grid.Column="1">
+                                                                    <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" />
+                                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" />
+                                                                    <TextBlock Text="{Binding Note}" Foreground="{StaticResource AccentBrush}" FontSize="11" TextWrapping="Wrap" />
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>

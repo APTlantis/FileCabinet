@@ -19,7 +19,7 @@ FileCabinet v1.7.2 is a maintenance patch focused on making repair and verificat
 ## Hashing Performance
 
 - Active cryptographic hashes now share a single sequential read pass when possible.
-- The default active set, SHA-256, BLAKE3, and KangarooTwelve, no longer requires three separate full-file reads during ingest or explicit repair.
+- Multi-hash active sets such as SHA-256, BLAKE3, and KangarooTwelve no longer require three separate full-file reads during ingest or explicit repair.
 - Murmur3-32 and xxHash64 compatibility hashes now stream file contents instead of loading the entire retained file into memory.
 - Hash reads now use a larger sequential buffer for better behavior on large archives, disk images, and installer payloads.
 

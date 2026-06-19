@@ -1,6 +1,7 @@
 Imports System.Text.Json.Serialization
 Imports System.ComponentModel
 Imports System.IO
+Imports System.Linq
 Imports System.Runtime.CompilerServices
 Imports System.Windows.Input
 
@@ -392,6 +393,8 @@ Public Class HashSettingOptionModel
     Public Property Id As String = ""
     Public Property DisplayName As String = ""
     Public Property Note As String = ""
+    Public Property Detail As String = ""
+    Public Property Category As String = ""
     Public Property ToggleCommand As ICommand
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
@@ -411,6 +414,12 @@ Public Class HashSettingOptionModel
     Private Sub OnPropertyChanged(<CallerMemberName> Optional propertyName As String = Nothing)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(propertyName))
     End Sub
+End Class
+
+Public Class HashSettingGroupModel
+    Public Property Name As String = ""
+    Public Property Summary As String = ""
+    Public Property Options As IEnumerable(Of HashSettingOptionModel) = Enumerable.Empty(Of HashSettingOptionModel)()
 End Class
 
 Public Class ArtifactIconModel

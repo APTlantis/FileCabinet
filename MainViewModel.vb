@@ -17,6 +17,20 @@ Public Class MainViewModel
     Private Const LargeArtifactThresholdBytes As Long = 1024L * 1024L * 1024L
     Public Const AutoHashVerificationLimitBytes As Long = 1024L * 1024L * 1024L
     Private Shared ReadOnly ReleaseMarkerRegexTimeout As TimeSpan = TimeSpan.FromMilliseconds(250)
+    Private Shared ReadOnly StandardHashDisplayIds As IReadOnlyList(Of String) = New List(Of String) From {
+        "SHA256",
+        "BLAKE3",
+        "KangarooTwelve",
+        "SHA3-256",
+        "Skein"
+    }
+    Private Shared ReadOnly HashSettingCategoryOrder As IReadOnlyList(Of String) = New List(Of String) From {
+        "Recommended",
+        "Modern strong hashes",
+        "Legacy cryptographic hashes",
+        "Compatibility checksums",
+        "Compatibility non-crypto hashes"
+    }
 
     Private ReadOnly _catalogService As CatalogService
     Private ReadOnly _ingestionService As IngestionService
@@ -881,6 +895,7 @@ Public Class MainViewModel
     End Sub
 
     Private Sub RaiseHashSettingChanges()
+        OnPropertyChanged(NameOf(HashSettingGroups))
         OnPropertyChanged(NameOf(HashSettingOptions))
         OnPropertyChanged(NameOf(ActiveHashSummary))
         OnPropertyChanged(NameOf(HashSettingsNote))
@@ -888,18 +903,62 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(SelectedHashDisplays))
     End Sub
 
+    Public ReadOnly Property HashSettingGroups As IEnumerable(Of HashSettingGroupModel)
+        Get
+            Dim activeHashes = If(_catalog?.ActiveHashes, HashRegistry.DefaultActiveHashes)
+            Return HashRegistry.Options.
+                GroupBy(Function(optionItem) optionItem.Category).
+                OrderBy(Function(group) CategorySortIndex(group.Key)).
+                ThenBy(Function(group) group.Key).
+                Select(Function(group) New HashSettingGroupModel With {
+                    .Name = group.Key,
+                    .Summary = HashCategorySummary(group.Key),
+                    .Options = group.Select(Function(optionItem) BuildHashSettingOption(optionItem, activeHashes)).ToList()
+                }).
+                ToList()
+        End Get
+    End Property
+
     Public ReadOnly Property HashSettingOptions As IEnumerable(Of HashSettingOptionModel)
         Get
             Dim activeHashes = If(_catalog?.ActiveHashes, HashRegistry.DefaultActiveHashes)
-            Return HashRegistry.Options.Select(Function(optionItem) New HashSettingOptionModel With {
+            Return HashRegistry.Options.Select(Function(optionItem) BuildHashSettingOption(optionItem, activeHashes)).ToList()
+        End Get
+    End Property
+
+    Private Function BuildHashSettingOption(optionItem As HashOption, activeHashes As String) As HashSettingOptionModel
+        Return New HashSettingOptionModel With {
                 .Id = optionItem.Id,
                 .DisplayName = optionItem.DisplayName,
                 .Note = optionItem.Note,
+                .Detail = optionItem.Detail,
+                .Category = optionItem.Category,
                 .IsActive = HashRegistry.IsActive(activeHashes, optionItem.Id),
                 .ToggleCommand = ToggleHashOptionCommand
-            }).ToList()
-        End Get
-    End Property
+            }
+    End Function
+
+    Private Shared Function CategorySortIndex(category As String) As Integer
+        Dim index = HashSettingCategoryOrder.ToList().FindIndex(Function(item) String.Equals(item, category, StringComparison.OrdinalIgnoreCase))
+        Return If(index >= 0, index, Integer.MaxValue)
+    End Function
+
+    Private Shared Function HashCategorySummary(category As String) As String
+        Select Case category
+            Case "Recommended"
+                Return "Start here. New vaults record SHA-256 only unless you opt into more evidence."
+            Case "Modern strong hashes"
+                Return "Good additions when you want multiple modern cryptographic fingerprints."
+            Case "Legacy cryptographic hashes"
+                Return "For checking older published digests; avoid these for new trust decisions."
+            Case "Compatibility checksums"
+                Return "For matching old tools, archives, and device checksums; not security evidence."
+            Case "Compatibility non-crypto hashes"
+                Return "For matching historical hash values in manifests or tooling; not security evidence."
+            Case Else
+                Return ""
+        End Select
+    End Function
 
     Public ReadOnly Property ActiveHashSummary As String
         Get
@@ -1029,7 +1088,17 @@ Public Class MainViewModel
                 Return "No close relations found yet"
             End If
 
+            If RelatedArtifacts.Count > 5 Then
+                Return $"Top 5 of {RelatedArtifacts.Count:N0} related item(s)"
+            End If
+
             Return $"{RelatedArtifacts.Count:N0} related item(s)"
+        End Get
+    End Property
+
+    Public ReadOnly Property PreviewRelatedArtifacts As IEnumerable(Of ArtifactRelationModel)
+        Get
+            Return RelatedArtifacts.Take(5).ToList()
         End Get
     End Property
 
@@ -1241,8 +1310,14 @@ Public Class MainViewModel
 
     Private Shared Function BuildHashDisplayRows(artifact As ArtifactModel, activeHashes As String) As IEnumerable(Of HashDisplayModel)
         Dim activeIds = New HashSet(Of String)(HashRegistry.ParseActiveHashIds(HashRegistry.NormalizeActiveHashes(activeHashes)), StringComparer.OrdinalIgnoreCase)
+        Dim standardIds = New HashSet(Of String)(StandardHashDisplayIds, StringComparer.OrdinalIgnoreCase)
 
-        Return HashRegistry.Options.Select(Function(optionItem)
+        Return HashRegistry.Options.
+            Where(Function(optionItem)
+                      Dim value = HashRegistry.GetArtifactHashValue(artifact, optionItem.Id)
+                      Return standardIds.Contains(optionItem.Id) OrElse activeIds.Contains(optionItem.Id) OrElse Not String.IsNullOrWhiteSpace(value)
+                  End Function).
+            Select(Function(optionItem)
                                                Dim value = HashRegistry.GetArtifactHashValue(artifact, optionItem.Id)
                                                Dim isActive = activeIds.Contains(optionItem.Id)
                                                Dim hasValue = Not String.IsNullOrWhiteSpace(value)
@@ -1320,8 +1395,6 @@ Public Class MainViewModel
         Select Case If(value, "").Trim().ToLowerInvariant()
             Case "details"
                 Return "Details"
-            Case "relations"
-                Return "Relations"
             Case Else
                 Return "Preview"
         End Select
@@ -2163,6 +2236,7 @@ Public Class MainViewModel
             New HelpDocumentModel With {.Title = "User Guide", .RelativePath = "README.md"},
             New HelpDocumentModel With {.Title = "Deliberate Retention Tradeoff", .RelativePath = "docs\FileCabinet — The Deliberate Retention Tradeoff.md"},
             New HelpDocumentModel With {.Title = "Trust and Verification Model", .RelativePath = "docs\FileCabinet — Trust and Verification Model.md"},
+            New HelpDocumentModel With {.Title = "Hash Choices and Compatibility", .RelativePath = "docs\FileCabinet — Hash Choices and Compatibility.md"},
             New HelpDocumentModel With {.Title = "Why SHA-256 and BLAKE3", .RelativePath = "docs\FileCabinet — Why SHA-256 and BLAKE3.md"},
             New HelpDocumentModel With {.Title = "v1.7.1 Hash Compatibility Patch", .RelativePath = "docs\FileCabinet v1.7.1 — Hash Compatibility Patch.md"},
             New HelpDocumentModel With {.Title = "Repair and Recovery Guide", .RelativePath = "docs\FileCabinet — Repair and Recovery Guide.md"},
@@ -2581,6 +2655,7 @@ Public Class MainViewModel
 
         If SelectedArtifact Is Nothing Then
             OnPropertyChanged(NameOf(RelatedArtifactsSummary))
+            OnPropertyChanged(NameOf(PreviewRelatedArtifacts))
             Return
         End If
 
@@ -2590,7 +2665,7 @@ Public Class MainViewModel
             Where(Function(relation) relation IsNot Nothing AndAlso relation.Score > 0).
             OrderByDescending(Function(relation) relation.Score).
             ThenBy(Function(relation) relation.Name).
-            Take(6).
+            Take(10).
             ToList()
 
         For Each relation In related
@@ -2598,6 +2673,7 @@ Public Class MainViewModel
         Next
 
         OnPropertyChanged(NameOf(RelatedArtifactsSummary))
+        OnPropertyChanged(NameOf(PreviewRelatedArtifacts))
     End Sub
 
     Public Shared Function BuildArtifactRelation(selected As ArtifactModel, candidate As ArtifactModel, Optional vaultRootPath As String = "") As ArtifactRelationModel
@@ -3717,8 +3793,38 @@ Public Class MainViewModel
                 }).
                 ToList()
             Dim vaultRoot = VaultRootPath
-            Dim results = Await Task.Run(Function()
-                                             Return workItems.Select(Function(workItem) BuildRepairApplicationResult(workItem, vaultRoot)).ToList()
+            Dim activeHashes = HashRegistry.NormalizeActiveHashes(_catalog.ActiveHashes)
+            Dim applyProgress As IProgress(Of VaultMaintenanceProgress) = New Progress(Of VaultMaintenanceProgress)(Sub(progressUpdate)
+                                                              VaultMaintenanceProgress = progressUpdate.Percent
+                                                              VaultMaintenanceStatus = progressUpdate.Stage
+                                                              VaultMaintenanceDetail = progressUpdate.ToString()
+                                                          End Sub)
+            Dim results As List(Of RepairApplicationResult) = Await Task.Run(Function() As List(Of RepairApplicationResult)
+                                             Dim completed As New List(Of RepairApplicationResult)
+                                             For i = 0 To workItems.Count - 1
+                                                 Dim workItem = workItems(i)
+                                                 Dim actionType = If(workItem?.Candidate?.ActionType, "Repair")
+                                                 Dim subject = If(workItem?.Candidate?.Subject, "")
+                                                 applyProgress.Report(New VaultMaintenanceProgress With {
+                                                     .Stage = $"Applying {actionType}",
+                                                     .CurrentItem = subject,
+                                                     .ProcessedCount = i,
+                                                     .TotalCount = workItems.Count,
+                                                     .Detail = If(String.Equals(actionType, "RecomputeHash", StringComparison.OrdinalIgnoreCase), $"Computing {activeHashes}", "Applying selected repair")
+                                                 })
+
+                                                 completed.Add(BuildRepairApplicationResult(workItem, vaultRoot, activeHashes))
+
+                                                 applyProgress.Report(New VaultMaintenanceProgress With {
+                                                     .Stage = $"Applied {actionType}",
+                                                     .CurrentItem = subject,
+                                                     .ProcessedCount = i + 1,
+                                                     .TotalCount = workItems.Count,
+                                                     .Detail = "Repair item finished"
+                                                 })
+                                             Next
+
+                                             Return completed
                                          End Function)
             Dim applied = 0
             Dim failed = 0
@@ -3776,7 +3882,7 @@ Public Class MainViewModel
         End Try
     End Function
 
-    Private Function BuildRepairApplicationResult(workItem As RepairApplicationWorkItem, vaultRootPath As String) As RepairApplicationResult
+    Private Function BuildRepairApplicationResult(workItem As RepairApplicationWorkItem, vaultRootPath As String, activeHashes As String) As RepairApplicationResult
         Dim result As New RepairApplicationResult With {
             .Candidate = workItem?.Candidate,
             .Artifact = workItem?.Artifact,
@@ -3801,7 +3907,7 @@ Public Class MainViewModel
         End If
 
         Try
-            ApplyRepairAction(result, vaultRootPath)
+            ApplyRepairAction(result, vaultRootPath, activeHashes)
         Catch ex As Exception
             result.Succeeded = False
             result.Detail = ex.Message
@@ -3810,12 +3916,12 @@ Public Class MainViewModel
         Return result
     End Function
 
-    Private Sub ApplyRepairAction(result As RepairApplicationResult, vaultRootPath As String)
+    Private Sub ApplyRepairAction(result As RepairApplicationResult, vaultRootPath As String, activeHashes As String)
         Select Case result.Candidate.ActionType
             Case "RegenerateThumbnail"
                 ApplyThumbnailRepair(result, vaultRootPath)
             Case "RecomputeHash"
-                ApplyHashRepair(result)
+                ApplyHashRepair(result, activeHashes)
             Case "ReExtractText"
                 ApplyTextExtractionRepair(result, vaultRootPath)
             Case "RebindPath"
@@ -3837,13 +3943,13 @@ Public Class MainViewModel
         result.Succeeded = String.Equals(thumbnail.Status, ThumbnailService.GeneratedStatus, StringComparison.OrdinalIgnoreCase)
     End Sub
 
-    Private Sub ApplyHashRepair(result As RepairApplicationResult)
+    Private Sub ApplyHashRepair(result As RepairApplicationResult, activeHashes As String)
         If Not HasRetainedFile(result.Artifact) Then
             MarkMissingRetainedFile(result)
             Return
         End If
 
-        Dim hashes = _hashService.ComputeHashes(result.Artifact.Path, _catalog.ActiveHashes)
+        Dim hashes = _hashService.ComputeHashes(result.Artifact.Path, activeHashes)
         result.Hashes = hashes
         result.HashStatus = "Verified"
         result.Succeeded = True
