@@ -149,7 +149,7 @@ Namespace FileCabinet.Tests
                     .Sha256 = originalHashes.Sha256
                 }
 
-                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), hashService)
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), hashService, Nothing, "", verifyHashes:=True)
                 Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Hash mismatch" AndAlso item.Subject = "kept.txt")
 
                 Assert.IsNotNull(finding)
@@ -158,6 +158,35 @@ Namespace FileCabinet.Tests
                 Assert.IsFalse(finding.TouchesRetainedFiles)
                 Assert.AreEqual(originalHashes.Blake3, artifact.Blake3)
                 Assert.AreEqual(originalHashes.Sha256, artifact.Sha256)
+            Finally
+                If Directory.Exists(workspace) Then
+                    Directory.Delete(workspace, recursive:=True)
+                End If
+            End Try
+        End Sub
+
+        <TestMethod>
+        Sub MetadataFirstHealthReportDoesNotReadRetainedFileHashes()
+            Dim workspace = Path.Combine(Path.GetTempPath(), "FileCabinetTests", Guid.NewGuid().ToString("N"))
+            Dim vaultRoot = Path.Combine(workspace, "vault")
+            Dim itemRoot = Path.Combine(vaultRoot, "items")
+            Directory.CreateDirectory(itemRoot)
+            Dim storedPath = Path.Combine(itemRoot, "kept.txt")
+            File.WriteAllText(storedPath, "retained")
+
+            Try
+                Dim artifact = New Global.FileCabinet.ArtifactModel With {
+                    .Name = "kept.txt",
+                    .Path = storedPath,
+                    .SizeBytes = 10,
+                    .Sha256 = "existing-sha",
+                    .Blake3 = "existing-blake"
+                }
+
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New ThrowingHashService(), Nothing, "SHA256,BLAKE3")
+
+                Assert.IsFalse(report.Findings.Any(Function(finding) finding.FindingType = "Hash verification failed"))
+                Assert.IsFalse(report.Findings.Any(Function(finding) finding.FindingType = "Hash mismatch"))
             Finally
                 If Directory.Exists(workspace) Then
                     Directory.Delete(workspace, recursive:=True)
@@ -217,6 +246,7 @@ Namespace FileCabinet.Tests
                 Assert.AreEqual("Low", finding.RiskLevel)
                 Assert.IsFalse(finding.MutatesCatalog)
                 Assert.IsFalse(finding.TouchesRetainedFiles)
+                StringAssert.Contains(finding.Detail, "1 GB")
             Finally
                 If Directory.Exists(workspace) Then
                     Directory.Delete(workspace, recursive:=True)
@@ -240,7 +270,7 @@ Namespace FileCabinet.Tests
                     .Md5 = "228c70bfc5589c58c044e03fff0e17eb"
                 }
 
-                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "MD5")
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "MD5", verifyHashes:=True)
 
                 Assert.IsFalse(report.Findings.Any(Function(finding) finding.FindingType = "Missing hash"))
             Finally
@@ -267,7 +297,7 @@ Namespace FileCabinet.Tests
                     .Sha256 = "inactive-sha-value"
                 }
 
-                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "MD5")
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "MD5", verifyHashes:=True)
                 Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Hash mismatch")
 
                 Assert.IsNotNull(finding)
@@ -296,7 +326,7 @@ Namespace FileCabinet.Tests
                 }
                 artifact.Hashes("crc32") = "not-the-crc"
 
-                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "crc32")
+                Dim report = Global.FileCabinet.MainViewModel.BuildVaultHealthReport({artifact}, vaultRoot, New Global.FileCabinet.ThumbnailService(), New Global.FileCabinet.HashService(), Nothing, "crc32", verifyHashes:=True)
                 Dim finding = report.Findings.FirstOrDefault(Function(item) item.FindingType = "Hash mismatch")
 
                 Assert.IsNotNull(finding)
@@ -470,8 +500,36 @@ Namespace FileCabinet.Tests
             Assert.IsTrue(thumbnail.CanRepairAutomatically)
             Assert.IsTrue(thumbnail.IsSelected)
             Assert.IsTrue(missingHash.CanRepairAutomatically)
+            Assert.IsTrue(missingHash.IsExpensiveAutomatic)
             Assert.IsFalse(missingHash.IsSelected)
             Assert.IsFalse(reviewOnly.CanRepairAutomatically)
+            Assert.IsFalse(reviewOnly.IsSelected)
+        End Sub
+
+        <TestMethod>
+        Sub BulkRepairSelectionSupportsSafeVisibleActionAndReviewOnlyExclusion()
+            Dim rebind = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {.FindingType = "Path rebind candidate"})
+            Dim thumbnail = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {.FindingType = "Missing thumbnail"})
+            Dim text = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {.FindingType = "Missing extracted text"})
+            Dim hash = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {.FindingType = "Missing hash"})
+            Dim reviewOnly = Global.FileCabinet.MainViewModel.BuildRepairCandidate(New Global.FileCabinet.VaultHealthFinding With {.FindingType = "Hash mismatch"})
+            Dim candidates = {rebind, thumbnail, text, hash, reviewOnly}
+
+            Global.FileCabinet.MainViewModel.ApplyRepairCandidateSelection(candidates, "clear", Nothing)
+            Global.FileCabinet.MainViewModel.ApplyRepairCandidateSelection(candidates, "safe", Nothing)
+
+            Assert.IsTrue(rebind.IsSelected)
+            Assert.IsTrue(thumbnail.IsSelected)
+            Assert.IsTrue(text.IsSelected)
+            Assert.IsFalse(hash.IsSelected)
+            Assert.IsFalse(reviewOnly.IsSelected)
+
+            Global.FileCabinet.MainViewModel.ApplyRepairCandidateSelection(candidates, "action", "RecomputeHash")
+
+            Assert.IsFalse(rebind.IsSelected)
+            Assert.IsFalse(thumbnail.IsSelected)
+            Assert.IsFalse(text.IsSelected)
+            Assert.IsTrue(hash.IsSelected)
             Assert.IsFalse(reviewOnly.IsSelected)
         End Sub
 

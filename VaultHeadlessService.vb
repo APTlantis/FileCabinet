@@ -74,6 +74,9 @@ Public Class HeadlessPackageResult
 End Class
 
 Public Class VaultHeadlessService
+    Private Const CatalogFolderName As String = "catalog"
+    Private Const ItemsFolderName As String = "items"
+
     Private ReadOnly _catalogService As CatalogService
     Private ReadOnly _ingestionService As IngestionService
     Private ReadOnly _searchService As VaultSearchService
@@ -305,9 +308,9 @@ Public Class VaultHeadlessService
         }
 
         Directory.CreateDirectory(workingRoot)
-        Directory.CreateDirectory(Path.Combine(workingRoot, "catalog"))
+        Directory.CreateDirectory(Path.Combine(workingRoot, CatalogFolderName))
         Directory.CreateDirectory(Path.Combine(workingRoot, "integrity"))
-        Directory.CreateDirectory(Path.Combine(workingRoot, "items"))
+        Directory.CreateDirectory(Path.Combine(workingRoot, ItemsFolderName))
         Directory.CreateDirectory(Path.Combine(workingRoot, "thumbnails"))
         Directory.CreateDirectory(Path.Combine(workingRoot, "extracted-text"))
         Directory.CreateDirectory(Path.Combine(workingRoot, "repair-logs"))
@@ -319,8 +322,8 @@ Public Class VaultHeadlessService
             .vaultRoot = catalog.VaultRootPath,
             .artifactCount = catalog.Artifacts.Count
         }, JsonOptions))
-        File.WriteAllText(Path.Combine(workingRoot, "catalog", "catalog.json"), JsonSerializer.Serialize(catalog, JsonOptions))
-        File.WriteAllLines(Path.Combine(workingRoot, "catalog", "catalog.jsonl"), catalog.Artifacts.Select(Function(artifact) JsonSerializer.Serialize(artifact, JsonLineOptions)))
+        File.WriteAllText(Path.Combine(workingRoot, CatalogFolderName, "catalog.json"), JsonSerializer.Serialize(catalog, JsonOptions))
+        File.WriteAllLines(Path.Combine(workingRoot, CatalogFolderName, "catalog.jsonl"), catalog.Artifacts.Select(Function(artifact) JsonSerializer.Serialize(artifact, JsonLineOptions)))
 
         Dim verifyResult = Verify("any")
         File.WriteAllText(Path.Combine(workingRoot, "integrity", "vault-health.json"), JsonSerializer.Serialize(New With {
@@ -329,10 +332,10 @@ Public Class VaultHeadlessService
             .repair = verifyResult.RepairReport
         }, JsonOptions))
 
-        CopyFolderIfExists(Path.Combine(catalog.VaultRootPath, "items"), Path.Combine(workingRoot, "items"), result)
+        CopyFolderIfExists(Path.Combine(catalog.VaultRootPath, ItemsFolderName), Path.Combine(workingRoot, ItemsFolderName), result)
         CopyFolderIfExists(Path.Combine(catalog.VaultRootPath, "thumbnails"), Path.Combine(workingRoot, "thumbnails"), result)
         CopyFolderIfExists(Path.Combine(catalog.VaultRootPath, "extracted-text"), Path.Combine(workingRoot, "extracted-text"), result)
-        CopyFileIfExists(Path.Combine(catalog.VaultRootPath, "catalog", "repair-log.jsonl"), Path.Combine(workingRoot, "repair-logs", "repair-log.jsonl"), result)
+        CopyFileIfExists(Path.Combine(catalog.VaultRootPath, CatalogFolderName, "repair-log.jsonl"), Path.Combine(workingRoot, "repair-logs", "repair-log.jsonl"), result)
 
         If zipPackage Then
             Dim zipPath = If(normalizedOutput.EndsWith(".zip", StringComparison.OrdinalIgnoreCase), normalizedOutput, $"{normalizedOutput}.zip")
@@ -462,7 +465,7 @@ Public Class VaultHeadlessService
     End Sub
 
     Private Shared Function FindOrphanStoredFiles(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String) As IEnumerable(Of String)
-        Dim itemsRoot = Path.Combine(vaultRootPath, "items")
+        Dim itemsRoot = Path.Combine(vaultRootPath, ItemsFolderName)
         If Not Directory.Exists(itemsRoot) Then
             Return Enumerable.Empty(Of String)()
         End If

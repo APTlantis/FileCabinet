@@ -97,7 +97,6 @@ Namespace FileCabinet.Tests
                 CollectionAssert.AreEqual(
                     New List(Of String) From {
                         "Missing file:missing.iso",
-                        "Hash mismatch:kept.txt",
                         "Duplicate hash:SHA256: duplicate-sha256"
                     },
                     orderedFindings)

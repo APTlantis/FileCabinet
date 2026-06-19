@@ -127,6 +127,7 @@ Public Class RepairCandidate
     Public Property Finding As VaultHealthFinding
     Public Property ActionType As String = "ReviewOnly"
     Public Property CanRepairAutomatically As Boolean
+    Public Property IsExpensiveAutomatic As Boolean
     Public Property RequiresOperatorApproval As Boolean = True
 
     Public Property IsSelected As Boolean
@@ -180,6 +181,10 @@ Public Class RepairCandidate
 
     Public ReadOnly Property ApprovalText As String
         Get
+            If IsExpensiveAutomatic Then
+                Return "Explicit selection required"
+            End If
+
             If RequiresOperatorApproval Then
                 Return "Approval required"
             End If
@@ -188,10 +193,28 @@ Public Class RepairCandidate
         End Get
     End Property
 
+    Public ReadOnly Property RepairGroup As String
+        Get
+            If Not CanRepairAutomatically Then
+                Return "Review-only"
+            End If
+
+            If IsExpensiveAutomatic Then
+                Return "Expensive automatic"
+            End If
+
+            Return "Automatic"
+        End Get
+    End Property
+
     Public ReadOnly Property SelectionState As String
         Get
             If Not CanRepairAutomatically Then
                 Return "Manual review required"
+            End If
+
+            If IsExpensiveAutomatic AndAlso Not IsSelected Then
+                Return "Expensive, not selected"
             End If
 
             If IsSelected Then
@@ -205,6 +228,19 @@ Public Class RepairCandidate
     Private Sub OnPropertyChanged(<CallerMemberName> Optional propertyName As String = Nothing)
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(propertyName))
     End Sub
+End Class
+
+Public Class HealthBreakdownRow
+    Public Property Label As String = ""
+    Public Property Count As Integer
+    Public Property PercentWidth As Double
+    Public Property AccentBrush As String = "#38BDF8"
+
+    Public ReadOnly Property CountText As String
+        Get
+            Return Count.ToString("N0")
+        End Get
+    End Property
 End Class
 
 Public Class VaultMaintenanceProgress

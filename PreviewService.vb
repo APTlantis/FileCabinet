@@ -23,6 +23,19 @@ Public Class ArtifactPreview
 End Class
 
 Public Class PreviewService
+    Private Const CategoryDiskImages As String = "ISOs / Disk Images"
+    Private Const CategoryInstallers As String = "Software / Installers"
+    Private Const CategoryArchives As String = "Archives"
+    Private Const CategoryTorrents As String = "Torrents"
+    Private Const CategoryKeysSecurity As String = "Keys / Security"
+    Private Const CategoryDocuments As String = "Documents"
+    Private Const CategorySpreadsheets As String = "Spreadsheets"
+    Private Const CategoryPresentations As String = "Presentations"
+    Private Const CategoryManifestsConfig As String = "Manifests / Config"
+    Private Const CategoryAudio As String = "Audio"
+    Private Const CategoryVideo As String = "Video"
+    Private Const AccentBackgroundMagenta As String = "#3B1733"
+
     Private ReadOnly _thumbnailService As ThumbnailService
 
     Private Shared ReadOnly ImageExtensions As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase) From {
@@ -123,7 +136,7 @@ Public Class PreviewService
                 .BadgeText = "IMG",
                 .IconGlyph = ChrW(&HE91B),
                 .AccentBrush = "#EC4899",
-                .AccentBackground = "#3B1733"
+                .AccentBackground = AccentBackgroundMagenta
             }
         End Try
     End Function
@@ -189,27 +202,27 @@ Public Class PreviewService
         Dim normalizedExtension = If(extension, "").ToLowerInvariant()
 
         Select Case True
-            Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryDiskImages, StringComparison.OrdinalIgnoreCase)
                 Return "Disk Image Retained"
-            Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryInstallers, StringComparison.OrdinalIgnoreCase)
                 Return "Installer Retained"
-            Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryArchives, StringComparison.OrdinalIgnoreCase)
                 Return "Archive Retained"
-            Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryTorrents, StringComparison.OrdinalIgnoreCase)
                 Return "Torrent Retained"
-            Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryKeysSecurity, StringComparison.OrdinalIgnoreCase)
                 Return "Security File Retained"
-            Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryDocuments, StringComparison.OrdinalIgnoreCase)
                 Return If(normalizedExtension = ".pdf", "PDF Retained", "Document Retained")
-            Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategorySpreadsheets, StringComparison.OrdinalIgnoreCase)
                 Return "Spreadsheet Retained"
-            Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryPresentations, StringComparison.OrdinalIgnoreCase)
                 Return "Presentation Retained"
-            Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryManifestsConfig, StringComparison.OrdinalIgnoreCase)
                 Return "Config File Retained"
-            Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryAudio, StringComparison.OrdinalIgnoreCase)
                 Return "Audio Retained"
-            Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryVideo, StringComparison.OrdinalIgnoreCase)
                 Return "Video Retained"
             Case normalizedExtension = ".pdf"
                 Return "PDF Retained"
@@ -223,23 +236,23 @@ Public Class PreviewService
         Dim normalizedExtension = If(extension, "").ToLowerInvariant()
 
         Select Case True
-            Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryDiskImages, StringComparison.OrdinalIgnoreCase)
                 Return "Open the file to mount or inspect the image."
-            Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryInstallers, StringComparison.OrdinalIgnoreCase)
                 Return "Open only when you are ready to run the installer."
-            Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryArchives, StringComparison.OrdinalIgnoreCase)
                 Return "Open the archive to browse or extract contents."
-            Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryTorrents, StringComparison.OrdinalIgnoreCase)
                 Return "Open with your torrent client if you need the source payload."
-            Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryKeysSecurity, StringComparison.OrdinalIgnoreCase)
                 Return "Keep access limited; inspect with a trusted security tool."
-            Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryDocuments, StringComparison.OrdinalIgnoreCase)
                 Return If(normalizedExtension = ".pdf", "Open the PDF for the original rendered document.", "Open the document for full layout fidelity.")
-            Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategorySpreadsheets, StringComparison.OrdinalIgnoreCase)
                 Return "Open the workbook to inspect formulas, sheets, and formatting."
-            Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryPresentations, StringComparison.OrdinalIgnoreCase)
                 Return "Open the deck to inspect slides, speaker notes, and media."
-            Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryManifestsConfig, StringComparison.OrdinalIgnoreCase)
                 Return "Open the file to inspect structured configuration."
             Case normalizedExtension = ".pdf"
                 Return "Open the PDF for the original rendered document."
@@ -267,27 +280,27 @@ Public Class PreviewService
         Dim normalizedExtension = If(extension, "").ToLowerInvariant()
 
         Select Case True
-            Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryDiskImages, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE958)
-            Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryInstallers, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE896)
-            Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryArchives, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE7B8)
-            Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryTorrents, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE896)
-            Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryKeysSecurity, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE72E)
-            Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryDocuments, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE8A5)
-            Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategorySpreadsheets, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE9D2)
-            Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryPresentations, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HEBC6)
-            Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryManifestsConfig, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE713)
-            Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryAudio, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE8D6)
-            Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
+            Case String.Equals(category, CategoryVideo, StringComparison.OrdinalIgnoreCase)
                 Return ChrW(&HE8B2)
             Case normalizedExtension = ".pdf"
                 Return ChrW(&HE8A5)
@@ -298,27 +311,27 @@ Public Class PreviewService
 
     Private Shared Function ResolveAccentBrush(artifact As ArtifactModel, extension As String) As String
         Select Case If(artifact?.Category, "")
-            Case "ISOs / Disk Images"
+            Case CategoryDiskImages
                 Return "#818CF8"
-            Case "Software / Installers"
+            Case CategoryInstallers
                 Return "#C084FC"
-            Case "Archives"
+            Case CategoryArchives
                 Return "#FB923C"
-            Case "Torrents"
+            Case CategoryTorrents
                 Return "#2DD4BF"
-            Case "Keys / Security"
+            Case CategoryKeysSecurity
                 Return "#F43F5E"
-            Case "Documents"
+            Case CategoryDocuments
                 Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#F43F5E", "#22D3EE")
-            Case "Spreadsheets"
+            Case CategorySpreadsheets
                 Return "#34D399"
-            Case "Presentations"
+            Case CategoryPresentations
                 Return "#F472B6"
-            Case "Manifests / Config"
+            Case CategoryManifestsConfig
                 Return "#818CF8"
-            Case "Audio"
+            Case CategoryAudio
                 Return "#EC4899"
-            Case "Video"
+            Case CategoryVideo
                 Return "#F472B6"
             Case Else
                 If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
@@ -331,28 +344,28 @@ Public Class PreviewService
 
     Private Shared Function ResolveAccentBackground(artifact As ArtifactModel, extension As String) As String
         Select Case If(artifact?.Category, "")
-            Case "ISOs / Disk Images"
+            Case CategoryDiskImages
                 Return "#1F264B"
-            Case "Software / Installers"
+            Case CategoryInstallers
                 Return "#2A214D"
-            Case "Archives"
+            Case CategoryArchives
                 Return "#3A2712"
-            Case "Torrents"
+            Case CategoryTorrents
                 Return "#12343A"
-            Case "Keys / Security"
+            Case CategoryKeysSecurity
                 Return "#3B1720"
-            Case "Documents"
+            Case CategoryDocuments
                 Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#3B1720", "#123044")
-            Case "Spreadsheets"
+            Case CategorySpreadsheets
                 Return "#123522"
-            Case "Presentations"
-                Return "#3B1733"
-            Case "Manifests / Config"
+            Case CategoryPresentations
+                Return AccentBackgroundMagenta
+            Case CategoryManifestsConfig
                 Return "#1F264B"
-            Case "Audio"
-                Return "#3B1733"
-            Case "Video"
-                Return "#3B1733"
+            Case CategoryAudio
+                Return AccentBackgroundMagenta
+            Case CategoryVideo
+                Return AccentBackgroundMagenta
             Case Else
                 If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
                     Return "#3B1720"

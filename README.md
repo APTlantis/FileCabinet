@@ -18,12 +18,13 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 ## Current Release
 
-Current version: **FileCabinet v1.7.2**.
+Current version: **FileCabinet v1.7.3**.
 
-The v1.7.2 patch hardens repair and hash verification for very large retained files, adds a comprehensive Analyze & Fix Health tab for moved-vault repair, and aligns release metadata after the repair workflow updates.
+The v1.7.3 patch promotes Vault Health into a dedicated workspace, makes default analysis metadata-first, keeps large-file hash reads explicit, and adds bulk repair selection controls for large repair lists.
 
 Release notes:
 
+- `docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md`
 - `docs/FileCabinet v1.7.2 — Repair Scalability Patch.md`
 - `docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md`
 - `docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md`
@@ -125,10 +126,9 @@ The table toolbar includes:
 - sort by name
 - sort by modified date
 - compact/comfortable row density
-- repair check
-- rescan
+- Vault Health
 
-The density toggle is only a display preference. It does not change catalog data.
+The density toggle is only a display preference. It does not change catalog data. The `Health` button opens the Vault Health workspace without starting a scan or repair.
 
 ## Preview And Details
 
@@ -291,6 +291,7 @@ FileCabinet's preservation model is documented in:
 
 ### Release Notes
 
+- [v1.7.3 — Vault Health Workspace Patch](docs/FileCabinet%20v1.7.3%20%E2%80%94%20Vault%20Health%20Workspace%20Patch.md)
 - [v1.7.2 — Repair Scalability and Analyze/Fix Patch](docs/FileCabinet%20v1.7.2%20%E2%80%94%20Repair%20Scalability%20Patch.md)
 - [v1.7.1 — Hash Compatibility Patch](docs/FileCabinet%20v1.7.1%20%E2%80%94%20Hash%20Compatibility%20Patch.md)
 - [v1.7.0 — Vault Health and Iconography Release](docs/FileCabinet%20v1.7.0%20%E2%80%94%20Vault%20Health%20and%20Iconography%20Release.md)

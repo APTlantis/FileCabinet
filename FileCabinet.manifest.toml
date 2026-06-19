@@ -4,7 +4,7 @@ title = "FileCabinet"
 description = "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts."
 type = "tool"
 stage = "production"
-version = "1.7.2"
+version = "1.7.3"
 tags = [
   "local-first",
   "desktop",
@@ -21,7 +21,7 @@ tags = [
 
 [metadata]
 created = "2026-05-23"
-last_updated = "2026-06-12"
+last_updated = "2026-06-19"
 maintainer = "APTlantis"
 license = "Unspecified"
 language_primary = "VB.NET"
@@ -65,11 +65,12 @@ external_dependencies = [
 
 [artifacts]
 produces = [
-  "artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi",
+  "artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi",
   "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
   "docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
   "docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md",
   "docs/FileCabinet v1.7.2 — Repair Scalability Patch.md",
+  "docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md",
   "Assets/MaterialSymbolsIconMap.md",
   "Assets/FileCabinet.ico",
   "Assets/FileCabinetLogoMark.png",
@@ -88,16 +89,16 @@ consumes = [
 ]
 
 [release]
-version = "1.7.2"
-name = "FileCabinet v1.7.2 — Repair Scalability and Analyze/Fix Patch"
-date = "2026-06-12"
+version = "1.7.3"
+name = "FileCabinet v1.7.3 — Vault Health Workspace Patch"
+date = "2026-06-19"
 
 [release.installer]
-path = "artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi"
+path = "artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi"
 runtime = "win-x64"
-package_version = "1.7.2.0"
-size_bytes = 127897600
-sha256 = "2F0F73A993FB94EE1B15A810C5D9FA841B79F215077E78EE07E1148874500AC0"
+package_version = "1.7.3.0"
+size_bytes = 128389120
+sha256 = "71FEAF41CE935AA0A3D7E43CC3E515FC965032FBA1AE6CF5B7FF429B2C74212F"
 blake3 = ""
 kangaroo12 = ""
 
@@ -114,13 +115,13 @@ status = "not generated"
 path = ""
 algorithm = "PGP"
 status = "not generated"
-detail = "v1.7.2 installer validation has not generated a detached PGP signature."
+detail = "v1.7.3 installer validation has not generated a detached PGP signature."
 
 [release.verified]
-date = "2026-06-12"
-tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 102 tests"
-installer_build = "installer/build-installer.ps1 -Version 1.7.2.0 completed"
-release_hashing = "Get-FileHash -Algorithm SHA256 completed for artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi"
+date = "2026-06-19"
+tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore passed 104 tests"
+installer_build = "installer/build-installer.ps1 -Version 1.7.3.0 completed"
+release_hashing = "Get-FileHash -Algorithm SHA256 completed for artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi"
 release_signing = "not generated for this SHA-256-only patch release"
 
 [[datasets]]
@@ -147,7 +148,7 @@ version = 1
 [documentation]
 writerside_topic = ""
 readme = "README.md"
-release_notes = "docs/FileCabinet v1.7.2 — Repair Scalability Patch.md"
+release_notes = "docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md"
 theme_overview = "docs/NeonInk-Theme-Integration-Overview.md"
 core_docs = [
   "docs/FileCabinet — Vault Lifecycle.md",
@@ -172,14 +173,14 @@ docs_path = "D:/100-DRS/120-STORAGE/FileCabinet/docs"
 data_path = "User-selected vault root"
 
 [automation]
-build = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj; installer/build-installer.ps1 -Version 1.7.2.0; Get-FileHash -Algorithm SHA256 artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi"
-deploy = "Publish artifacts/installer/FileCabinet-1.7.2.0-win-x64.msi to the GitHub v1.7.2 release."
+build = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-installer.ps1 -Version 1.7.3.0; Get-FileHash -Algorithm SHA256 artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi"
+deploy = "Publish artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi to the GitHub v1.7.3 release."
 tasks = [
   "Run unit tests",
   "Build self-contained Windows x64 publish output",
   "Build WiX MSI installer",
   "Attach MSI to GitHub release",
-  "Include release notes from docs/FileCabinet v1.7.2 — Repair Scalability Patch.md",
+  "Include release notes from docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md",
   "Record SHA-256 with Get-FileHash",
   "Document unsigned status"
 ]
@@ -206,7 +207,7 @@ current_highlights = [
   "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
   "Preview and activity accents were refreshed to match Neon Ink semantics",
   "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
-  "Application, CLI, and manifest version updated to 1.7.2",
+  "Application, CLI, and manifest version updated to 1.7.3",
   "Added 24 optional compatibility hashes and checksums across archival, legacy, and fast hash families",
   "New non-legacy hash values are stored in the extensible artifact hashes dictionary",
   "Active hash computation now respects Settings across ingest, health, repair, rescan, and headless paths",
@@ -215,8 +216,12 @@ current_highlights = [
   "Health tab now provides a comprehensive Analyze & Fix workspace with grouped findings, repairable/review-only counts, filters, safe selection controls, and bulk path rebind support",
   "Material Symbols source vocabulary mapped to category-specific artifact list and preview icons",
   "Borderless maximize now respects the Windows taskbar work area",
-  "Release verification for v1.7.2 records SHA-256 only with Get-FileHash",
-  "FileCabinet-1.7.2.0-win-x64.msi was built and SHA-256 hashed on 2026-06-12",
+  "Release verification for v1.7.3 records SHA-256 only with Get-FileHash",
+  "FileCabinet-1.7.3.0-win-x64.msi was built and SHA-256 hashed on 2026-06-19",
+  "Vault Health is now a dedicated main workspace with Overview, Repairs, Findings, and History sections",
+  "Default Vault Health analysis is metadata-first and does not automatically compute or verify retained-file hashes",
+  "Verify small hashes is limited to retained files up to 1 GB",
+  "Bulk repair selection supports safe automatic, visible-only, and per-action selection while excluding review-only rows",
   "Health analysis defers automatic hash mismatch verification for retained files larger than 16 GB",
   "Missing-hash analysis no longer hashes files when there are no comparable active catalog hashes",
   "Default cryptographic hash computation shares one sequential read pass for explicit ingest and repair hashing",
@@ -233,4 +238,4 @@ design_boundaries = [
   "Inspectable metadata over opaque ranking",
   "Repairable local vault state over cloud dependency"
 ]
-last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj passed 102 tests on 2026-06-12; installer/build-installer.ps1 -Version 1.7.2.0 completed; SHA-256 recorded with Get-FileHash; signing not generated"
+last_verified = "dotnet build FileCabinet.slnx --configuration Release --no-restore --no-incremental succeeded on 2026-06-19; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore passed 104 tests; installer/build-installer.ps1 -Version 1.7.3.0 completed; SHA-256 recorded with Get-FileHash; signing not generated"

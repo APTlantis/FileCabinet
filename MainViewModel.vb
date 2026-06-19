@@ -15,7 +15,7 @@ Public Class MainViewModel
     Implements INotifyPropertyChanged
 
     Private Const LargeArtifactThresholdBytes As Long = 1024L * 1024L * 1024L
-    Public Const AutoHashVerificationLimitBytes As Long = 16L * 1024L * 1024L * 1024L
+    Public Const AutoHashVerificationLimitBytes As Long = 1024L * 1024L * 1024L
     Private Shared ReadOnly ReleaseMarkerRegexTimeout As TimeSpan = TimeSpan.FromMilliseconds(250)
 
     Private ReadOnly _catalogService As CatalogService
@@ -76,6 +76,7 @@ Public Class MainViewModel
     Private _isSettingsVisible As Boolean
     Private _isVaultHealthVisible As Boolean
     Private _hasVaultHealthAnalysis As Boolean
+    Private _isBulkUpdatingRepairSelection As Boolean
     Private _repairCandidateFilter As String = "All"
     Private _findingTypeFilter As String = "All"
 
@@ -128,7 +129,12 @@ Public Class MainViewModel
     Public Property RescanVaultCommand As ICommand
     Public Property ApplySelectedRepairCandidatesCommand As ICommand
     Public Property SelectSafeRepairCandidatesCommand As ICommand
+    Public Property SelectVisibleRepairCandidatesCommand As ICommand
+    Public Property ClearVisibleRepairCandidatesCommand As ICommand
+    Public Property SelectRepairActionCommand As ICommand
+    Public Property SelectAllAutomaticRepairCandidatesCommand As ICommand
     Public Property ClearRepairSelectionCommand As ICommand
+    Public Property VerifySmallHashesCommand As ICommand
     Public Property SortByNameCommand As ICommand
     Public Property SortByDateCommand As ICommand
     Public Property ToggleDensityCommand As ICommand
@@ -178,7 +184,12 @@ Public Class MainViewModel
         RescanVaultCommand = New AsyncRelayCommand(Function(parameter) RescanVaultAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
         ApplySelectedRepairCandidatesCommand = New AsyncRelayCommand(Function(parameter) ApplySelectedRepairCandidatesAsync(), Function(parameter) Not IsVaultMaintenanceRunning AndAlso RepairCandidates.Any(Function(candidate) candidate.IsSelected AndAlso candidate.CanRepairAutomatically), AddressOf HandleAsyncCommandException)
         SelectSafeRepairCandidatesCommand = New RelayCommand(Sub(parameter) SelectSafeRepairCandidates(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
+        SelectVisibleRepairCandidatesCommand = New RelayCommand(Sub(parameter) SelectVisibleRepairCandidates(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
+        ClearVisibleRepairCandidatesCommand = New RelayCommand(Sub(parameter) ClearVisibleRepairCandidates(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.IsSelected))
+        SelectRepairActionCommand = New RelayCommand(Sub(parameter) SelectRepairAction(TryCast(parameter, String)), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
+        SelectAllAutomaticRepairCandidatesCommand = New RelayCommand(Sub(parameter) SelectAllAutomaticRepairCandidates(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.CanRepairAutomatically))
         ClearRepairSelectionCommand = New RelayCommand(Sub(parameter) ClearRepairSelection(), Function(parameter) RepairCandidates.Any(Function(candidate) candidate.IsSelected))
+        VerifySmallHashesCommand = New AsyncRelayCommand(Function(parameter) VerifySmallHashesAsync(), Function(parameter) Not IsVaultMaintenanceRunning, AddressOf HandleAsyncCommandException)
         SortByNameCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.Name)))
         SortByDateCommand = New RelayCommand(Sub(parameter) ApplySort(NameOf(ArtifactModel.DateModified)))
         ToggleDensityCommand = New RelayCommand(Sub(parameter) ToggleDensity())
@@ -662,7 +673,6 @@ Public Class MainViewModel
                 OnPropertyChanged(NameOf(IsPreviewTabSelected))
                 OnPropertyChanged(NameOf(IsDetailsTabSelected))
                 OnPropertyChanged(NameOf(IsRelationsTabSelected))
-                OnPropertyChanged(NameOf(IsHealthTabSelected))
             End If
         End Set
     End Property
@@ -810,16 +820,27 @@ Public Class MainViewModel
             If _isVaultHealthVisible <> value Then
                 _isVaultHealthVisible = value
                 OnPropertyChanged()
+                OnPropertyChanged(NameOf(IsDashboardVisible))
+                OnPropertyChanged(NameOf(IsVaultHealthWorkspaceVisible))
             End If
         End Set
     End Property
 
+    Public ReadOnly Property IsDashboardVisible As Boolean
+        Get
+            Return Not IsVaultHealthVisible
+        End Get
+    End Property
+
+    Public ReadOnly Property IsVaultHealthWorkspaceVisible As Boolean
+        Get
+            Return IsVaultHealthVisible
+        End Get
+    End Property
+
     Private Sub ShowVaultHealth()
-        RightPanelTab = "Health"
         IsVaultHealthVisible = True
-        If RefreshCommand.CanExecute(Nothing) Then
-            RefreshCommand.Execute(Nothing)
-        End If
+        ActionStatus = "Vault health workspace ready"
     End Sub
 
     Private Sub CloseVaultHealth()
@@ -1051,6 +1072,57 @@ Public Class MainViewModel
         End Get
     End Property
 
+    Public ReadOnly Property HealthFindingCountText As String
+        Get
+            Return VaultHealthFindings.Count.ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property HealthRepairableCountText As String
+        Get
+            Return RepairCandidates.Where(Function(candidate) candidate.CanRepairAutomatically).Count().ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property HealthReviewOnlyCountText As String
+        Get
+            Return RepairCandidates.Where(Function(candidate) Not candidate.CanRepairAutomatically).Count().ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property HealthSelectedCountText As String
+        Get
+            Return RepairCandidates.Where(Function(candidate) candidate.IsSelected).Count().ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property HealthDeferredHashCountText As String
+        Get
+            Return VaultHealthFindings.
+                Where(Function(finding) String.Equals(finding.FindingType, "Hash verification deferred", StringComparison.OrdinalIgnoreCase)).
+                Count().
+                ToString("N0")
+        End Get
+    End Property
+
+    Public ReadOnly Property HealthRiskBreakdownRows As IEnumerable(Of HealthBreakdownRow)
+        Get
+            Return BuildBreakdownRows(VaultHealthFindings.GroupBy(Function(finding) If(finding.RiskLevel, "Unknown")), "#F43F5E")
+        End Get
+    End Property
+
+    Public ReadOnly Property HealthFindingBreakdownRows As IEnumerable(Of HealthBreakdownRow)
+        Get
+            Return BuildBreakdownRows(VaultHealthFindings.GroupBy(Function(finding) If(finding.FindingType, "Unknown")), "#38BDF8")
+        End Get
+    End Property
+
+    Public ReadOnly Property HealthRepairActionBreakdownRows As IEnumerable(Of HealthBreakdownRow)
+        Get
+            Return BuildBreakdownRows(RepairCandidates.GroupBy(Function(candidate) If(candidate.ActionType, "Unknown")), "#34D399")
+        End Get
+    End Property
+
     Public ReadOnly Property SelectedRepairSummary As String
         Get
             Dim selected = RepairCandidates.Where(Function(candidate) candidate.IsSelected).ToList()
@@ -1060,13 +1132,14 @@ Public Class MainViewModel
 
             Dim repairable = selected.Where(Function(candidate) candidate.CanRepairAutomatically).Count()
             Dim reviewOnly = selected.Count - repairable
-            Return $"{repairable:N0} selected safe repair(s); {reviewOnly:N0} selected review-only row(s) will be skipped"
+            Dim expensive = selected.Where(Function(candidate) candidate.IsExpensiveAutomatic).Count()
+            Return $"{repairable:N0} selected automatic repair(s), {expensive:N0} expensive hash repair(s); {reviewOnly:N0} review-only row(s) will be skipped"
         End Get
     End Property
 
     Public ReadOnly Property RepairCandidateFilterOptions As IEnumerable(Of String)
         Get
-            Return {"All", "Repairable", "Review-only", "Selected", "Unselected"}
+            Return {"All", "Automatic", "Expensive automatic", "Review-only", "Selected", "Unselected"}
         End Get
     End Property
 
@@ -1219,17 +1292,6 @@ Public Class MainViewModel
         End Set
     End Property
 
-    Public Property IsHealthTabSelected As Boolean
-        Get
-            Return String.Equals(RightPanelTab, "Health", StringComparison.OrdinalIgnoreCase)
-        End Get
-        Set(value As Boolean)
-            If value Then
-                RightPanelTab = "Health"
-            End If
-        End Set
-    End Property
-
     Public ReadOnly Property IsImagePreview As Boolean
         Get
             Return SelectedPreview IsNot Nothing AndAlso SelectedPreview.Kind = ArtifactPreviewKind.Image
@@ -1260,8 +1322,6 @@ Public Class MainViewModel
                 Return "Details"
             Case "relations"
                 Return "Relations"
-            Case "health"
-                Return "Health"
             Case Else
                 Return "Preview"
         End Select
@@ -1876,13 +1936,12 @@ Public Class MainViewModel
             Return
         End If
 
-        Dim keepHealthDashboardVisible = IsVaultHealthVisible
         IsVaultMaintenanceRunning = True
         VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Analyzing vault health"
-        VaultMaintenanceDetail = "Checking retained files, hashes, thumbnails, and generated indexes"
+        VaultMaintenanceDetail = "Checking catalog paths, metadata, generated assets, and catalog hash coverage"
         ActionStatus = "Analyzing vault health..."
-        RightPanelTab = "Health"
+        IsVaultHealthVisible = True
 
         Try
             Dim artifactSnapshot = Artifacts.ToList()
@@ -1907,17 +1966,45 @@ Public Class MainViewModel
             VaultMaintenanceStatus = "Analysis complete"
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = _repairStatus
-            RightPanelTab = "Health"
-            If keepHealthDashboardVisible Then
-                IsVaultHealthVisible = True
-            End If
         Catch ex As Exception
             VaultMaintenanceStatus = "Analysis failed"
             VaultMaintenanceDetail = ex.Message
             ActionStatus = $"Analyze failed: {ex.Message}"
-            If keepHealthDashboardVisible Then
-                IsVaultHealthVisible = True
-            End If
+        Finally
+            IsVaultMaintenanceRunning = False
+        End Try
+    End Function
+
+    Private Async Function VerifySmallHashesAsync() As Task
+        If IsVaultMaintenanceRunning Then
+            Return
+        End If
+
+        IsVaultMaintenanceRunning = True
+        VaultMaintenanceProgress = 0
+        VaultMaintenanceStatus = "Verifying small retained files"
+        VaultMaintenanceDetail = $"Reading files up to {FormatSize(AutoHashVerificationLimitBytes)}"
+        ActionStatus = "Verifying small retained file hashes..."
+        IsVaultHealthVisible = True
+
+        Try
+            Dim artifactSnapshot = Artifacts.ToList()
+            Dim vaultRoot = VaultRootPath
+            Dim verifyProgress As New Progress(Of VaultMaintenanceProgress)(Sub(progressUpdate)
+                                                               VaultMaintenanceProgress = progressUpdate.Percent
+                                                               VaultMaintenanceDetail = progressUpdate.ToString()
+                                                           End Sub)
+            Dim healthReport = Await Task.Run(Function() BuildVaultHealthReport(artifactSnapshot, vaultRoot, New ThumbnailService(), New HashService(), verifyProgress, _catalog.ActiveHashes, verifyHashes:=True, hashVerificationLimitBytes:=AutoHashVerificationLimitBytes))
+
+            PublishVaultHealthReport(healthReport)
+            VaultMaintenanceProgress = 100
+            VaultMaintenanceStatus = "Small hash verification complete"
+            VaultMaintenanceDetail = healthReport.Summary
+            ActionStatus = "Small hash verification complete"
+        Catch ex As Exception
+            VaultMaintenanceStatus = "Small hash verification failed"
+            VaultMaintenanceDetail = ex.Message
+            ActionStatus = $"Hash verification failed: {ex.Message}"
         Finally
             IsVaultMaintenanceRunning = False
         End Try
@@ -1928,13 +2015,12 @@ Public Class MainViewModel
             Return
         End If
 
-        Dim keepHealthDashboardVisible = IsVaultHealthVisible
         IsVaultMaintenanceRunning = True
         VaultMaintenanceProgress = 0
-        VaultMaintenanceStatus = "Rescanning vault"
+        VaultMaintenanceStatus = "Full rescan and orphan recovery"
         VaultMaintenanceDetail = "Preparing generated asset recovery and orphan adoption"
         ActionStatus = "Rescanning vault..."
-        RightPanelTab = "Health"
+        IsVaultHealthVisible = True
 
         Try
             Dim artifactSnapshot = Artifacts.ToList()
@@ -1968,17 +2054,10 @@ Public Class MainViewModel
             VaultMaintenanceStatus = "Rescan complete"
             VaultMaintenanceDetail = result.HealthReport.Summary
             ActionStatus = $"Rescan complete: {_repairStatus}"
-            RightPanelTab = "Health"
-            If keepHealthDashboardVisible Then
-                IsVaultHealthVisible = True
-            End If
         Catch ex As Exception
             VaultMaintenanceStatus = "Rescan failed"
             VaultMaintenanceDetail = ex.Message
             ActionStatus = $"Rescan failed: {ex.Message}"
-            If keepHealthDashboardVisible Then
-                IsVaultHealthVisible = True
-            End If
         Finally
             IsVaultMaintenanceRunning = False
         End Try
@@ -1998,6 +2077,7 @@ Public Class MainViewModel
     End Function
 
     Private Sub SetScope(scope As String)
+        IsVaultHealthVisible = False
         ActiveScope = scope
         ActionStatus = $"Showing {ActiveScope}"
     End Sub
@@ -2446,6 +2526,7 @@ Public Class MainViewModel
     End Sub
 
     Private Sub ClearFilters()
+        IsVaultHealthVisible = False
         ActiveScope = "All"
         SelectedCategory = Nothing
         SelectedTag = Nothing
@@ -3427,14 +3508,27 @@ Public Class MainViewModel
         OnPropertyChanged(NameOf(VaultHealthSummary))
         OnPropertyChanged(NameOf(VaultHealthBreakdown))
         OnPropertyChanged(NameOf(SelectedRepairSummary))
+        OnPropertyChanged(NameOf(HealthFindingCountText))
+        OnPropertyChanged(NameOf(HealthRepairableCountText))
+        OnPropertyChanged(NameOf(HealthReviewOnlyCountText))
+        OnPropertyChanged(NameOf(HealthSelectedCountText))
+        OnPropertyChanged(NameOf(HealthDeferredHashCountText))
+        OnPropertyChanged(NameOf(HealthRiskBreakdownRows))
+        OnPropertyChanged(NameOf(HealthFindingBreakdownRows))
+        OnPropertyChanged(NameOf(HealthRepairActionBreakdownRows))
         OnPropertyChanged(NameOf(FindingTypeFilterOptions))
         RaiseRepairCandidateCommandState()
     End Sub
 
     Private Sub RepairCandidate_PropertyChanged(sender As Object, e As PropertyChangedEventArgs)
         If String.Equals(e.PropertyName, NameOf(RepairCandidate.IsSelected), StringComparison.OrdinalIgnoreCase) Then
+            If _isBulkUpdatingRepairSelection Then
+                Return
+            End If
+
             OnPropertyChanged(NameOf(VaultHealthSummary))
             OnPropertyChanged(NameOf(SelectedRepairSummary))
+            OnPropertyChanged(NameOf(HealthSelectedCountText))
             RefreshRepairCandidateView()
             RaiseRepairCandidateCommandState()
         End If
@@ -3452,8 +3546,10 @@ Public Class MainViewModel
         End If
 
         Select Case If(RepairCandidateFilter, "All").Trim().ToLowerInvariant()
-            Case "repairable"
-                Return candidate.CanRepairAutomatically
+            Case "automatic"
+                Return candidate.CanRepairAutomatically AndAlso Not candidate.IsExpensiveAutomatic
+            Case "expensive automatic"
+                Return candidate.IsExpensiveAutomatic
             Case "review-only"
                 Return Not candidate.CanRepairAutomatically
             Case "selected"
@@ -3471,23 +3567,106 @@ Public Class MainViewModel
         End If
     End Sub
 
-    Private Sub SelectSafeRepairCandidates()
-        For Each candidate In RepairCandidates
-            candidate.IsSelected = IsSafeDefaultRepairCandidate(candidate.ActionType)
-        Next
+    Private Shared Function BuildBreakdownRows(Of T)(groups As IEnumerable(Of IGrouping(Of String, T)), accentBrush As String) As IEnumerable(Of HealthBreakdownRow)
+        Dim groupList = If(groups, Enumerable.Empty(Of IGrouping(Of String, T))()).
+            Select(Function(group) New With {.Label = If(String.IsNullOrWhiteSpace(group.Key), "Unknown", group.Key), .Count = group.Count()}).
+            OrderByDescending(Function(group) group.Count).
+            ThenBy(Function(group) group.Label).
+            ToList()
 
-        OnPropertyChanged(NameOf(VaultHealthSummary))
-        OnPropertyChanged(NameOf(SelectedRepairSummary))
-        RaiseRepairCandidateCommandState()
+        If groupList.Count = 0 Then
+            Return Enumerable.Empty(Of HealthBreakdownRow)()
+        End If
+
+        Dim maxCount = Math.Max(1, groupList.Max(Function(group) group.Count))
+        Return groupList.Select(Function(group) New HealthBreakdownRow With {
+            .Label = group.Label,
+            .Count = group.Count,
+            .PercentWidth = Math.Max(8, Math.Round((group.Count / CDbl(maxCount)) * 160)),
+            .AccentBrush = accentBrush
+        }).ToList()
+    End Function
+
+    Private Sub SelectSafeRepairCandidates()
+        _isBulkUpdatingRepairSelection = True
+        ApplyRepairCandidateSelection(RepairCandidates, "safe", Nothing)
+        _isBulkUpdatingRepairSelection = False
+        FinishBulkRepairSelection()
+    End Sub
+
+    Private Sub SelectVisibleRepairCandidates()
+        _isBulkUpdatingRepairSelection = True
+        ApplyRepairCandidateSelection(GetVisibleRepairCandidates(), "visible", Nothing)
+        _isBulkUpdatingRepairSelection = False
+        FinishBulkRepairSelection()
+    End Sub
+
+    Private Sub ClearVisibleRepairCandidates()
+        _isBulkUpdatingRepairSelection = True
+        ApplyRepairCandidateSelection(GetVisibleRepairCandidates(), "clear", Nothing)
+        _isBulkUpdatingRepairSelection = False
+        FinishBulkRepairSelection()
+    End Sub
+
+    Private Sub SelectRepairAction(actionType As String)
+        If String.IsNullOrWhiteSpace(actionType) Then
+            Return
+        End If
+
+        _isBulkUpdatingRepairSelection = True
+        ApplyRepairCandidateSelection(RepairCandidates, "action", actionType)
+        _isBulkUpdatingRepairSelection = False
+        FinishBulkRepairSelection()
+    End Sub
+
+    Private Sub SelectAllAutomaticRepairCandidates()
+        _isBulkUpdatingRepairSelection = True
+        ApplyRepairCandidateSelection(RepairCandidates, "automatic", Nothing)
+        _isBulkUpdatingRepairSelection = False
+        FinishBulkRepairSelection()
     End Sub
 
     Private Sub ClearRepairSelection()
-        For Each candidate In RepairCandidates
-            candidate.IsSelected = False
-        Next
+        _isBulkUpdatingRepairSelection = True
+        ApplyRepairCandidateSelection(RepairCandidates, "clear", Nothing)
+        _isBulkUpdatingRepairSelection = False
+        FinishBulkRepairSelection()
+    End Sub
 
+    Private Function GetVisibleRepairCandidates() As IEnumerable(Of RepairCandidate)
+        If FilteredRepairCandidates Is Nothing Then
+            Return RepairCandidates
+        End If
+
+        Return FilteredRepairCandidates.Cast(Of RepairCandidate)().ToList()
+    End Function
+
+    Public Shared Sub ApplyRepairCandidateSelection(candidates As IEnumerable(Of RepairCandidate), selectionMode As String, actionType As String)
+        For Each candidate In If(candidates, Enumerable.Empty(Of RepairCandidate)())
+            If candidate Is Nothing Then
+                Continue For
+            End If
+
+            Select Case If(selectionMode, "").Trim().ToLowerInvariant()
+                Case "safe"
+                    candidate.IsSelected = candidate.CanRepairAutomatically AndAlso IsSafeDefaultRepairCandidate(candidate.ActionType)
+                Case "visible"
+                    candidate.IsSelected = candidate.CanRepairAutomatically
+                Case "automatic"
+                    candidate.IsSelected = candidate.CanRepairAutomatically
+                Case "action"
+                    candidate.IsSelected = candidate.CanRepairAutomatically AndAlso String.Equals(candidate.ActionType, actionType, StringComparison.OrdinalIgnoreCase)
+                Case "clear"
+                    candidate.IsSelected = False
+            End Select
+        Next
+    End Sub
+
+    Private Sub FinishBulkRepairSelection()
         OnPropertyChanged(NameOf(VaultHealthSummary))
         OnPropertyChanged(NameOf(SelectedRepairSummary))
+        OnPropertyChanged(NameOf(HealthSelectedCountText))
+        RefreshRepairCandidateView()
         RaiseRepairCandidateCommandState()
     End Sub
 
@@ -3495,8 +3674,17 @@ Public Class MainViewModel
         Dim selected = RepairCandidates.Where(Function(candidate) candidate.IsSelected).ToList()
         Dim automatic = selected.Where(Function(candidate) candidate.CanRepairAutomatically).ToList()
         Dim reviewOnly = selected.Count - automatic.Count
+        Dim expensive = automatic.Where(Function(candidate) candidate.IsExpensiveAutomatic).Count()
+        Dim actionSummary = String.Join(", ", automatic.
+            GroupBy(Function(candidate) candidate.ActionType).
+            OrderBy(Function(group) group.Key).
+            Select(Function(group) $"{group.Count():N0} {group.Key}"))
 
-        Return $"{automatic.Count:N0} safe repair candidate(s) will be applied. {reviewOnly:N0} review-only candidate(s) will be skipped."
+        If String.IsNullOrWhiteSpace(actionSummary) Then
+            actionSummary = "none"
+        End If
+
+        Return $"{automatic.Count:N0} automatic repair candidate(s) will be applied ({actionSummary}). {expensive:N0} may read retained file bytes. {reviewOnly:N0} review-only candidate(s) will be skipped."
     End Function
 
     Private Async Function ApplySelectedRepairCandidatesAsync() As Task
@@ -3514,13 +3702,12 @@ Public Class MainViewModel
             Return
         End If
 
-        Dim keepHealthDashboardVisible = IsVaultHealthVisible
         IsVaultMaintenanceRunning = True
         VaultMaintenanceProgress = 0
         VaultMaintenanceStatus = "Applying selected repairs"
         VaultMaintenanceDetail = $"{selected.Count:N0} selected candidate(s)"
         ActionStatus = "Applying selected repairs..."
-        RightPanelTab = "Health"
+        IsVaultHealthVisible = True
 
         Try
             Dim workItems = selected.
@@ -3580,17 +3767,10 @@ Public Class MainViewModel
             VaultMaintenanceStatus = "Repairs complete"
             VaultMaintenanceDetail = healthReport.Summary
             ActionStatus = $"Applied {applied:N0} repair(s); {failed:N0} failed; {skipped:N0} skipped"
-            RightPanelTab = "Health"
-            If keepHealthDashboardVisible Then
-                IsVaultHealthVisible = True
-            End If
         Catch ex As Exception
             VaultMaintenanceStatus = "Repair failed"
             VaultMaintenanceDetail = ex.Message
             ActionStatus = $"Repair failed: {ex.Message}"
-            If keepHealthDashboardVisible Then
-                IsVaultHealthVisible = True
-            End If
         Finally
             IsVaultMaintenanceRunning = False
         End Try
@@ -3781,6 +3961,10 @@ Public Class MainViewModel
     Private Sub RaiseRepairCandidateCommandState()
         RaiseCommandState(ApplySelectedRepairCandidatesCommand)
         RaiseCommandState(SelectSafeRepairCandidatesCommand)
+        RaiseCommandState(SelectVisibleRepairCandidatesCommand)
+        RaiseCommandState(ClearVisibleRepairCandidatesCommand)
+        RaiseCommandState(SelectRepairActionCommand)
+        RaiseCommandState(SelectAllAutomaticRepairCandidatesCommand)
         RaiseCommandState(ClearRepairSelectionCommand)
     End Sub
 
@@ -3789,8 +3973,13 @@ Public Class MainViewModel
         RaiseCommandState(RescanVaultCommand)
         RaiseCommandState(ApplySelectedRepairCandidatesCommand)
         RaiseCommandState(SelectSafeRepairCandidatesCommand)
+        RaiseCommandState(SelectVisibleRepairCandidatesCommand)
+        RaiseCommandState(ClearVisibleRepairCandidatesCommand)
+        RaiseCommandState(SelectRepairActionCommand)
+        RaiseCommandState(SelectAllAutomaticRepairCandidatesCommand)
         RaiseCommandState(ClearRepairSelectionCommand)
         RaiseCommandState(HashCheckCommand)
+        RaiseCommandState(VerifySmallHashesCommand)
         RaiseCommandState(RefreshCommand)
     End Sub
 
@@ -3840,6 +4029,7 @@ Public Class MainViewModel
             .Finding = finding,
             .ActionType = actionType,
             .CanRepairAutomatically = IsAutomaticRepairCandidate(actionType),
+            .IsExpensiveAutomatic = IsExpensiveAutomaticRepairCandidate(actionType),
             .RequiresOperatorApproval = True,
             .IsSelected = IsSafeDefaultRepairCandidate(actionType)
         }
@@ -3871,16 +4061,20 @@ Public Class MainViewModel
         End Select
     End Function
 
+    Private Shared Function IsExpensiveAutomaticRepairCandidate(actionType As String) As Boolean
+        Return String.Equals(actionType, "RecomputeHash", StringComparison.OrdinalIgnoreCase)
+    End Function
+
     Private Shared Function IsSafeDefaultRepairCandidate(actionType As String) As Boolean
         Select Case actionType
-            Case "RebindPath", "RegenerateThumbnail"
+            Case "RebindPath", "RegenerateThumbnail", "ReExtractText"
                 Return True
             Case Else
                 Return False
         End Select
     End Function
 
-    Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService, Optional hashService As HashService = Nothing, Optional progress As IProgress(Of VaultMaintenanceProgress) = Nothing, Optional activeHashes As String = "") As VaultHealthReport
+    Public Shared Function BuildVaultHealthReport(artifacts As IEnumerable(Of ArtifactModel), vaultRootPath As String, thumbnailService As ThumbnailService, Optional hashService As HashService = Nothing, Optional progress As IProgress(Of VaultMaintenanceProgress) = Nothing, Optional activeHashes As String = "", Optional verifyHashes As Boolean = False, Optional hashVerificationLimitBytes As Long = AutoHashVerificationLimitBytes) As VaultHealthReport
         Dim report As New VaultHealthReport()
         Dim artifactList = If(artifacts, Enumerable.Empty(Of ArtifactModel)()).ToList()
         Dim thumbService = If(thumbnailService, New ThumbnailService())
@@ -3965,7 +4159,11 @@ Public Class MainViewModel
             End If
 
             If storedFileExists AndAlso pathIsInsideVault Then
-                AddHashMismatchFinding(report, artifact, integrityService, normalizedActiveHashes)
+                If verifyHashes Then
+                    AddHashMismatchFinding(report, artifact, integrityService, normalizedActiveHashes, hashVerificationLimitBytes)
+                Else
+                    AddDeferredHashVerificationFinding(report, artifact, normalizedActiveHashes, hashVerificationLimitBytes)
+                End If
             End If
 
             If thumbService.IsGeneratedThumbnailMissing(artifact, vaultRootPath) Then
@@ -4021,7 +4219,32 @@ Public Class MainViewModel
         Return report
     End Function
 
-    Private Shared Sub AddHashMismatchFinding(report As VaultHealthReport, artifact As ArtifactModel, hashService As HashService, activeHashes As String)
+    Private Shared Sub AddDeferredHashVerificationFinding(report As VaultHealthReport, artifact As ArtifactModel, activeHashes As String, hashVerificationLimitBytes As Long)
+        Dim comparableHashIds = HashRegistry.ParseActiveHashIds(activeHashes).
+            Where(Function(hashId) Not String.IsNullOrWhiteSpace(HashRegistry.GetArtifactHashValue(artifact, hashId))).
+            ToList()
+
+        If comparableHashIds.Count = 0 Then
+            Return
+        End If
+
+        Dim fileSize = GetRetainedFileSizeForHashPolicy(artifact)
+        If fileSize <= hashVerificationLimitBytes Then
+            Return
+        End If
+
+        report.Findings.Add(New VaultHealthFinding With {
+            .FindingType = "Hash verification deferred",
+            .Subject = artifact.Name,
+            .Detail = $"Retained file is {FormatSize(fileSize)}, above the automatic verification limit of {FormatSize(hashVerificationLimitBytes)}.",
+            .ProposedAction = "Use Verify small hashes or selected hash repair when you want FileCabinet to read and verify retained file bytes.",
+            .RiskLevel = "Low",
+            .MutatesCatalog = False,
+            .TouchesRetainedFiles = False
+        })
+    End Sub
+
+    Private Shared Sub AddHashMismatchFinding(report As VaultHealthReport, artifact As ArtifactModel, hashService As HashService, activeHashes As String, hashVerificationLimitBytes As Long)
         Try
             Dim activeList = HashRegistry.ParseActiveHashIds(activeHashes)
             Dim comparableHashIds = activeList.
@@ -4033,11 +4256,11 @@ Public Class MainViewModel
             End If
 
             Dim fileSize = GetRetainedFileSizeForHashPolicy(artifact)
-            If fileSize > AutoHashVerificationLimitBytes Then
+            If fileSize > hashVerificationLimitBytes Then
                 report.Findings.Add(New VaultHealthFinding With {
                     .FindingType = "Hash verification deferred",
                     .Subject = artifact.Name,
-                    .Detail = $"Retained file is {FormatSize(fileSize)}, above the automatic verification limit of {FormatSize(AutoHashVerificationLimitBytes)}.",
+                    .Detail = $"Retained file is {FormatSize(fileSize)}, above the automatic verification limit of {FormatSize(hashVerificationLimitBytes)}.",
                     .ProposedAction = "Use Hash Check or a selected hash repair when you want to read and verify this large retained file.",
                     .RiskLevel = "Low",
                     .MutatesCatalog = False,
