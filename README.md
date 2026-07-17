@@ -1,15 +1,5 @@
 # FileCabinet User Guide
-[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
 
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=bugs)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-
-
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
-[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=APTlantis_FileCabinet&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=APTlantis_FileCabinet)
 ![.NET Version](https://img.shields.io/badge/.NET-10.0-blue.svg)
 
 FileCabinet is a local-first desktop vault for digital artifacts you want to keep, find, verify, and recover later. It is not meant to replace your normal folders. Think of it as a deliberate retention space for files that deserve more structure than "somewhere in Downloads" but do not fit neatly into one project folder.
@@ -60,15 +50,14 @@ K:\FileCabinet\
 
 ## Interface And Theme
 
-FileCabinet uses the **Neon Ink** dark theme. The theme is intentionally semantic rather than decorative:
+FileCabinet uses the **Blue Slate** dark theme. The theme is intentionally semantic rather than decorative:
 
-- cyan and teal identify navigation, selection, focus, and structure
-- violet and purple identify ingest, preview, process, and pipeline states
-- pink and magenta identify featured, creative, and metadata emphasis
-- green identifies healthy, indexed, verified, and validated states
-- yellow identifies starred or attention-worthy artifacts
-- red identifies quarantine, failure, delete, or destructive states
-- orange identifies large objects, build outputs, installers, and package-like artifacts
+- deep blue-black surfaces carry the shell, sidebars, tables, and inspectors
+- cyan and teal identify focus, primary actions, active navigation, and technical data surfaces
+- amber and brass identify warnings, priority, preflight notes, and attention states
+- violet and indigo identify taxonomy, archive, vault, and classification states
+- green identifies healthy, indexed, verified, and completed states
+- local danger and build extensions identify quarantine/destructive flows and large/package-like artifacts
 
 The goal is fast scanning in dense vault views: bright color should tell you what kind of state you are looking at before it simply looks bright.
 
@@ -137,7 +126,7 @@ The density toggle is only a display preference. It does not change catalog data
 
 The right panel shows the selected artifact.
 
-For images, FileCabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card with a category-aware Neon Ink accent.
+For images, FileCabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card with a category-aware Blue Slate accent.
 
 The **Preview & Relations** tab pairs the preview box with the top related-artifact matches. Relations are capped to a compact top-five list in the panel and show inspectable reasons such as shared tags, same category, same source folder, shared extension family, release markers, source provenance, and nearby hash evidence.
 
@@ -291,7 +280,7 @@ FileCabinet's preservation model is documented in:
 - [Hash Choices and Compatibility](docs/FileCabinet%20%E2%80%94%20Hash%20Choices%20and%20Compatibility.md)
 - [Why SHA-256 and BLAKE3](docs/FileCabinet%20%E2%80%94%20Why%20SHA-256%20and%20BLAKE3.md)
 - [Why VB.NET and WPF](docs/FileCabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
-- [Neon Ink Theme Integration Overview](docs/NeonInk-Theme-Integration-Overview.md)
+- [Blue Slate Theme Integration Overview](docs/BlueSlate-Theme-Integration-Overview.md)
 
 ### Roadmaps
 

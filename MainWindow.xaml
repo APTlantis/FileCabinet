@@ -68,7 +68,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
+                                <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelRaised}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -81,7 +81,7 @@
             <Setter Property="Height" Value="34" />
             <Setter Property="MinWidth" Value="34" />
             <Setter Property="Padding" Value="10,0" />
-            <Setter Property="Background" Value="{StaticResource NeonInk.SoftBrush}" />
+            <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelDim}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderDimBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
@@ -97,7 +97,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
+                                <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelRaised}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -131,12 +131,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelRaised}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.PipelineBrush}" />
-                                <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource NeonInk.FeaturedBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.Archive}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource Atl.Brush.Taxonomy}" />
                                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -150,7 +150,7 @@
             <Setter Property="Padding" Value="9,0" />
             <Setter Property="Margin" Value="0,2" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
+            <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelBlue}" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
@@ -188,10 +188,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelBlue}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelRaised}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -211,10 +211,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelBlue}" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.RaisedBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelRaised}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -223,7 +223,7 @@
         </Style>
 
         <Style x:Key="Chip" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource NeonInk.SoftBrush}" />
+            <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelDim}" />
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Padding" Value="10,4" />
             <Setter Property="Margin" Value="0,0,6,6" />
@@ -251,10 +251,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelBlue}" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
+                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelBlue}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -304,7 +304,7 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.SoftBrush}" />
+                                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelDim}" />
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -372,7 +372,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="{StaticResource NeonInk.BaseBrush}" />
+            <Setter Property="Background" Value="{StaticResource Atl.Brush.BackgroundSoft}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
             <Setter Property="GridLinesVisibility" Value="None" />
@@ -388,7 +388,7 @@
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="{StaticResource NeonInk.BaseBrush}" />
+            <Setter Property="Background" Value="{StaticResource Atl.Brush.BackgroundSoft}" />
             <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="FontSize" Value="12" />
@@ -414,13 +414,13 @@
         </Style>
 
         <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="{StaticResource NeonInk.BaseBrush}" />
+            <Setter Property="Background" Value="{StaticResource Atl.Brush.BackgroundSoft}" />
             <Style.Triggers>
                 <Trigger Property="AlternationIndex" Value="1">
                     <Setter Property="Background" Value="{StaticResource CardAltBrush}" />
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
+                    <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelBlue}" />
                     <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 </Trigger>
             </Style.Triggers>
@@ -434,7 +434,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Background="{StaticResource NeonInk.VoidBrush}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid Grid.Row="0" Background="{StaticResource Atl.Brush.Background}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -456,15 +456,15 @@
                           VerticalAlignment="Center">
                         <MenuItem Header="Settings" Command="{Binding ShowSettingsCommand}" ToolTip="Choose which hashes FileCabinet records and verifies." />
                         <MenuItem Header="Help">
-                            <MenuItem Header="User Guide" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" ToolTip="Open the main FileCabinet user guide." />
-                            <MenuItem Header="Retention Choices" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" ToolTip="Explain why FileCabinet keeps retained files deliberately instead of cleaning them up automatically." />
-                            <MenuItem Header="Trust and Verification" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" ToolTip="Explain how FileCabinet uses hashes, paths, and catalog data to verify artifacts." />
-                            <MenuItem Header="Hash Choices" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Hash Choices and Compatibility.md" ToolTip="Explain integrity hashes and compatibility checksums." />
-                            <MenuItem Header="Repair and Recovery" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" ToolTip="Explain health findings, safe repairs, and review-only issues." />
-                            <MenuItem Header="Roadmap" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" ToolTip="Open planned reliability and preservation improvements." />
+                            <MenuItem Header="User Guide" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" ToolTip="Open the main FileCabinet user guide." />
+                            <MenuItem Header="Retention Choices" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" ToolTip="Explain why FileCabinet keeps retained files deliberately instead of cleaning them up automatically." />
+                            <MenuItem Header="Trust and Verification" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" ToolTip="Explain how FileCabinet uses hashes, paths, and catalog data to verify artifacts." />
+                            <MenuItem Header="Hash Choices" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Hash Choices and Compatibility.md" ToolTip="Explain integrity hashes and compatibility checksums." />
+                            <MenuItem Header="Repair and Recovery" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" ToolTip="Explain health findings, safe repairs, and review-only issues." />
+                            <MenuItem Header="Roadmap" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" ToolTip="Open planned reliability and preservation improvements." />
                             <Separator />
-                            <MenuItem Header="Open Docs Folder" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding OpenDocsFolderCommand}" />
-                            <MenuItem Header="About FileCabinet" Foreground="{StaticResource NeonInk.InverseTextBrush}" Command="{Binding ShowAboutCommand}" />
+                            <MenuItem Header="Open Docs Folder" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenDocsFolderCommand}" />
+                            <MenuItem Header="About FileCabinet" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding ShowAboutCommand}" />
                         </MenuItem>
                     </Menu>
                 </StackPanel>
@@ -534,19 +534,19 @@
                                 <Grid Margin="0,10,0,0">
                                     <Button Content="Inbox" Command="{Binding ShowRecentCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" />
                                     <Border HorizontalAlignment="Right" Background="{StaticResource AccentBrush}" CornerRadius="9" Padding="8,2">
-                                        <TextBlock Text="{Binding InboxCountText}" FontSize="11" Foreground="{StaticResource NeonInk.InverseTextBrush}" />
+                                        <TextBlock Text="{Binding InboxCountText}" FontSize="11" Foreground="{StaticResource Atl.Brush.TextInverse}" />
                                     </Border>
                                 </Grid>
                                 <Grid Margin="0,10,0,0">
                                     <Button Content="Starred" Command="{Binding ShowStarredCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" />
-                                    <Border HorizontalAlignment="Right" Background="{StaticResource NeonInk.ImportantBrush}" CornerRadius="9" Padding="8,2">
-                                        <TextBlock Text="{Binding StarredCountText}" FontSize="11" Foreground="{StaticResource NeonInk.InverseTextBrush}" />
+                                    <Border HorizontalAlignment="Right" Background="{StaticResource Atl.Brush.Attention}" CornerRadius="9" Padding="8,2">
+                                        <TextBlock Text="{Binding StarredCountText}" FontSize="11" Foreground="{StaticResource Atl.Brush.TextInverse}" />
                                     </Border>
                                 </Grid>
                                 <Grid Margin="0,10,0,0">
                                     <Button Content="Quarantine" Command="{Binding ShowQuarantineCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" />
-                                    <Border HorizontalAlignment="Right" Background="{StaticResource NeonInk.CriticalBrush}" CornerRadius="9" Padding="8,2">
-                                        <TextBlock Text="{Binding QuarantineCountText}" FontSize="11" Foreground="{StaticResource NeonInk.InverseTextBrush}" />
+                                    <Border HorizontalAlignment="Right" Background="{StaticResource Atl.Brush.Danger}" CornerRadius="9" Padding="8,2">
+                                        <TextBlock Text="{Binding QuarantineCountText}" FontSize="11" Foreground="{StaticResource Atl.Brush.TextInverse}" />
                                     </Border>
                                 </Grid>
                                 <Button Content="Unverified" Command="{Binding ShowUnverifiedCommand}" Style="{StaticResource ToolButton}" HorizontalAlignment="Stretch" Margin="0,10,0,0" />
@@ -558,7 +558,7 @@
                                 <Border BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="0,1,0,0" Margin="0,12,0,4" />
                                 <Button Command="{Binding ShowVaultHealthCommand}" Style="{StaticResource NavCommandButton}">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE9D9;" Style="{StaticResource IconText}" Foreground="{StaticResource NeonInk.FeaturedBrush}" />
+                                        <TextBlock Text="&#xE9D9;" Style="{StaticResource IconText}" Foreground="{StaticResource Atl.Brush.Taxonomy}" />
                                         <TextBlock Text="Vault Health Dashboard" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" Margin="10,0,0,0" />
                                     </StackPanel>
                                 </Button>
@@ -607,7 +607,7 @@
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsSelected" Value="True">
-                                                                <Setter TargetName="Root" Property="Background" Value="{StaticResource NeonInk.NavigationSurfaceBrush}" />
+                                                                <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelBlue}" />
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
@@ -624,7 +624,7 @@
                                     </ListBox.ItemTemplate>
                                 </ListBox>
 
-                                <Border Background="{StaticResource NeonInk.PanelBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Height="32" Margin="0,8,0,0">
+                                <Border Background="{StaticResource Atl.Brush.Panel}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Height="32" Margin="0,8,0,0">
                                     <Grid Margin="9,0" VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="18" />
@@ -671,7 +671,7 @@
                             <TextBlock Text="{Binding CurrentVaultSummary}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="13" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Border Width="300" Height="34" Background="{StaticResource NeonInk.PanelBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,8,0">
+                            <Border Width="300" Height="34" Background="{StaticResource Atl.Brush.Panel}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Margin="0,0,8,0">
                                 <Grid Margin="11,0" VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="18" />
@@ -703,14 +703,14 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0" Style="{StaticResource PanelBorder}" BorderBrush="{StaticResource NeonInk.SuccessBrush}" Margin="0,0,0,12">
+                        <Border Grid.Row="0" Style="{StaticResource PanelBorder}" BorderBrush="{StaticResource Atl.Brush.Success}" Margin="0,0,0,12">
                             <Grid Margin="16,12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Vault Health" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Text="Vault Health" Foreground="{StaticResource Atl.Brush.Success}" FontSize="18" FontWeight="SemiBold" />
                                     <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource DataCell}" Margin="0,6,0,0" />
                                     <TextBlock Text="{Binding VaultHealthBreakdown}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,4,0,0" />
                                     <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,8,0,0" />
@@ -728,10 +728,10 @@
 
                         <UniformGrid Grid.Row="1" Rows="1" Columns="5" Margin="0,0,0,12">
                             <Border Style="{StaticResource PanelBorder}" Height="78" Margin="0,0,10,0"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthFindingCountText}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Findings" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
-                            <Border Style="{StaticResource PanelBorder}" Height="78" Margin="0,0,10,0"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthRepairableCountText}" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Automatic" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
-                            <Border Style="{StaticResource PanelBorder}" Height="78" Margin="0,0,10,0"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthReviewOnlyCountText}" Foreground="{StaticResource NeonInk.ImportantBrush}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Review-only" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
+                            <Border Style="{StaticResource PanelBorder}" Height="78" Margin="0,0,10,0"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthRepairableCountText}" Foreground="{StaticResource Atl.Brush.Success}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Automatic" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
+                            <Border Style="{StaticResource PanelBorder}" Height="78" Margin="0,0,10,0"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthReviewOnlyCountText}" Foreground="{StaticResource Atl.Brush.Attention}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Review-only" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
                             <Border Style="{StaticResource PanelBorder}" Height="78" Margin="0,0,10,0"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthSelectedCountText}" Foreground="{StaticResource AccentBrush}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Selected" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
-                            <Border Style="{StaticResource PanelBorder}" Height="78"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthDeferredHashCountText}" Foreground="{StaticResource NeonInk.ProcessBrush}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Large hash reads deferred" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
+                            <Border Style="{StaticResource PanelBorder}" Height="78"><StackPanel Margin="14" VerticalAlignment="Center"><TextBlock Text="{Binding HealthDeferredHashCountText}" Foreground="{StaticResource Atl.Brush.Archive}" FontSize="22" FontWeight="SemiBold" /><TextBlock Text="Large hash reads deferred" Style="{StaticResource SmallLabel}" /></StackPanel></Border>
                         </UniformGrid>
 
                         <Border Grid.Row="2" Style="{StaticResource PanelBorder}">
@@ -754,7 +754,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Text="{Binding Label}" Style="{StaticResource DataCell}" />
                                                         <Grid Grid.Column="1" Height="8" VerticalAlignment="Center">
-                                                            <Border Background="{StaticResource NeonInk.RaisedBrush}" CornerRadius="4" />
+                                                            <Border Background="{StaticResource Atl.Brush.PanelRaised}" CornerRadius="4" />
                                                             <Border Background="{Binding AccentBrush}" Width="{Binding PercentWidth}" HorizontalAlignment="Left" CornerRadius="4" />
                                                         </Grid>
                                                         <TextBlock Grid.Column="2" Text="{Binding CountText}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
@@ -768,7 +768,7 @@
                                                     <Grid Margin="0,0,0,9">
                                                         <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="170" /><ColumnDefinition Width="50" /></Grid.ColumnDefinitions>
                                                         <TextBlock Text="{Binding Label}" Style="{StaticResource DataCell}" TextTrimming="CharacterEllipsis" />
-                                                        <Grid Grid.Column="1" Height="8" VerticalAlignment="Center"><Border Background="{StaticResource NeonInk.RaisedBrush}" CornerRadius="4" /><Border Background="{Binding AccentBrush}" Width="{Binding PercentWidth}" HorizontalAlignment="Left" CornerRadius="4" /></Grid>
+                                                        <Grid Grid.Column="1" Height="8" VerticalAlignment="Center"><Border Background="{StaticResource Atl.Brush.PanelRaised}" CornerRadius="4" /><Border Background="{Binding AccentBrush}" Width="{Binding PercentWidth}" HorizontalAlignment="Left" CornerRadius="4" /></Grid>
                                                         <TextBlock Grid.Column="2" Text="{Binding CountText}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
                                                     </Grid>
                                                 </DataTemplate>
@@ -780,7 +780,7 @@
                                                     <Grid Margin="0,0,0,9">
                                                         <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="170" /><ColumnDefinition Width="50" /></Grid.ColumnDefinitions>
                                                         <TextBlock Text="{Binding Label}" Style="{StaticResource DataCell}" TextTrimming="CharacterEllipsis" />
-                                                        <Grid Grid.Column="1" Height="8" VerticalAlignment="Center"><Border Background="{StaticResource NeonInk.RaisedBrush}" CornerRadius="4" /><Border Background="{Binding AccentBrush}" Width="{Binding PercentWidth}" HorizontalAlignment="Left" CornerRadius="4" /></Grid>
+                                                        <Grid Grid.Column="1" Height="8" VerticalAlignment="Center"><Border Background="{StaticResource Atl.Brush.PanelRaised}" CornerRadius="4" /><Border Background="{Binding AccentBrush}" Width="{Binding PercentWidth}" HorizontalAlignment="Left" CornerRadius="4" /></Grid>
                                                         <TextBlock Grid.Column="2" Text="{Binding CountText}" Style="{StaticResource SmallLabel}" HorizontalAlignment="Right" />
                                                     </Grid>
                                                 </DataTemplate>
@@ -889,10 +889,10 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <Border Margin="12"
-                                        BorderBrush="{StaticResource NeonInk.ProcessBrush}"
+                                        BorderBrush="{StaticResource Atl.Brush.Archive}"
                                         BorderThickness="1.5"
                                         CornerRadius="6"
-                                        Background="{StaticResource NeonInk.SoftBrush}"
+                                        Background="{StaticResource Atl.Brush.PanelDim}"
                                         AllowDrop="True"
                                         Drop="DropZone_Drop"
                                         MouseLeftButtonUp="DropZone_MouseLeftButtonUp">
@@ -903,13 +903,13 @@
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
-                                        <TextBlock Text="DROP ZONE - INGEST FILES" Foreground="{StaticResource NeonInk.ProcessBrush}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                        <TextBlock Text="DROP ZONE - INGEST FILES" Foreground="{StaticResource Atl.Brush.Archive}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" />
 
                                         <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource NeonInk.PipelineBrush}" FontSize="52" HorizontalAlignment="Center" />
+                                            <TextBlock Text="&#xE898;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource Atl.Brush.Archive}" FontSize="52" HorizontalAlignment="Center" />
                                             <TextBlock Text="Drag &amp; drop files or folders here" Foreground="{StaticResource PrimaryTextBrush}" FontSize="15" HorizontalAlignment="Center" Margin="0,8,0,0" />
-                                            <TextBlock Text="or click to browse" Foreground="{StaticResource NeonInk.FeaturedBrush}" FontSize="13" HorizontalAlignment="Center" Margin="0,7,0,0" />
-                                            <Border Background="{StaticResource NeonInk.PipelineBrush}" BorderBrush="{StaticResource NeonInk.FeaturedBrush}" BorderThickness="1" CornerRadius="5" Padding="10,4" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                            <TextBlock Text="or click to browse" Foreground="{StaticResource Atl.Brush.Taxonomy}" FontSize="13" HorizontalAlignment="Center" Margin="0,7,0,0" />
+                                            <Border Background="{StaticResource Atl.Brush.Archive}" BorderBrush="{StaticResource Atl.Brush.Taxonomy}" BorderThickness="1" CornerRadius="5" Padding="10,4" HorizontalAlignment="Center" Margin="0,8,0,0">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="INTAKE MODE:" Foreground="{StaticResource MutedTextBrush}" FontSize="11" FontWeight="SemiBold" />
                                                     <TextBlock Text="{Binding IngestModeText}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="11" FontWeight="SemiBold" Margin="6,0,0,0" />
@@ -945,7 +945,7 @@
                                                     <TextBlock Text="{Binding DuplicatePolicyText}" Foreground="{StaticResource MutedTextBrush}" FontSize="11" />
                                                 </StackPanel>
                                             </Button>
-                                            <Border Background="{StaticResource NeonInk.PanelBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Padding="12,8" Margin="0,0,8,8">
+                                            <Border Background="{StaticResource Atl.Brush.Panel}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="5" Padding="12,8" Margin="0,0,8,8">
                                                 <TextBlock Text="{Binding IngestModeDetail}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" TextWrapping="Wrap" Width="180" />
                                             </Border>
                                         </WrapPanel>
@@ -963,7 +963,7 @@
 
                         <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource PanelBorder}">
                             <StackPanel Margin="16">
-                                <TextBlock Text="RECENT ACTIVITY" Foreground="{StaticResource NeonInk.ProcessBrush}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,18" />
+                                <TextBlock Text="RECENT ACTIVITY" Foreground="{StaticResource Atl.Brush.Archive}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,18" />
                                 <ItemsControl ItemsSource="{Binding Activities}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -1003,7 +1003,7 @@
                                         <Button Content="&#xE787;" Command="{Binding SortByDateCommand}" ToolTip="Sort by modified date" Style="{StaticResource ToolButton}" FontFamily="Segoe MDL2 Assets" Margin="8,0,0,0" />
                                         <Button Content="{Binding ColumnPresetText}" Command="{Binding CycleColumnPresetCommand}" ToolTip="Cycle visible columns" Style="{StaticResource ToolButton}" Margin="8,0,0,0" />
                                         <Button Content="{Binding DensityText}" Command="{Binding ToggleDensityCommand}" Style="{StaticResource ToolButton}" Margin="8,0,0,0" />
-                                        <Button Content="Health  &#xE9D9;" Command="{Binding ShowVaultHealthCommand}" ToolTip="Open vault health, analysis, and repair tools." Style="{StaticResource ToolButton}" Background="{StaticResource NeonInk.PipelineBrush}" BorderBrush="{StaticResource NeonInk.FeaturedBrush}" Margin="8,0,0,0" />
+                                        <Button Content="Health  &#xE9D9;" Command="{Binding ShowVaultHealthCommand}" ToolTip="Open vault health, analysis, and repair tools." Style="{StaticResource ToolButton}" Background="{StaticResource Atl.Brush.Archive}" BorderBrush="{StaticResource Atl.Brush.Taxonomy}" Margin="8,0,0,0" />
                                     </StackPanel>
                                 </Grid>
                                 <DataGrid Grid.Row="1"
@@ -1037,7 +1037,7 @@
                                                 <DataTemplate>
                                                     <Grid>
                                                         <TextBlock Text="{Binding TagsText}" Style="{StaticResource DataCell}" Margin="0,0,22,0" />
-                                                        <TextBlock Text="{Binding StarText}" Foreground="{StaticResource NeonInk.ImportantBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                        <TextBlock Text="{Binding StarText}" Foreground="{StaticResource Atl.Brush.Attention}" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                                     </Grid>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
@@ -1058,7 +1058,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Vault Storage" Style="{StaticResource DataCell}" VerticalAlignment="Center" />
                             <Grid Grid.Column="1" Height="10" VerticalAlignment="Center">
-                                <Border Background="{StaticResource NeonInk.RaisedBrush}" CornerRadius="5" />
+                                <Border Background="{StaticResource Atl.Brush.PanelRaised}" CornerRadius="5" />
                                 <Border Background="{StaticResource GreenBrush}" CornerRadius="5" Width="220" HorizontalAlignment="Left" />
                             </Grid>
                             <TextBlock Grid.Column="2" Text="{Binding StorageUsedText}" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="16,0,42,0" />
@@ -1077,7 +1077,7 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="0" />
                         </Grid.RowDefinitions>
-                        <Border Style="{StaticResource PanelBorder}" BorderBrush="{StaticResource NeonInk.ExperimentalBrush}">
+                        <Border Style="{StaticResource PanelBorder}" BorderBrush="{StaticResource Atl.Brush.Archive}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Margin="16">
                                     <UniformGrid Columns="2" Margin="0,0,0,12">
@@ -1086,7 +1086,7 @@
                                     </UniformGrid>
 
                                     <StackPanel Visibility="{Binding IsPreviewTabSelected, Converter={StaticResource BoolToVisibility}}">
-                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.ExperimentalBrush}" BorderThickness="1" CornerRadius="6" MinHeight="260" Margin="0,8,0,24" Padding="10">
+                                    <Border Background="{StaticResource Atl.Brush.BackgroundSoft}" BorderBrush="{StaticResource Atl.Brush.Archive}" BorderThickness="1" CornerRadius="6" MinHeight="260" Margin="0,8,0,24" Padding="10">
                                         <Grid>
                                             <Image Source="{Binding SelectedPreview.Image}"
                                                    Stretch="Uniform"
@@ -1111,7 +1111,7 @@
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"
                                                                Margin="0,-10,0,0" />
-                                                    <Border Background="{StaticResource NeonInk.BaseBrush}"
+                                                    <Border Background="{StaticResource Atl.Brush.BackgroundSoft}"
                                                             BorderBrush="{Binding SelectedPreview.AccentBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="4"
@@ -1131,15 +1131,15 @@
                                             </StackPanel>
 
                                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="210" Visibility="{Binding IsMissingPreview, Converter={StaticResource BoolToVisibility}}">
-                                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource NeonInk.CriticalBrush}" FontSize="42" HorizontalAlignment="Center" />
+                                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource Atl.Brush.Danger}" FontSize="42" HorizontalAlignment="Center" />
                                                 <TextBlock Text="{Binding SelectedPreview.Title}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="13" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,0" />
                                                 <TextBlock Text="{Binding SelectedPreview.Detail}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>
 
-                                    <TextBlock Text="Relations" Foreground="{StaticResource NeonInk.StructureBrush}" FontSize="11" Margin="0,0,0,8" />
-                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.StructureBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,20">
+                                    <TextBlock Text="Relations" Foreground="{StaticResource Atl.Brush.ActionSoft}" FontSize="11" Margin="0,0,0,8" />
+                                    <Border Background="{StaticResource Atl.Brush.BackgroundSoft}" BorderBrush="{StaticResource Atl.Brush.ActionSoft}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,20">
                                         <StackPanel>
                                             <TextBlock Text="{Binding RelatedArtifactsSummary}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,8" />
                                             <ItemsControl ItemsSource="{Binding PreviewRelatedArtifacts}">
@@ -1168,8 +1168,8 @@
                                     </StackPanel>
 
                                     <StackPanel Visibility="Collapsed">
-                                    <TextBlock Text="Vault Analyze &amp; Fix" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="11" Margin="0,0,0,8" />
-                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource NeonInk.SuccessBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
+                                    <TextBlock Text="Vault Analyze &amp; Fix" Foreground="{StaticResource Atl.Brush.Success}" FontSize="11" Margin="0,0,0,8" />
+                                    <Border Background="{StaticResource Atl.Brush.BackgroundSoft}" BorderBrush="{StaticResource Atl.Brush.Success}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
                                         <StackPanel>
                                             <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource DataCell}" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,4" TextWrapping="Wrap" />
                                             <TextBlock Text="{Binding VaultHealthBreakdown}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,0,0,8" />
@@ -1191,7 +1191,7 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,12">
+                                    <Border Background="{StaticResource Atl.Brush.BackgroundSoft}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,12">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
@@ -1299,11 +1299,11 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding EditName}" Foreground="{StaticResource PrimaryTextBrush}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.StarText}" Foreground="{StaticResource NeonInk.ImportantBrush}" FontSize="17" Margin="8,0,0,0" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.StarText}" Foreground="{StaticResource Atl.Brush.Attention}" FontSize="17" Margin="8,0,0,0" />
                                     </Grid>
                                     <TextBlock Text="{Binding SelectedArtifact.SummaryText}" Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,0,0,22" />
 
-                                    <TextBlock Text="Editable Metadata" Foreground="{StaticResource NeonInk.FeaturedBrush}" FontSize="11" Margin="0,0,0,8" />
+                                    <TextBlock Text="Editable Metadata" Foreground="{StaticResource Atl.Brush.Taxonomy}" FontSize="11" Margin="0,0,0,8" />
                                     <TextBox Text="{Binding EditName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" />
                                     <ComboBox Text="{Binding EditCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               ItemsSource="{Binding CategoryNames}"
@@ -1320,7 +1320,7 @@
                                         <Slider Grid.Column="1" Minimum="0" Maximum="5" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding EditRating, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                     </Grid>
 
-                                    <TextBlock Text="Operator Context" Foreground="{StaticResource NeonInk.ProcessBrush}" FontSize="11" Margin="0,0,0,8" />
+                                    <TextBlock Text="Operator Context" Foreground="{StaticResource Atl.Brush.Archive}" FontSize="11" Margin="0,0,0,8" />
                                     <TextBlock Text="Retention reason" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
                                     <TextBox Text="{Binding EditRetentionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditorTextBox}" Margin="0,0,0,8" ToolTip="Retention reason" />
                                     <TextBlock Text="Why this matters" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
@@ -1381,7 +1381,7 @@
                                         <TextBlock Text="Modified" Style="{StaticResource SmallLabel}" />
                                         <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.DateModified}" Style="{StaticResource DataCell}" FontSize="12" />
                                     </Grid>
-                                    <TextBlock Text="Integrity Hashes" Foreground="{StaticResource NeonInk.VerifiedBrush}" FontSize="11" Margin="0,0,0,8" />
+                                    <TextBlock Text="Integrity Hashes" Foreground="{StaticResource Atl.Brush.Verified}" FontSize="11" Margin="0,0,0,8" />
                                     <ItemsControl ItemsSource="{Binding SelectedHashDisplays}" Margin="0,0,0,14">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -1456,7 +1456,7 @@
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="62" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <TextBlock Text="Rating" Style="{StaticResource SmallLabel}" />
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.RatingText}" Foreground="{StaticResource NeonInk.ImportantBrush}" FontSize="14" />
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArtifact.RatingText}" Foreground="{StaticResource Atl.Brush.Attention}" FontSize="14" />
                                     </Grid>
 
                                     <TextBlock Text="Notes" Style="{StaticResource SmallLabel}" Margin="0,0,0,8" />
@@ -1501,7 +1501,7 @@
                                             <StackPanel><TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" HorizontalAlignment="Center" /><TextBlock Text="Quaran-&#x0a;tine" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
                                         </Button>
                                         <Button Click="DeleteArtifactButton_Click" Style="{StaticResource ToolButton}" Height="54" Padding="0">
-                                            <StackPanel><TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" HorizontalAlignment="Center" Foreground="{StaticResource NeonInk.CriticalBrush}" /><TextBlock Text="Delete&#x0a;Forever" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
+                                            <StackPanel><TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" HorizontalAlignment="Center" Foreground="{StaticResource Atl.Brush.Danger}" /><TextBlock Text="Delete&#x0a;Forever" Style="{StaticResource SmallLabel}" TextAlignment="Center" /></StackPanel>
                                         </Button>
                                     </UniformGrid>
                                     <TextBlock Text="{Binding ActionStatus}" Style="{StaticResource SmallLabel}" Margin="0,0,0,4" />
@@ -1524,7 +1524,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="VAULT HEALTH" Foreground="{StaticResource NeonInk.SuccessBrush}" FontSize="12" FontWeight="SemiBold" />
+                                        <TextBlock Text="VAULT HEALTH" Foreground="{StaticResource Atl.Brush.Success}" FontSize="12" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding VaultHealthSummary}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding VaultMaintenanceStatus}" Style="{StaticResource SmallLabel}" Margin="0,4,0,0" />
                                         <TextBlock Text="{Binding VaultMaintenanceDetail}" Style="{StaticResource SmallLabel}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" MaxWidth="520" />
@@ -1563,14 +1563,14 @@
                                     <TextBlock Grid.Row="3" Text="Backup" Style="{StaticResource SmallLabel}" Margin="0,7,0,0" />
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LastBackupDisplay}" Style="{StaticResource DataCell}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,7,0,0" />
 
-                                    <Border Grid.Row="4" Grid.ColumnSpan="2" Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="8">
+                                    <Border Grid.Row="4" Grid.ColumnSpan="2" Background="{StaticResource Atl.Brush.BackgroundSoft}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,12,0,0" Padding="8">
                                         <StackPanel>
                                             <TextBlock Text="Selected Repairs" Foreground="{StaticResource PrimaryTextBrush}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
                                             <TextBlock Text="{Binding SelectedRepairSummary}" Style="{StaticResource SmallLabel}" TextWrapping="Wrap" Margin="0,4,0,0" />
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="5" Grid.ColumnSpan="2" Background="{StaticResource NeonInk.BaseBrush}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0" Padding="8">
+                                    <Border Grid.Row="5" Grid.ColumnSpan="2" Background="{StaticResource Atl.Brush.BackgroundSoft}" BorderBrush="{StaticResource BorderDimBrush}" BorderThickness="1" CornerRadius="6" Margin="0,8,0,0" Padding="8">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -1597,7 +1597,7 @@
             </Grid>
             <!-- Vault Health Modal Overlay -->
             <Grid Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="90">
-                <Border Background="#A0000000">
+                <Border Background="#A0050913">
                     <Border.InputBindings>
                         <MouseBinding Gesture="LeftClick" Command="{Binding CloseVaultHealthCommand}" />
                     </Border.InputBindings>
@@ -1675,7 +1675,7 @@
 
             <!-- Settings Modal Overlay -->
             <Grid Grid.RowSpan="2" Visibility="{Binding IsSettingsVisible, Converter={StaticResource BoolToVisibility}}" Panel.ZIndex="100">
-                <Border Background="#A0000000">
+                <Border Background="#A0050913">
                     <Border.InputBindings>
                         <MouseBinding Gesture="LeftClick" Command="{Binding CloseSettingsCommand}" />
                     </Border.InputBindings>

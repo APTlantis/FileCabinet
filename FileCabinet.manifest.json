@@ -14,7 +14,7 @@
       "metadata",
       "integrity-verification",
       "preview-pipeline",
-      "neon-ink",
+      "blue-slate",
       "dark-theme",
       "wpf",
       "vbnet"
@@ -156,7 +156,7 @@
     "writerside_topic": "",
     "readme": "README.md",
     "release_notes": "docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md",
-    "theme_overview": "docs/NeonInk-Theme-Integration-Overview.md",
+    "theme_overview": "docs/BlueSlate-Theme-Integration-Overview.md",
     "core_docs": [
       "docs/FileCabinet — Vault Lifecycle.md",
       "docs/FileCabinet — Trust and Verification Model.md",
@@ -194,26 +194,26 @@
     ]
   },
   "theme": {
-    "id": "neon-ink",
-    "name": "Aptlantis Studio - Neon Ink",
+    "id": "blue-slate",
+    "name": "Aptlantis Blue Slate",
     "mode": "dark",
-    "resource_dictionary": "Themes/NeonInk.xaml",
+    "resource_dictionary": "Themes/BlueSlate.xaml",
     "merged_from": "Application.xaml",
     "principles": [
-      "Semantic color over decorative neon",
+      "Semantic color over decorative accent",
       "Cyan and teal for navigation, focus, and structure",
-      "Violet and purple for ingest, preview, process, and pipeline states",
-      "Pink and magenta for featured, creative, and metadata emphasis",
-      "Green, yellow, red, and orange reserved for health, attention, risk, and build/file-operation states"
+      "Violet and indigo for taxonomy, archive, vault, and classification states",
+      "Amber and brass for warnings, priority, preflight notes, and attention states",
+      "Green for health and verification, with local danger/build extensions for destructive and package-like states"
     ]
   },
   "notes": {
     "current_highlights": [
-      "Neon Ink theme resources now live in a dedicated WPF ResourceDictionary",
+      "Blue Slate theme resources now live in a dedicated WPF ResourceDictionary",
       "MainWindow uses shared theme brushes instead of inline palette resources",
-      "Cyan navigation fills were darkened for readable selected-row and route text",
-      "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
-      "Preview and activity accents were refreshed to match Neon Ink semantics",
+      "Cyan and teal navigation/focus resources now follow Blue Slate semantic tokens",
+      "Blue Slate accents are used sparingly for action, focus, attention, taxonomy, archive, health, build, and danger states",
+      "Preview and activity accents now use Blue Slate semantic palette constants",
       "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
       "Application, CLI, and manifest version updated to 1.7.3",
       "Added 24 optional compatibility hashes and checksums across archival, legacy, and fast hash families",

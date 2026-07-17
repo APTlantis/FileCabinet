@@ -1,3 +1,20 @@
+[manifest]
+schema = "APTlantis Entity Manifest"
+schema_version = "2.4"
+manifest_type = "project"
+canonical_name = "FileCabinet.manifest.toml"
+last_updated = "2026-07-08"
+maintainer = "Herb"
+
+[entity]
+id = "filecabinet"
+title = "FileCabinet"
+kind = "project"
+class = "project"
+status = "paused"
+description = "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts."
+tags = ["desktop", "vault", "integrity", "wpf", "vbnet"]
+
 [project]
 id = "filecabinet"
 title = "FileCabinet"
@@ -5,6 +22,7 @@ description = "Local-first Windows desktop vault for retaining, cataloging, prev
 type = "tool"
 stage = "production"
 version = "1.7.3"
+portfolio_class = "project"
 tags = [
   "local-first",
   "desktop",
@@ -13,11 +31,27 @@ tags = [
   "metadata",
   "integrity-verification",
   "preview-pipeline",
-  "neon-ink",
+  "blue-slate",
   "dark-theme",
   "wpf",
   "vbnet"
 ]
+
+[governance]
+primary_standard = "DRS"
+primary_standard_path = "D:\\.library\\aptlantis_core\\DRS\\README.md"
+additional_standards = ["WGS", "PPS", "AAMHS"]
+additional_standard_paths = ["D:\\.library\\aptlantis_core\\WGS\\README.md", "D:\\.library\\aptlantis_core\\PPS\\README.md", "D:\\.library\\aptlantis_core\\AAMHS\\README.md"]
+inherits_from = "..\\DRS.manifest.toml"
+
+[lifecycle]
+state = "paused"
+created = "2026-05-23"
+last_reviewed = "2026-07-08"
+maintainer = "Herb"
+
+[paths]
+root = "D:\\DRS\\FileCabinet"
 
 [metadata]
 created = "2026-05-23"
@@ -51,6 +85,8 @@ storage = [
 ]
 
 [relationships]
+parent = "D:\\DRS"
+child_projects = []
 depends_on_projects = []
 used_by_projects = []
 external_dependencies = [
@@ -149,8 +185,9 @@ version = 1
 [documentation]
 writerside_topic = ""
 readme = "README.md"
+project_readme = "Project-README.md"
 release_notes = "docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md"
-theme_overview = "docs/NeonInk-Theme-Integration-Overview.md"
+theme_overview = "docs/BlueSlate-Theme-Integration-Overview.md"
 core_docs = [
   "docs/FileCabinet — Vault Lifecycle.md",
   "docs/FileCabinet — Trust and Verification Model.md",
@@ -170,9 +207,32 @@ homepage = "https://github.com/APTlantis/FileCabinet"
 dashboard = "https://github.com/APTlantis/FileCabinet/releases"
 
 [structure]
-repo_path = "D:/100-DRS/120-STORAGE/FileCabinet"
-docs_path = "D:/100-DRS/120-STORAGE/FileCabinet/docs"
+repo_path = "D:/DRS/FileCabinet"
+docs_path = "D:/DRS/FileCabinet/docs"
 data_path = "User-selected vault root"
+
+[state]
+stability = "stable"
+active_development = false
+known_gaps = ["The documented v1.7.3 MSI is not present in this checkout, so current artifact and release readiness are not verified."]
+
+[migration]
+archived_manifests = []
+
+[agent]
+read_first = ["AGENTS.md", "FileCabinet.manifest.toml", "Project-README.md", "README.md"]
+authoritative_docs = ["FileCabinet.manifest.toml", "Project-README.md", "AGENTS.md"]
+safe_to_modify = true
+notes = "Historical release evidence is retained, but current readiness requires rebuilding and verifying the actual shipping artifact."
+
+[verification]
+level = "metadata-reconciled"
+evidence = "FileCabinet.vbproj, README.md, rich legacy manifest, release notes, and clean Git checkout"
+reviewed = "2026-07-08"
+build_verified = false
+tests_verified = false
+artifact_verified = false
+release_verified = false
 
 [automation]
 build = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-installer.ps1 -Version 1.7.3.0; Get-FileHash -Algorithm SHA256 artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi"
@@ -188,26 +248,26 @@ tasks = [
 ]
 
 [theme]
-id = "neon-ink"
-name = "Aptlantis Studio - Neon Ink"
+id = "blue-slate"
+name = "Aptlantis Blue Slate"
 mode = "dark"
-resource_dictionary = "Themes/NeonInk.xaml"
+resource_dictionary = "Themes/BlueSlate.xaml"
 merged_from = "Application.xaml"
 principles = [
-  "Semantic color over decorative neon",
+  "Semantic color over decorative accent",
   "Cyan and teal for navigation, focus, and structure",
-  "Violet and purple for ingest, preview, process, and pipeline states",
-  "Pink and magenta for featured, creative, and metadata emphasis",
-  "Green, yellow, red, and orange reserved for health, attention, risk, and build/file-operation states"
+  "Violet and indigo for taxonomy, archive, vault, and classification states",
+  "Amber and brass for warnings, priority, preflight notes, and attention states",
+  "Green for health and verification, with local danger/build extensions for destructive and package-like states"
 ]
 
 [notes]
 current_highlights = [
-  "Neon Ink theme resources now live in a dedicated WPF ResourceDictionary",
+  "Blue Slate theme resources now live in a dedicated WPF ResourceDictionary",
   "MainWindow uses shared theme brushes instead of inline palette resources",
-  "Cyan navigation fills were darkened for readable selected-row and route text",
-  "Violet, purple, pink, magenta, orange, green, yellow, and red semantic accents are used across process, preview, metadata, build, health, attention, and risk states",
-  "Preview and activity accents were refreshed to match Neon Ink semantics",
+  "Cyan and teal navigation/focus resources now follow Blue Slate semantic tokens",
+  "Blue Slate accents are used sparingly for action, focus, attention, taxonomy, archive, health, build, and danger states",
+  "Preview and activity accents now use Blue Slate semantic palette constants",
   "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
   "Application, CLI, and manifest version updated to 1.7.3",
   "Added 24 optional compatibility hashes and checksums across archival, legacy, and fast hash families",

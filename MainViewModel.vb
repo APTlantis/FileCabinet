@@ -1176,19 +1176,19 @@ Public Class MainViewModel
 
     Public ReadOnly Property HealthRiskBreakdownRows As IEnumerable(Of HealthBreakdownRow)
         Get
-            Return BuildBreakdownRows(VaultHealthFindings.GroupBy(Function(finding) If(finding.RiskLevel, "Unknown")), "#F43F5E")
+            Return BuildBreakdownRows(VaultHealthFindings.GroupBy(Function(finding) If(finding.RiskLevel, "Unknown")), BlueSlatePalette.Danger)
         End Get
     End Property
 
     Public ReadOnly Property HealthFindingBreakdownRows As IEnumerable(Of HealthBreakdownRow)
         Get
-            Return BuildBreakdownRows(VaultHealthFindings.GroupBy(Function(finding) If(finding.FindingType, "Unknown")), "#38BDF8")
+            Return BuildBreakdownRows(VaultHealthFindings.GroupBy(Function(finding) If(finding.FindingType, "Unknown")), BlueSlatePalette.Action)
         End Get
     End Property
 
     Public ReadOnly Property HealthRepairActionBreakdownRows As IEnumerable(Of HealthBreakdownRow)
         Get
-            Return BuildBreakdownRows(RepairCandidates.GroupBy(Function(candidate) If(candidate.ActionType, "Unknown")), "#34D399")
+            Return BuildBreakdownRows(RepairCandidates.GroupBy(Function(candidate) If(candidate.ActionType, "Unknown")), BlueSlatePalette.Success)
         End Get
     End Property
 
@@ -1328,8 +1328,8 @@ Public Class MainViewModel
                                                    .Value = If(hasValue, value, "(not computed)"),
                                                    .Status = If(isActive, If(hasValue, "Active / computed", "Active / missing"), If(hasValue, "Inactive / retained", "Inactive / not computed")),
                                                    .IsActive = isActive,
-                                                   .AccentBrush = If(isActive, If(hasValue, "#34D399", "#FBBF24"), "#64748B"),
-                                                   .AccentBackground = If(isActive, If(hasValue, "#123522", "#3A2712"), "#162033")
+                                                   .AccentBrush = If(isActive, If(hasValue, BlueSlatePalette.Success, BlueSlatePalette.Warning), BlueSlatePalette.TextMuted),
+                                                   .AccentBackground = If(isActive, If(hasValue, BlueSlatePalette.SuccessDim, BlueSlatePalette.BuildDim), BlueSlatePalette.PanelDim)
                                                }
                                            End Function).ToList()
     End Function
@@ -1757,8 +1757,8 @@ Public Class MainViewModel
                 .ActionText = $"Deleted {artifact.Name}",
                 .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  removed from vault",
                 .Icon = "",
-                .IconBrush = "#F43F5E",
-                .IconBackground = "#3B1720"
+                .IconBrush = BlueSlatePalette.Danger,
+                .IconBackground = BlueSlatePalette.DangerDim
             }
             Activities.Insert(0, activity)
             _catalog.Activities.Insert(0, activity)
@@ -3431,11 +3431,11 @@ Public Class MainViewModel
         Dim activeHashIds = HashRegistry.ParseActiveHashIds(HashRegistry.NormalizeActiveHashes(activeHashes))
         Dim indexed = Artifacts.Where(Function(a) activeHashIds.Any(Function(hashId) Not String.IsNullOrWhiteSpace(HashRegistry.GetArtifactHashValue(a, hashId)))).Count()
         Dim rebuilt = New List(Of StatCardModel) From {
-            New StatCardModel With {.Label = "Total Items", .Value = Artifacts.Count.ToString("N0"), .Icon = "", .IconBrush = "#38BDF8", .IconBackground = "#123044"},
-            New StatCardModel With {.Label = "Vault Size", .Value = FormatSize(Artifacts.Sum(Function(a) a.SizeBytes)), .Icon = "", .IconBrush = "#A78BFA", .IconBackground = "#2A214D"},
-            New StatCardModel With {.Label = "Indexed", .Value = indexed.ToString("N0"), .Icon = "", .IconBrush = "#34D399", .IconBackground = "#123522"},
-            New StatCardModel With {.Label = "Large Objects", .Value = largeObjects.ToString("N0"), .Icon = "", .IconBrush = "#FB923C", .IconBackground = "#3A2712"},
-            New StatCardModel With {.Label = "In Quarantine", .Value = QuarantineCountText, .Icon = "", .IconBrush = "#F43F5E", .IconBackground = "#3B1720"}
+            New StatCardModel With {.Label = "Total Items", .Value = Artifacts.Count.ToString("N0"), .Icon = "", .IconBrush = BlueSlatePalette.Action, .IconBackground = BlueSlatePalette.PanelBlueDim},
+            New StatCardModel With {.Label = "Vault Size", .Value = FormatSize(Artifacts.Sum(Function(a) a.SizeBytes)), .Icon = "", .IconBrush = BlueSlatePalette.Archive, .IconBackground = BlueSlatePalette.TaxonomyDim},
+            New StatCardModel With {.Label = "Indexed", .Value = indexed.ToString("N0"), .Icon = "", .IconBrush = BlueSlatePalette.Success, .IconBackground = BlueSlatePalette.SuccessDim},
+            New StatCardModel With {.Label = "Large Objects", .Value = largeObjects.ToString("N0"), .Icon = "", .IconBrush = BlueSlatePalette.Build, .IconBackground = BlueSlatePalette.BuildDim},
+            New StatCardModel With {.Label = "In Quarantine", .Value = QuarantineCountText, .Icon = "", .IconBrush = BlueSlatePalette.Danger, .IconBackground = BlueSlatePalette.DangerDim}
         }
         ReplaceCollection(Stats, rebuilt)
         If _catalog IsNot Nothing Then
@@ -3849,8 +3849,8 @@ Public Class MainViewModel
                 .ActionText = $"Applied {applied:N0} repair(s)",
                 .DetailText = $"{DateTime.Now:yyyy-MM-dd HH:mm}  •  {failed:N0} failed, {skipped:N0} skipped; repair log updated",
                 .Icon = "",
-                .IconBrush = "#34D399",
-                .IconBackground = "#123522"
+                .IconBrush = BlueSlatePalette.Success,
+                .IconBackground = BlueSlatePalette.SuccessDim
             }
             Activities.Insert(0, activity)
             _catalog.Activities.Insert(0, activity)

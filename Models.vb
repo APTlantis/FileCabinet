@@ -235,7 +235,7 @@ Public Class HealthBreakdownRow
     Public Property Label As String = ""
     Public Property Count As Integer
     Public Property PercentWidth As Double
-    Public Property AccentBrush As String = "#38BDF8"
+    Public Property AccentBrush As String = BlueSlatePalette.Action
 
     Public ReadOnly Property CountText As String
         Get
@@ -366,8 +366,8 @@ Public Class StatCardModel
     Public Property Label As String = ""
     Public Property Value As String = ""
     Public Property Icon As String = ""
-    Public Property IconBrush As String = "#38BDF8"
-    Public Property IconBackground As String = "#123044"
+    Public Property IconBrush As String = BlueSlatePalette.Action
+    Public Property IconBackground As String = BlueSlatePalette.PanelBlueDim
 End Class
 
 Public Class CategoryModel
@@ -381,8 +381,8 @@ Public Class HashDisplayModel
     Public Property Value As String = ""
     Public Property Status As String = ""
     Public Property IsActive As Boolean
-    Public Property AccentBrush As String = "#64748B"
-    Public Property AccentBackground As String = "#162033"
+    Public Property AccentBrush As String = BlueSlatePalette.TextMuted
+    Public Property AccentBackground As String = BlueSlatePalette.PanelDim
 End Class
 
 Public Class HashSettingOptionModel
@@ -424,8 +424,8 @@ End Class
 
 Public Class ArtifactIconModel
     Public Property Glyph As String = ChrW(&HE8A5)
-    Public Property Brush As String = "#CBD5E1"
-    Public Property Background As String = "#162033"
+    Public Property Brush As String = BlueSlatePalette.TextSoft
+    Public Property Background As String = BlueSlatePalette.PanelDim
     Public Property SymbolName As String = "draft"
 End Class
 
@@ -442,37 +442,37 @@ Public Class ArtifactIconRegistry
 
         Select Case True
             Case String.Equals(category, "Images", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE91B), "#EC4899", "#3B1733", "image")
+                Return Icon(ChrW(&HE91B), BlueSlatePalette.Taxonomy, BlueSlatePalette.TaxonomyDim, "image")
             Case String.Equals(category, "Documents", StringComparison.OrdinalIgnoreCase)
-                Return If(extension = ".pdf", Icon(ChrW(&HE8A5), "#F43F5E", "#3B1720", "picture_as_pdf"), Icon(ChrW(&HE8A5), "#22D3EE", "#123044", "description"))
+                Return If(extension = ".pdf", Icon(ChrW(&HE8A5), BlueSlatePalette.Danger, BlueSlatePalette.DangerDim, "picture_as_pdf"), Icon(ChrW(&HE8A5), BlueSlatePalette.Action, BlueSlatePalette.PanelBlueDim, "description"))
             Case String.Equals(category, "Spreadsheets", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE9D2), "#34D399", "#123522", "table")
+                Return Icon(ChrW(&HE9D2), BlueSlatePalette.Success, BlueSlatePalette.SuccessDim, "table")
             Case String.Equals(category, "Presentations", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HEBC6), "#F472B6", "#3B1733", "present_to_all")
+                Return Icon(ChrW(&HEBC6), BlueSlatePalette.Taxonomy, BlueSlatePalette.TaxonomyDim, "present_to_all")
             Case String.Equals(category, "Manifests / Config", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE713), "#818CF8", "#1F264B", "settings")
+                Return Icon(ChrW(&HE713), BlueSlatePalette.Archive, BlueSlatePalette.ArchiveDim, "settings")
             Case String.Equals(category, "Audio", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE8D6), "#EC4899", "#3B1733", "audio_file")
+                Return Icon(ChrW(&HE8D6), BlueSlatePalette.Taxonomy, BlueSlatePalette.TaxonomyDim, "audio_file")
             Case String.Equals(category, "Video", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE8B2), "#F472B6", "#3B1733", "video_file")
+                Return Icon(ChrW(&HE8B2), BlueSlatePalette.Taxonomy, BlueSlatePalette.TaxonomyDim, "video_file")
             Case String.Equals(category, "Archives", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE7B8), "#FB923C", "#3A2712", "folder_zip")
+                Return Icon(ChrW(&HE7B8), BlueSlatePalette.Build, BlueSlatePalette.BuildDim, "folder_zip")
             Case String.Equals(category, "Software / Installers", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE896), "#C084FC", "#2A214D", "deployed_code")
+                Return Icon(ChrW(&HE896), BlueSlatePalette.Taxonomy, BlueSlatePalette.TaxonomyDim, "deployed_code")
             Case String.Equals(category, "ISOs / Disk Images", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE958), "#818CF8", "#1F264B", "album")
+                Return Icon(ChrW(&HE958), BlueSlatePalette.Archive, BlueSlatePalette.ArchiveDim, "album")
             Case String.Equals(category, "Keys / Security", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE72E), "#F43F5E", "#3B1720", "key")
+                Return Icon(ChrW(&HE72E), BlueSlatePalette.Danger, BlueSlatePalette.DangerDim, "key")
             Case String.Equals(category, "Torrents", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE896), "#2DD4BF", "#12343A", "hub")
+                Return Icon(ChrW(&HE896), BlueSlatePalette.ActionSoft, BlueSlatePalette.TechnicalDim, "hub")
             Case String.Equals(category, "Quarantine", StringComparison.OrdinalIgnoreCase)
-                Return Icon(ChrW(&HE74D), "#F43F5E", "#3B1720", "dangerous")
+                Return Icon(ChrW(&HE74D), BlueSlatePalette.Danger, BlueSlatePalette.DangerDim, "dangerous")
             Case extension = ".pdf"
-                Return Icon(ChrW(&HE8A5), "#F43F5E", "#3B1720", "picture_as_pdf")
+                Return Icon(ChrW(&HE8A5), BlueSlatePalette.Danger, BlueSlatePalette.DangerDim, "picture_as_pdf")
             Case extension = ".zip" OrElse extension = ".7z" OrElse extension = ".rar"
-                Return Icon(ChrW(&HE7B8), "#FB923C", "#3A2712", "folder_zip")
+                Return Icon(ChrW(&HE7B8), BlueSlatePalette.Build, BlueSlatePalette.BuildDim, "folder_zip")
             Case Else
-                Return Icon(ChrW(&HE8A5), "#CBD5E1", "#162033", "draft")
+                Return Icon(ChrW(&HE8A5), BlueSlatePalette.TextSoft, BlueSlatePalette.PanelDim, "draft")
         End Select
     End Function
 
@@ -490,8 +490,8 @@ Public Class ActivityEntryModel
     Public Property ActionText As String = ""
     Public Property DetailText As String = ""
     Public Property Icon As String = ""
-    Public Property IconBrush As String = "#A78BFA"
-    Public Property IconBackground As String = "#2A214D"
+    Public Property IconBrush As String = BlueSlatePalette.Archive
+    Public Property IconBackground As String = BlueSlatePalette.TaxonomyDim
 End Class
 
 Public Class HelpDocumentModel

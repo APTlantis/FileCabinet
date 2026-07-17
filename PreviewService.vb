@@ -18,8 +18,8 @@ Public Class ArtifactPreview
     Public Property Detail As String = ""
     Public Property BadgeText As String = ""
     Public Property IconGlyph As String = ChrW(&HE8A5)
-    Public Property AccentBrush As String = "#818CF8"
-    Public Property AccentBackground As String = "#1F264B"
+    Public Property AccentBrush As String = BlueSlatePalette.Archive
+    Public Property AccentBackground As String = BlueSlatePalette.ArchiveDim
 End Class
 
 Public Class PreviewService
@@ -34,7 +34,7 @@ Public Class PreviewService
     Private Const CategoryManifestsConfig As String = "Manifests / Config"
     Private Const CategoryAudio As String = "Audio"
     Private Const CategoryVideo As String = "Video"
-    Private Const AccentBackgroundMagenta As String = "#3B1733"
+    Private Const AccentBackgroundMagenta As String = BlueSlatePalette.TaxonomyDim
 
     Private ReadOnly _thumbnailService As ThumbnailService
 
@@ -135,7 +135,7 @@ Public Class PreviewService
                 .Detail = "The image is retained in the vault, but WPF could not decode it.",
                 .BadgeText = "IMG",
                 .IconGlyph = ChrW(&HE91B),
-                .AccentBrush = "#EC4899",
+                .AccentBrush = BlueSlatePalette.Taxonomy,
                 .AccentBackground = AccentBackgroundMagenta
             }
         End Try
@@ -175,8 +175,8 @@ Public Class PreviewService
                 .Detail = "The file is retained in the vault, but text could not be read safely.",
                 .BadgeText = "TXT",
                 .IconGlyph = ChrW(&HE8A5),
-                .AccentBrush = "#818CF8",
-                .AccentBackground = "#1F264B"
+                .AccentBrush = BlueSlatePalette.Archive,
+                .AccentBackground = BlueSlatePalette.ArchiveDim
             }
         End Try
     End Function
@@ -312,66 +312,66 @@ Public Class PreviewService
     Private Shared Function ResolveAccentBrush(artifact As ArtifactModel, extension As String) As String
         Select Case If(artifact?.Category, "")
             Case CategoryDiskImages
-                Return "#818CF8"
+                Return BlueSlatePalette.Archive
             Case CategoryInstallers
-                Return "#C084FC"
+                Return BlueSlatePalette.Taxonomy
             Case CategoryArchives
-                Return "#FB923C"
+                Return BlueSlatePalette.Build
             Case CategoryTorrents
-                Return "#2DD4BF"
+                Return BlueSlatePalette.ActionSoft
             Case CategoryKeysSecurity
-                Return "#F43F5E"
+                Return BlueSlatePalette.Danger
             Case CategoryDocuments
-                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#F43F5E", "#22D3EE")
+                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), BlueSlatePalette.Danger, BlueSlatePalette.Action)
             Case CategorySpreadsheets
-                Return "#34D399"
+                Return BlueSlatePalette.Success
             Case CategoryPresentations
-                Return "#F472B6"
+                Return BlueSlatePalette.Taxonomy
             Case CategoryManifestsConfig
-                Return "#818CF8"
+                Return BlueSlatePalette.Archive
             Case CategoryAudio
-                Return "#EC4899"
+                Return BlueSlatePalette.Taxonomy
             Case CategoryVideo
-                Return "#F472B6"
+                Return BlueSlatePalette.Taxonomy
             Case Else
                 If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
-                    Return "#F43F5E"
+                    Return BlueSlatePalette.Danger
                 End If
 
-                Return "#CBD5E1"
+                Return BlueSlatePalette.TextSoft
         End Select
     End Function
 
     Private Shared Function ResolveAccentBackground(artifact As ArtifactModel, extension As String) As String
         Select Case If(artifact?.Category, "")
             Case CategoryDiskImages
-                Return "#1F264B"
+                Return BlueSlatePalette.ArchiveDim
             Case CategoryInstallers
-                Return "#2A214D"
+                Return BlueSlatePalette.TaxonomyDim
             Case CategoryArchives
-                Return "#3A2712"
+                Return BlueSlatePalette.BuildDim
             Case CategoryTorrents
-                Return "#12343A"
+                Return BlueSlatePalette.TechnicalDim
             Case CategoryKeysSecurity
-                Return "#3B1720"
+                Return BlueSlatePalette.DangerDim
             Case CategoryDocuments
-                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), "#3B1720", "#123044")
+                Return If(String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase), BlueSlatePalette.DangerDim, BlueSlatePalette.PanelBlueDim)
             Case CategorySpreadsheets
-                Return "#123522"
+                Return BlueSlatePalette.SuccessDim
             Case CategoryPresentations
                 Return AccentBackgroundMagenta
             Case CategoryManifestsConfig
-                Return "#1F264B"
+                Return BlueSlatePalette.ArchiveDim
             Case CategoryAudio
                 Return AccentBackgroundMagenta
             Case CategoryVideo
                 Return AccentBackgroundMagenta
             Case Else
                 If String.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase) Then
-                    Return "#3B1720"
+                    Return BlueSlatePalette.DangerDim
                 End If
 
-                Return "#162033"
+                Return BlueSlatePalette.PanelDim
         End Select
     End Function
 
