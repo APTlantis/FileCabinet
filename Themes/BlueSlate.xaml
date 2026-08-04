@@ -145,6 +145,52 @@
     <Style TargetType="CheckBox">
         <Setter Property="FontFamily" Value="{StaticResource Atl.Font.Sans}" />
         <Setter Property="Foreground" Value="{StaticResource Atl.Brush.TextSoft}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="Box"
+                                Width="14"
+                                Height="14"
+                                Background="{StaticResource Atl.Brush.BackgroundSoft}"
+                                BorderBrush="{StaticResource Atl.Brush.BorderSoft}"
+                                BorderThickness="1"
+                                CornerRadius="2"
+                                VerticalAlignment="Center">
+                            <Path x:Name="CheckGlyph"
+                                  Data="M 2 7 L 5.3 10.2 L 12 3"
+                                  Stroke="{StaticResource Atl.Brush.TextInverse}"
+                                  StrokeThickness="2"
+                                  StrokeEndLineCap="Round"
+                                  StrokeStartLineCap="Round"
+                                  Visibility="Collapsed" />
+                        </Border>
+                        <ContentPresenter Grid.Column="1"
+                                          Margin="7,0,0,0"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Atl.Brush.Focus}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{StaticResource Atl.Brush.ActionSoft}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource Atl.Brush.Focus}" />
+                            <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Box" Property="Opacity" Value="0.48" />
+                            <Setter Property="Foreground" Value="{StaticResource Atl.Brush.TextFaint}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="RadioButton">
@@ -201,6 +247,50 @@
         <Setter Property="Foreground" Value="{StaticResource Atl.Brush.TextSoft}" />
     </Style>
 
+    <Style TargetType="TabItem">
+        <Setter Property="FontFamily" Value="{StaticResource Atl.Font.Sans}" />
+        <Setter Property="Foreground" Value="{StaticResource Atl.Brush.TextSoft}" />
+        <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelDim}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Atl.Brush.Border}" />
+        <Setter Property="Padding" Value="9,5" />
+        <Setter Property="Margin" Value="0,0,4,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="5,5,0,0"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter x:Name="ContentSite"
+                                          ContentSource="Header"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.PanelRaised}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource Atl.Brush.Focus}" />
+                            <Setter Property="Foreground" Value="{StaticResource Atl.Brush.Text}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.ActionSoft}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource Atl.Brush.Focus}" />
+                            <Setter Property="Foreground" Value="{StaticResource Atl.Brush.TextInverse}" />
+                            <Setter Property="Panel.ZIndex" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource Atl.Brush.TextFaint}" />
+                            <Setter TargetName="Root" Property="Opacity" Value="0.55" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="ProgressBar">
         <Setter Property="Foreground" Value="{StaticResource Atl.Brush.Success}" />
         <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelRaised}" />
@@ -212,5 +302,79 @@
         <Setter Property="FontFamily" Value="{StaticResource Atl.Font.Sans}" />
         <Setter Property="Background" Value="{StaticResource Atl.Brush.BackgroundSoft}" />
         <Setter Property="Foreground" Value="{StaticResource Atl.Brush.TextSoft}" />
+    </Style>
+
+    <Style x:Key="Atl.ScrollBar.RepeatButton" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="{TemplateBinding Background}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Thumb">
+        <Setter Property="Background" Value="{StaticResource Atl.Brush.BorderSoft}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{StaticResource Atl.Brush.Border}"
+                            BorderThickness="1"
+                            CornerRadius="5" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.ActionSoft}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource Atl.Brush.Focus}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource Atl.Brush.Action}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource Atl.Brush.Focus}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Width" Value="12" />
+        <Setter Property="MinWidth" Value="12" />
+        <Setter Property="Background" Value="{StaticResource Atl.Brush.PanelDim}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid x:Name="Root" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton x:Name="DecreaseButton" Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource Atl.ScrollBar.RepeatButton}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb MinHeight="24" MinWidth="24" />
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton x:Name="IncreaseButton" Command="{x:Static ScrollBar.PageDownCommand}" Style="{StaticResource Atl.ScrollBar.RepeatButton}" />
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Orientation" Value="Horizontal">
+                            <Setter Property="Width" Value="Auto" />
+                            <Setter Property="Height" Value="12" />
+                            <Setter Property="MinHeight" Value="12" />
+                            <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False" />
+                            <Setter TargetName="DecreaseButton" Property="Command" Value="{x:Static ScrollBar.PageLeftCommand}" />
+                            <Setter TargetName="IncreaseButton" Property="Command" Value="{x:Static ScrollBar.PageRightCommand}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

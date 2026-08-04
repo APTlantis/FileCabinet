@@ -71,3 +71,5 @@ The positioning is intentionally narrow:
 
 > FileCabinet is a deterministic local-first vault for preserving high-signal technical artifacts and the operational context surrounding them.
 
+FileCabinet deliberately does not perform PDF page rendering, image-text/OCR extraction, or Windows shell thumbnail extraction. Preview and thumbnail generation stay local and deterministic instead of depending on those heavier, less predictable pipelines.
+

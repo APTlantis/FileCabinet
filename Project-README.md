@@ -13,7 +13,9 @@ FileCabinet is a local-first Windows desktop vault for retaining, cataloging, pr
 
 ## Current state
 
-Version `1.7.3` is supported by the project file, README, release notes, and historical verification records. The checkout is clean, but the documented MSI is not present under `artifacts/installer`; therefore the project is classified as `paused`, not release-ready. Current build, tests, installer, hash, installation, and launch must be rerun before another readiness claim.
+Version `0.1.0` is the active governed stable release line. The prior v1.x installer train is retained as pre-standard historical evidence and no longer acts as current release authority.
+
+The v0.1.0 local release was verified on 2026-08-04 with source build, 104 passing tests, WiX MSI packaging, SHA-256 hashing, unsigned Authenticode status, and launch verification from the published executable. Full MSI install/uninstall was not executed during this local verification pass.
 
 ## Architecture and workflows
 
@@ -25,4 +27,4 @@ Version `1.7.3` is supported by the project file, README, release notes, and his
 
 ## Verification entry points
 
-Follow `README.md` and `installer/build-installer.ps1`. A release verification pass must cover source build, tests, installer creation, SHA-256, installation, launch, and documentation/manifests aligned to the resulting artifact.
+Follow `README.md` and `installer/build-installer.ps1`. A release verification pass must cover source build, tests, installer creation, SHA-256, installation or launch verification, data-safety notes, and documentation/manifests aligned to the resulting artifact.

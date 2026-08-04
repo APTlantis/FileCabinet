@@ -8,17 +8,16 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 ## Current Release
 
-Current version: **FileCabinet v1.7.3**.
+Current version: **FileCabinet v0.1.0**.
 
-The v1.7.3 patch promotes Vault Health into a dedicated workspace, makes default analysis metadata-first, keeps large-file hash reads explicit, and adds bulk repair selection controls for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
+The v0.1.0 stable release is the first intentionally governed FileCabinet release under the current DRS process. The historical v1.x installer train is preserved as pre-standard evidence, while the active release line now starts at `0.1.0` with Windows package version `0.1.0.0`.
+
+This release keeps the mature vault workflow: Vault Health has its own workspace, default analysis is metadata-first, large-file hash reads stay explicit, and bulk repair selection remains available for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
 
 Release notes:
 
-- `docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md`
-- `docs/FileCabinet v1.7.2 — Repair Scalability Patch.md`
-- `docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md`
-- `docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md`
-- `docs/FileCabinet — Hash Choices and Compatibility.md`
+- `docs/FileCabinet v0.1.0 - Stable Vault Release.md`
+- `docs/FileCabinet - Release Checklist.md`
 
 ## Who FileCabinet Is For
 
@@ -282,25 +281,10 @@ FileCabinet's preservation model is documented in:
 - [Why VB.NET and WPF](docs/FileCabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
 - [Blue Slate Theme Integration Overview](docs/BlueSlate-Theme-Integration-Overview.md)
 
-### Roadmaps
-
-- [Deterministic Vault Roadmap](docs/FileCabinet%20%E2%80%94%20Deterministic%20Vault%20Roadmap.md)
-- [Archival Maturity Roadmap](docs/FileCabinet%20%E2%80%94%20Archival%20Maturity%20Roadmap.md)
-- [Stronger Daily-Use Roadmap](docs/FileCabinet%20%E2%80%94%20Stronger%20Daily-Use%20Roadmap.md)
-- [Stewardship & Preservation Maturity Roadmap](docs/FileCabinet%20%E2%80%94%20Stewardship%20%26%20Preservation%20Maturity%20Roadmap.md)
-- [Legacy & Federation Roadmap](docs/FileCabinet%20%E2%80%94%20Legacy%20%26%20Federation%20Roadmap.md)
-- [Testing Maturity Roadmap](docs/FileCabinet%20%E2%80%94%20Testing%20Maturity%20Roadmap.md)
-
 ### Release Notes
 
-- [v1.7.3 — Vault Health Workspace Patch](docs/FileCabinet%20v1.7.3%20%E2%80%94%20Vault%20Health%20Workspace%20Patch.md)
-- [v1.7.2 — Repair Scalability and Analyze/Fix Patch](docs/FileCabinet%20v1.7.2%20%E2%80%94%20Repair%20Scalability%20Patch.md)
-- [v1.7.1 — Hash Compatibility Patch](docs/FileCabinet%20v1.7.1%20%E2%80%94%20Hash%20Compatibility%20Patch.md)
-- [v1.7.0 — Vault Health and Iconography Release](docs/FileCabinet%20v1.7.0%20%E2%80%94%20Vault%20Health%20and%20Iconography%20Release.md)
-- [v1.4.4 — Neon Ink Theme Patch](docs/FileCabinet%20v1.4.4%20%E2%80%94%20Neon%20Ink%20Theme%20Patch.md)
-- [v1.6.0 — Health and Settings Release](docs/FileCabinet%20v1.6.0%20%E2%80%94%20Health%20and%20Settings%20Release.md)
-- [v1.4.3 — Quality Gate and Installer Patch](docs/FileCabinet%20v1.4.3%20%E2%80%94%20Quality%20Gate%20and%20Installer%20Patch.md)
-- [v1.4.2 — Help Menu and Same Source Batch Patch](docs/FileCabinet%20v1.4.2%20%E2%80%94%20Help%20Menu%20and%20Same%20Source%20Batch%20Patch.md)
+- [v0.1.0 - Stable Vault Release](docs/FileCabinet%20v0.1.0%20-%20Stable%20Vault%20Release.md)
+- [Release Checklist](docs/FileCabinet%20-%20Release%20Checklist.md)
 
 ## Design Boundaries
 

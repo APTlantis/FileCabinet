@@ -14,6 +14,8 @@ FileCabinet.Cli.exe verify --fail-on medium
 
 Review findings before applying changes. Pay special attention to high-risk findings such as missing retained files, hash mismatches, files outside the vault, and unexpected duplicates.
 
+Default analysis is metadata-first: FileCabinet does not automatically compute or verify retained-file hashes just to produce a health report. "Verify small hashes" only checks retained files up to 1 GB; hash mismatch verification for files larger than 16 GB is deferred and reported as deferred rather than read end-to-end. Explicit hash checks remain available whenever the operator wants full verification.
+
 ## Common Findings
 
 ### Missing retained file
@@ -89,6 +91,30 @@ FileCabinet.Cli.exe rebuild-thumbnails --apply --yes
 ```
 
 Mutating commands require both `--apply` and `--yes`.
+
+## Integrity Matrix
+
+FileCabinet validates, explains, and recovers vault health without relying on automatic inference. Every recovery path should be deterministic, inspectable, and safe for an operator to approve.
+
+| Scenario | Detection | Expected Report | Safe Repair Action | Risk Level |
+|---|---|---|---|---|
+| Stored file missing | Catalog artifact path is empty or file does not exist | Missing file count and sample artifact names | Mark as missing; do not remove catalog row automatically | Medium |
+| Duplicate retained file | Two or more artifacts share SHA-256 | Duplicate hash group count and samples | Report candidates; operator decides whether to keep both | Low |
+| Orphan file under `items` | File exists in vault `items` but no catalog artifact points to it | Orphan count and sample filenames | Rescan adopts as cataloged artifact | Low |
+| Missing generated thumbnail | Artifact says thumbnail was generated but file is absent | Missing thumbnail count and sample artifact names | Regenerate thumbnail from retained source file | Low |
+| Failed thumbnail generation | Image thumbnail generation throws or source cannot decode | Thumbnail status is `Generation failed` | Leave retained artifact intact; retry during repair if appropriate | Low |
+| Orphan thumbnail | Thumbnail file exists but no artifact references it | Orphan thumbnail count and samples | Report first; cleanup should require approval | Low |
+| Stale extracted-text index | Extracted text file exists but no artifact references it | Stale index count and samples | Report first; cleanup should require approval | Low |
+| Missing extracted-text index | Artifact references extracted text path but file is absent | Missing index count and sample artifact names | Re-extract if source format is supported | Medium |
+| Hash missing | Artifact has no active hash values | Unverified or incomplete hash count | Recompute hashes from retained source file | Low |
+| Hash mismatch | Recomputed hash differs from catalog hash | Mismatch count and affected artifact names | Mark as mismatch; do not overwrite trusted hash automatically | High |
+| Relative path broken after vault move | Artifact absolute path missing but relative path exists under current vault root | Rebind candidate count | Rebind path to current vault root after operator approval | Medium |
+| File outside vault | Catalog artifact path points outside selected vault | External path count and sample names | Report; optionally restore/copy into vault with approval | Medium |
+| Interrupted ingest | File copied but catalog entry missing, or catalog entry exists with missing metadata | Orphan/adoption or incomplete metadata finding | Adopt file or complete metadata deterministically | Medium |
+| Catalog backup roundtrip | Exported catalog cannot load or differs after deserialize/serialize | Backup validation failure | Refuse restore and keep current catalog | High |
+| Vault portability roundtrip | Vault moved to another root and catalog can resolve retained files through relative paths | Rebind candidate count | Rebind catalog paths through Apply Selected; avoid destructive edits | High |
+
+> FileCabinet should make vault state understandable before it makes vault state different.
 
 ## Recovery Principle
 

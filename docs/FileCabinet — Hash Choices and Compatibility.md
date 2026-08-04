@@ -4,6 +4,8 @@ FileCabinet starts new catalogs with SHA-256 only. That keeps first-run behavior
 
 Additional hashes are still useful. They help verify older downloads, release notes, vendor manifests, archives, firmware packages, and files from projects that published a non-SHA-256 digest. Enabling a hash means FileCabinet will compute it during ingest, health repair, and explicit hash checks.
 
+Settings enforce that at least one active hash must always remain enabled — there is no state where hash computation is fully off. The active hash set is the single source of truth for runtime hashing; if a hash is later disabled, its historical values already stored on an artifact are preserved in the catalog for audit continuity, but they are never treated as missing findings or silently recomputed.
+
 ## Recommended Default
 
 ### SHA-256
