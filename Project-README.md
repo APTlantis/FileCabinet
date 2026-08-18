@@ -1,12 +1,12 @@
-# FileCabinet
+# File Cabinet
 
 ## Purpose
 
-FileCabinet is a local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering technical artifacts. The project includes a VB.NET/WPF application, CLI, tests, WiX installer workflow, documentation, integrity metadata, and repair/recovery facilities.
+File Cabinet is the governed project for FileCabinet, a local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering technical artifacts. The project includes a VB.NET/WPF application, CLI, tests, WiX installer workflow, documentation, integrity metadata, and repair/recovery facilities.
 
 ## Governance
 
-- [FileCabinet.manifest.toml](FileCabinet.manifest.toml)
+- [File Cabinet.manifest.toml](File%20Cabinet.manifest.toml)
 - [AGENTS.md](AGENTS.md)
 - [User and operator README](README.md)
 - [Desktop Application Release Standard](D:/.library/aptlantis_core/DRS/README.md)
@@ -15,7 +15,9 @@ FileCabinet is a local-first Windows desktop vault for retaining, cataloging, pr
 
 Version `0.1.0` is the active governed stable release line. The prior v1.x installer train is retained as pre-standard historical evidence and no longer acts as current release authority.
 
-The v0.1.0 local release was verified on 2026-08-04 with source build, 104 passing tests, WiX MSI packaging, SHA-256 hashing, unsigned Authenticode status, and launch verification from the published executable. Full MSI install/uninstall was not executed during this local verification pass.
+The v0.1.0 local release was verified on 2026-08-04 with source build, 104 passing tests, WiX MSI packaging, SHA-256 hashing, unsigned Authenticode status, and launch verification from the published executable. The MSI lifecycle was later verified on 2026-08-17 with quiet install, shell integration checks, installed CLI version, installed WPF launch, installed documentation payload, and quiet uninstall cleanup.
+
+Governance records use the current directory name, **File Cabinet**. Product-facing compatibility names remain **FileCabinet** for the executable, CLI, AppData catalog path, MSI product, registry keys, shell verbs, artifact filenames, and repository links.
 
 ## Architecture and workflows
 

@@ -2,13 +2,13 @@
 schema = "APTlantis Entity Manifest"
 schema_version = "2.4"
 manifest_type = "project"
-canonical_name = "FileCabinet.manifest.toml"
-last_updated = "2026-08-04"
+canonical_name = "File Cabinet.manifest.toml"
+last_updated = "2026-08-17"
 maintainer = "Herb"
 
 [entity]
-id = "filecabinet"
-title = "FileCabinet"
+id = "file-cabinet"
+title = "File Cabinet"
 kind = "project"
 class = "project"
 status = "active"
@@ -16,8 +16,8 @@ description = "Local-first Windows desktop vault for retaining, cataloging, prev
 tags = ["desktop", "vault", "integrity", "wpf", "vbnet"]
 
 [project]
-id = "filecabinet"
-title = "FileCabinet"
+id = "file-cabinet"
+title = "File Cabinet"
 description = "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts."
 type = "tool"
 stage = "production"
@@ -47,15 +47,15 @@ inherits_from = "..\\DRS.manifest.toml"
 [lifecycle]
 state = "maintenance"
 created = "2026-05-23"
-last_reviewed = "2026-08-04"
+last_reviewed = "2026-08-17"
 maintainer = "Herb"
 
 [paths]
-root = "D:\\DRS\\FileCabinet"
+root = "D:\\DRS\\File Cabinet"
 
 [metadata]
 created = "2026-05-23"
-last_updated = "2026-08-04"
+last_updated = "2026-08-17"
 maintainer = "APTlantis"
 license = "Unspecified"
 language_primary = "VB.NET"
@@ -153,11 +153,11 @@ status = "not generated"
 detail = "v0.1.0 local-verified installer validation has not generated a detached PGP signature."
 
 [release.verified]
-date = "2026-08-04"
-tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release passed 104 tests"
+date = "2026-08-17"
+tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-17 after .NET SDK first-run setup; prior full console summary recorded 104 tests for this release line"
 installer_build = "installer/build-installer.ps1 -Version 0.1.0.0 completed on 2026-08-04"
-install_check = "Published FileCabinet.exe launched on 2026-08-04 with window title 'FileCabinet - Personal Vault & Artifact Manager'"
-data_safety = "Launch-only verification did not modify or delete user-selected vault data; installer install/uninstall was not executed"
+install_check = "MSI installed successfully on 2026-08-17; installed FileCabinet.exe launched from C:\\Program Files (x86)\\FileCabinet with window title 'FileCabinet - Personal Vault & Artifact Manager'; shell copy/move verbs, shortcuts, installed docs, CLI version, and uninstall lifecycle were verified"
+data_safety = "MSI lifecycle verification did not modify or delete user-selected vault data; installed product footprint was removed by MSI uninstall"
 release_hashing = "Get-FileHash -Algorithm SHA256 completed for artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi"
 release_signing = "unsigned; Get-AuthenticodeSignature reported NotSigned"
 
@@ -208,15 +208,15 @@ homepage = "https://github.com/APTlantis/FileCabinet"
 dashboard = "https://github.com/APTlantis/FileCabinet/releases"
 
 [structure]
-repo_path = "D:/DRS/FileCabinet"
-docs_path = "D:/DRS/FileCabinet/docs"
+repo_path = "D:/DRS/File Cabinet"
+docs_path = "D:/DRS/File Cabinet/docs"
 data_path = "User-selected vault root"
 
 [state]
 stability = "stable"
 active_development = false
 known_gaps = [
-  "Installer install/uninstall was not executed during the 2026-08-04 local verification pass; launch behavior was verified from the published executable.",
+  "The MSI currently installs the win-x64 single-file payload under C:\\Program Files (x86)\\FileCabinet and registers the uninstall record in the WOW6432 registry view; this was verified during the 2026-08-17 lifecycle pass and should be reviewed before a future public distribution pass.",
   "The historical v1.x installer train is preserved as pre-standard evidence and is not the active governed release line."
 ]
 
@@ -224,15 +224,15 @@ known_gaps = [
 archived_manifests = []
 
 [agent]
-read_first = ["AGENTS.md", "FileCabinet.manifest.toml", "Project-README.md", "README.md"]
-authoritative_docs = ["FileCabinet.manifest.toml", "Project-README.md", "AGENTS.md"]
+read_first = ["AGENTS.md", "File Cabinet.manifest.toml", "Project-README.md", "README.md"]
+authoritative_docs = ["File Cabinet.manifest.toml", "Project-README.md", "AGENTS.md"]
 safe_to_modify = true
-notes = "Current release authority is the v0.1.0 local-verified DRS record. Historical v1.x release evidence is retained under artifacts/historical and legacy docs, but it is not the active governed release line."
+notes = "Current release authority is the v0.1.0 local-verified DRS record for the File Cabinet project. The installed product, executable, CLI, AppData catalog path, registry keys, shell verbs, release artifact names, and repository links intentionally retain FileCabinet compatibility naming."
 
 [verification]
 level = "local-verified"
-evidence = "dotnet build, dotnet test, installer/build-installer.ps1, SHA-256 hash, Authenticode unsigned check, and launch verification from publish output"
-reviewed = "2026-08-04"
+evidence = "dotnet test, existing MSI artifact, SHA-256 hash, Authenticode unsigned check, MSI install, installed shell integration, installed CLI version, installed app launch, installed docs payload, and MSI uninstall"
+reviewed = "2026-08-17"
 build_verified = true
 tests_verified = true
 artifact_verified = true
@@ -287,6 +287,8 @@ current_highlights = [
   "Release verification for v0.1.0 records SHA-256 only with Get-FileHash",
   "docs/ was reduced from the full v1.x release/patch/roadmap history to the curated set that ships with the application; durable decisions from retired release notes were folded into the standing conceptual docs before deletion",
   "FileCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
+  "Full MSI lifecycle verification was recorded on 2026-08-17: quiet install, installed docs and shortcuts, shell copy/move registry verbs, installed CLI version, installed WPF launch, and quiet uninstall cleanup",
+  "Project governance identity was reconciled to the current directory name File Cabinet while retaining FileCabinet product, executable, registry, AppData, installer, and repository compatibility names",
   "Vault Health is now a dedicated main workspace with Overview, Repairs, Findings, and History sections",
   "Default Vault Health analysis is metadata-first and does not automatically compute or verify retained-file hashes",
   "Verify small hashes is limited to retained files up to 1 GB",
@@ -309,4 +311,4 @@ design_boundaries = [
   "Inspectable metadata over opaque ranking",
   "Repairable local vault state over cloud dependency"
 ]
-last_verified = "dotnet build FileCabinet.slnx --configuration Release --no-incremental succeeded on 2026-08-04; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release passed 104 tests; installer/build-installer.ps1 -Version 0.1.0.0 completed; SHA-256 recorded with Get-FileHash; signing reported NotSigned; published executable launched with the expected FileCabinet window title"
+last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-17 after .NET SDK first-run setup; Get-FileHash SHA-256 matched 112794C704CBAD0ABF2696E5BA962E0039059EFCC1AFB1CE218D95A0D6A764B7; Get-AuthenticodeSignature reported NotSigned; msiexec quiet install completed and wrote artifacts/verification/msi-install-0.1.0.0.log; installed payload was present under C:\\Program Files (x86)\\FileCabinet; FileCabinet.Cli.exe --version returned FileCabinet.Cli 0.1.0; shell copy/move verbs and Start Menu/Desktop shortcuts were present; installed FileCabinet.exe launched with the expected window title; quoted-product-code msiexec quiet uninstall completed and wrote artifacts/verification/msi-uninstall-0.1.0.0.log; installed folder, shortcuts, shell verbs, and uninstall entry were absent after uninstall"

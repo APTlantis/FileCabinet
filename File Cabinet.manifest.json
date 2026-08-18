@@ -1,11 +1,11 @@
 {
   "project": {
-    "id": "filecabinet",
-    "title": "FileCabinet",
+    "id": "file-cabinet",
+    "title": "File Cabinet",
     "description": "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts.",
     "type": "tool",
     "stage": "production",
-    "version": "1.7.3",
+    "version": "0.1.0",
     "tags": [
       "local-first",
       "desktop",
@@ -22,7 +22,7 @@
   },
   "metadata": {
     "created": "2026-05-23",
-    "last_updated": "2026-06-19",
+    "last_updated": "2026-08-17",
     "maintainer": "APTlantis",
     "license": "Unspecified",
     "language_primary": "VB.NET",
@@ -65,12 +65,10 @@
   },
   "artifacts": {
     "produces": [
-      "artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi",
-      "docs/FileCabinet v1.6.0 — Health and Settings Release.md",
-      "docs/FileCabinet v1.7.0 — Vault Health and Iconography Release.md",
-      "docs/FileCabinet v1.7.1 — Hash Compatibility Patch.md",
-      "docs/FileCabinet v1.7.2 — Repair Scalability Patch.md",
-      "docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md",
+      "artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi",
+      "artifacts/historical/pre-standard-v1x/FileCabinet-1.7.3.0-win-x64.msi",
+      "docs/FileCabinet v0.1.0 - Stable Vault Release.md",
+      "docs/FileCabinet - Release Checklist.md",
       "docs/FileCabinet — Hash Choices and Compatibility.md",
       "Assets/FileCabinet.ico",
       "Assets/FileCabinetLogoMark.png",
@@ -90,15 +88,16 @@
     ]
   },
   "release": {
-    "version": "1.7.3",
-    "name": "FileCabinet v1.7.3 — Vault Health Workspace Patch",
-    "date": "2026-06-19",
+    "status": "local-verified",
+    "version": "0.1.0",
+    "name": "FileCabinet v0.1.0 - Stable Vault Release",
+    "date": "2026-08-17",
     "installer": {
-      "path": "artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi",
+      "path": "artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi",
       "runtime": "win-x64",
-      "package_version": "1.7.3.0",
-      "size_bytes": 128389120,
-      "sha256": "71FEAF41CE935AA0A3D7E43CC3E515FC965032FBA1AE6CF5B7FF429B2C74212F",
+      "package_version": "0.1.0.0",
+      "size_bytes": 130887680,
+      "sha256": "112794C704CBAD0ABF2696E5BA962E0039059EFCC1AFB1CE218D95A0D6A764B7",
       "blake3": "",
       "kangaroo12": ""
     },
@@ -116,15 +115,17 @@
         "path": "",
         "algorithm": "PGP",
         "status": "not generated",
-        "detail": "v1.7.3 installer validation has not generated a detached PGP signature."
+        "detail": "v0.1.0 local-verified installer validation has not generated a detached PGP signature."
       }
     },
     "verified": {
-      "date": "2026-06-19",
-      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore passed 104 tests",
-      "installer_build": "installer/build-installer.ps1 -Version 1.7.3.0 completed",
-      "release_hashing": "Get-FileHash -Algorithm SHA256 completed for artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi",
-      "release_signing": "not generated for this SHA-256-only patch release"
+      "date": "2026-08-17",
+      "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-17 after .NET SDK first-run setup; prior full console summary recorded 104 tests for this release line",
+      "installer_build": "installer/build-installer.ps1 -Version 0.1.0.0 completed on 2026-08-04",
+      "install_check": "MSI installed successfully on 2026-08-17; installed FileCabinet.exe launched from C:\\Program Files (x86)\\FileCabinet with window title 'FileCabinet - Personal Vault & Artifact Manager'; shell copy/move verbs, shortcuts, installed docs, CLI version, and uninstall lifecycle were verified",
+      "data_safety": "MSI lifecycle verification did not modify or delete user-selected vault data; installed product footprint was removed by MSI uninstall",
+      "release_hashing": "Get-FileHash -Algorithm SHA256 completed for artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi",
+      "release_signing": "unsigned; Get-AuthenticodeSignature reported NotSigned"
     }
   },
   "datasets": [
@@ -155,7 +156,9 @@
   "documentation": {
     "writerside_topic": "",
     "readme": "README.md",
-    "release_notes": "docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md",
+    "project_readme": "Project-README.md",
+    "release_notes": "docs/FileCabinet v0.1.0 - Stable Vault Release.md",
+    "release_checklist": "docs/FileCabinet - Release Checklist.md",
     "theme_overview": "docs/BlueSlate-Theme-Integration-Overview.md",
     "core_docs": [
       "docs/FileCabinet — Vault Lifecycle.md",
@@ -176,19 +179,19 @@
     "dashboard": "https://github.com/APTlantis/FileCabinet/releases"
   },
   "structure": {
-    "repo_path": "D:/100-DRS/120-STORAGE/FileCabinet",
-    "docs_path": "D:/100-DRS/120-STORAGE/FileCabinet/docs",
+    "repo_path": "D:/DRS/File Cabinet",
+    "docs_path": "D:/DRS/File Cabinet/docs",
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-installer.ps1 -Version 1.7.3.0; Get-FileHash -Algorithm SHA256 artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi",
-    "deploy": "Publish artifacts/installer/FileCabinet-1.7.3.0-win-x64.msi to the GitHub v1.7.3 release.",
+    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-installer.ps1 -Version 0.1.0.0; Get-FileHash -Algorithm SHA256 artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi",
+    "deploy": "Private/local release artifact only unless Herb explicitly requests publication.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Build WiX MSI installer",
-      "Attach MSI to GitHub release",
-      "Include release notes from docs/FileCabinet v1.7.3 — Vault Health Workspace Patch.md",
+      "Keep MSI local unless publication is explicitly requested",
+      "Include release notes from docs/FileCabinet v0.1.0 - Stable Vault Release.md",
       "Record SHA-256 with Get-FileHash",
       "Document unsigned status"
     ]
@@ -214,8 +217,8 @@
       "Cyan and teal navigation/focus resources now follow Blue Slate semantic tokens",
       "Blue Slate accents are used sparingly for action, focus, attention, taxonomy, archive, health, build, and danger states",
       "Preview and activity accents now use Blue Slate semantic palette constants",
-      "Application and installer icon assets were refreshed from the new FileCabinet logo mark",
-      "Application, CLI, and manifest version updated to 1.7.3",
+      "Application and installer icon assets were refreshed from filecabinet_logo.png",
+      "Application, CLI, and manifest version reset to the governed v0.1.0 release line",
       "Added 24 optional compatibility hashes and checksums across archival, legacy, and fast hash families",
       "New non-legacy hash values are stored in the extensible artifact hashes dictionary",
       "Active hash computation now respects Settings across ingest, health, repair, rescan, and headless paths",
@@ -226,8 +229,10 @@
       "Health tab now provides a comprehensive Analyze & Fix workspace with grouped findings, repairable/review-only counts, filters, safe selection controls, and bulk path rebind support",
       "Material Symbols source vocabulary mapped to category-specific artifact list and preview icons",
       "Borderless maximize now respects the Windows taskbar work area",
-      "Release verification for v1.7.3 records SHA-256 only with Get-FileHash",
-      "FileCabinet-1.7.3.0-win-x64.msi was built and SHA-256 hashed on 2026-06-19",
+      "Release verification for v0.1.0 records SHA-256 only with Get-FileHash",
+      "FileCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
+      "Full MSI lifecycle verification was recorded on 2026-08-17: quiet install, installed docs and shortcuts, shell copy/move registry verbs, installed CLI version, installed WPF launch, and quiet uninstall cleanup",
+      "Project governance identity was reconciled to the current directory name File Cabinet while retaining FileCabinet product, executable, registry, AppData, installer, and repository compatibility names",
       "Vault Health is now a dedicated main workspace with Overview, Repairs, Findings, and History sections",
       "Default Vault Health analysis is metadata-first and does not automatically compute or verify retained-file hashes",
       "Verify small hashes is limited to retained files up to 1 GB",
@@ -250,6 +255,6 @@
       "Inspectable metadata over opaque ranking",
       "Repairable local vault state over cloud dependency"
     ],
-    "last_verified": "dotnet build FileCabinet.slnx --configuration Release --no-restore --no-incremental succeeded on 2026-06-19; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore passed 104 tests; installer/build-installer.ps1 -Version 1.7.3.0 completed; SHA-256 recorded with Get-FileHash; signing not generated"
+    "last_verified": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-17 after .NET SDK first-run setup; Get-FileHash SHA-256 matched 112794C704CBAD0ABF2696E5BA962E0039059EFCC1AFB1CE218D95A0D6A764B7; Get-AuthenticodeSignature reported NotSigned; msiexec quiet install completed and wrote artifacts/verification/msi-install-0.1.0.0.log; installed payload was present under C:\\Program Files (x86)\\FileCabinet; FileCabinet.Cli.exe --version returned FileCabinet.Cli 0.1.0; shell copy/move verbs and Start Menu/Desktop shortcuts were present; installed FileCabinet.exe launched with the expected window title; quoted-product-code msiexec quiet uninstall completed and wrote artifacts/verification/msi-uninstall-0.1.0.0.log; installed folder, shortcuts, shell verbs, and uninstall entry were absent after uninstall"
   }
 }

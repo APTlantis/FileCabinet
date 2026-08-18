@@ -1,10 +1,10 @@
-# FileCabinet Instructions
+# File Cabinet Instructions
 
 Inherit `D:\DRS\AGENTS.md` and `D:\AGENTS.md`.
 
 ## Read first
 
-1. `FileCabinet.manifest.toml`
+1. `File Cabinet.manifest.toml`
 2. `Project-README.md`
 3. `README.md`
 4. [Desktop Application Release Standard](D:/.library/aptlantis_core/DRS/README.md)

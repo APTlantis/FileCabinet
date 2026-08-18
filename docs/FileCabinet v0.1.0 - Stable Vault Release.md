@@ -55,6 +55,25 @@ SHA-256:
 
 * `112794C704CBAD0ABF2696E5BA962E0039059EFCC1AFB1CE218D95A0D6A764B7`
 
-The packaged copy of this release note shows an external-hash placeholder because release documentation is bundled inside the installer. The canonical post-build hash is recorded in the source release note, `FileCabinet.manifest.toml`, and `docs/FileCabinet - Release Checklist.md`.
+The packaged copy of this release note shows an external-hash placeholder because release documentation is bundled inside the installer. The canonical post-build hash is recorded in the source release note, `File Cabinet.manifest.toml`, and `docs/FileCabinet - Release Checklist.md`.
 
 Signing status: unsigned; `Get-AuthenticodeSignature` reported `NotSigned` on 2026-08-04.
+
+## MSI Lifecycle Verification
+
+The built MSI was lifecycle-verified on 2026-08-17 with quiet install and uninstall logs under `artifacts/verification`.
+
+Verified installed state:
+
+* Installed payload and bundled docs were present under `C:\Program Files (x86)\FileCabinet`.
+* `FileCabinet.Cli.exe --version` returned `FileCabinet.Cli 0.1.0`.
+* Windows Explorer shell verbs `Copy to FileCabinet` and `Move to FileCabinet` were present and pointed to the installed executable.
+* Start Menu and public desktop shortcuts were present.
+* Installed `FileCabinet.exe` launched with window title `FileCabinet - Personal Vault & Artifact Manager`.
+
+Verified uninstall state:
+
+* MSI removal completed successfully.
+* Install folder, Start Menu shortcut folder, public desktop shortcut, shell verb registry keys, and uninstall registry entry were absent after uninstall.
+
+Packaging note: the MSI currently installs the win-x64 single-file payload under `C:\Program Files (x86)\FileCabinet` and registers the uninstall entry in the WOW6432 registry view. That behavior is verified for v0.1.0 compatibility, but it should be reviewed before a future public distribution pass.
