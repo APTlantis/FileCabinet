@@ -1,7 +1,7 @@
 param(
     [string]$Configuration = "Release",
     [string]$Runtime = "win-x64",
-    [string]$Version = "0.1.0.0"
+    [string]$Version = "0.1.1.0"
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,6 +11,7 @@ $projectPath = Join-Path $repoRoot "FileCabinet.vbproj"
 $cliProjectPath = Join-Path $repoRoot "FileCabinet.Cli\FileCabinet.Cli.vbproj"
 $iconPath = Join-Path $repoRoot "Assets\FileCabinet.ico"
 $readmePath = Join-Path $repoRoot "README.md"
+$licensePath = Join-Path $repoRoot "LICENSE"
 $docsSourceDir = Join-Path $repoRoot "docs"
 $publishDir = Join-Path $repoRoot "artifacts\publish\$Runtime"
 $installerDir = Join-Path $repoRoot "artifacts\installer"
@@ -67,6 +68,7 @@ $escapedExePath = ConvertTo-XmlAttributeValue (Resolve-Path $exePath).Path
 $escapedCliExePath = ConvertTo-XmlAttributeValue (Resolve-Path $cliExePath).Path
 $escapedIconPath = ConvertTo-XmlAttributeValue (Resolve-Path $iconPath).Path
 $escapedReadmePath = ConvertTo-XmlAttributeValue (Resolve-Path $readmePath).Path
+$escapedLicensePath = ConvertTo-XmlAttributeValue (Resolve-Path $licensePath).Path
 $docsIndex = 0
 $docsFileElements = Get-ChildItem -LiteralPath $docsSourceDir -Filter "*.md" |
     Sort-Object Name |
@@ -104,6 +106,7 @@ $wxs = @"
           </File>
           <File Id="FileCabinetCliExe" Source="$escapedCliExePath" Name="FileCabinet.Cli.exe" />
           <File Id="FileCabinetReadme" Source="$escapedReadmePath" Name="README.md" />
+          <File Id="FileCabinetLicense" Source="$escapedLicensePath" Name="LICENSE" />
           <RegistryValue Root="HKCU" Key="Software\FileCabinet" Name="InstallFolder" Type="string" Value="[INSTALLFOLDER]" />
           <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.CopyToFileCabinet" Name="MUIVerb" Type="string" Value="Copy to FileCabinet" />
           <RegistryValue Root="HKCR" Key="AllFilesystemObjects\shell\FileCabinet.CopyToFileCabinet" Name="Icon" Type="string" Value="[#FileCabinetExe]" />

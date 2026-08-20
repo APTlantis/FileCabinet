@@ -10,7 +10,7 @@ Namespace FileCabinet.Tests
 
             Assert.Contains("FileCabinet CLI", help)
             Assert.Contains("Global options", help)
-            Assert.AreEqual("FileCabinet.Cli 0.1.0", version)
+        Assert.AreEqual("FileCabinet.Cli 0.1.1", version)
         End Sub
 
         <TestMethod>

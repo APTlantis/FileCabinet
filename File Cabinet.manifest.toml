@@ -3,7 +3,7 @@ schema = "APTlantis Entity Manifest"
 schema_version = "2.4"
 manifest_type = "project"
 canonical_name = "File Cabinet.manifest.toml"
-last_updated = "2026-08-17"
+last_updated = "2026-08-20"
 maintainer = "Herb"
 
 [entity]
@@ -21,7 +21,7 @@ title = "File Cabinet"
 description = "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts."
 type = "tool"
 stage = "production"
-version = "0.1.0"
+version = "0.1.1"
 portfolio_class = "project"
 tags = [
   "local-first",
@@ -55,9 +55,9 @@ root = "D:\\DRS\\File Cabinet"
 
 [metadata]
 created = "2026-05-23"
-last_updated = "2026-08-17"
+last_updated = "2026-08-20"
 maintainer = "APTlantis"
-license = "Unspecified"
+license = "MIT"
 language_primary = "VB.NET"
 languages_used = [
   "VB.NET",
@@ -101,8 +101,13 @@ external_dependencies = [
 
 [artifacts]
 produces = [
-  "artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi",
+  "artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi",
+  "artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml",
   "artifacts/historical/pre-standard-v1x/FileCabinet-1.7.3.0-win-x64.msi",
+  "LICENSE",
+  "docs/FileCabinet - License.md",
+  "docs/FileCabinet - Installer Hash Manifest.md",
+  "docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
   "docs/FileCabinet — Hash Choices and Compatibility.md",
   "Assets/MaterialSymbolsIconMap.md",
   "Assets/FileCabinet.ico",
@@ -123,19 +128,20 @@ consumes = [
 
 [release]
 status = "local-verified"
-version = "0.1.0"
-name = "FileCabinet v0.1.0 - Stable Vault Release"
-date = "2026-08-04"
+version = "0.1.1"
+name = "FileCabinet v0.1.1 - Compliance Alignment Patch"
+date = "2026-08-20"
 
 [release.installer]
-path = "artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi"
+path = "artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi"
 runtime = "win-x64"
-package_version = "0.1.0.0"
-size_bytes = 130887680
-sha256 = "112794C704CBAD0ABF2696E5BA962E0039059EFCC1AFB1CE218D95A0D6A764B7"
+package_version = "0.1.1.0"
+size_bytes = 0
+sha256 = ""
 blake3 = ""
 kangaroo12 = ""
-signing = "unsigned; Get-AuthenticodeSignature reported NotSigned on 2026-08-04"
+hash_manifest = "artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml"
+signing = "unsigned; signing pass not performed for v0.1.1"
 
 [release.signatures.pq]
 path = ""
@@ -150,16 +156,16 @@ status = "not generated"
 path = ""
 algorithm = "PGP"
 status = "not generated"
-detail = "v0.1.0 local-verified installer validation has not generated a detached PGP signature."
+detail = "v0.1.1 local-verified installer validation has not generated a detached PGP signature."
 
 [release.verified]
-date = "2026-08-17"
-tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-17 after .NET SDK first-run setup; prior full console summary recorded 104 tests for this release line"
-installer_build = "installer/build-installer.ps1 -Version 0.1.0.0 completed on 2026-08-04"
-install_check = "MSI installed successfully on 2026-08-17; installed FileCabinet.exe launched from C:\\Program Files (x86)\\FileCabinet with window title 'FileCabinet - Personal Vault & Artifact Manager'; shell copy/move verbs, shortcuts, installed docs, CLI version, and uninstall lifecycle were verified"
-data_safety = "MSI lifecycle verification did not modify or delete user-selected vault data; installed product footprint was removed by MSI uninstall"
-release_hashing = "Get-FileHash -Algorithm SHA256 completed for artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi"
-release_signing = "unsigned; Get-AuthenticodeSignature reported NotSigned"
+date = "2026-08-20"
+tests = "pending"
+installer_build = "pending"
+install_check = "not rerun for v0.1.1; prior v0.1.0 MSI lifecycle verification remains historical evidence"
+data_safety = "v0.1.1 work updates release metadata, documentation payload, and installer artifact; no vault data migration is included"
+release_hashing = "pending Release Hasher output"
+release_signing = "unsigned; signing pass not performed"
 
 [[datasets]]
 name = "FileCabinet catalog"
@@ -186,11 +192,17 @@ version = 1
 writerside_topic = ""
 readme = "README.md"
 project_readme = "Project-README.md"
-release_notes = "docs/FileCabinet v0.1.0 - Stable Vault Release.md"
+release_notes = "docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md"
 release_checklist = "docs/FileCabinet - Release Checklist.md"
+license = "LICENSE"
+license_doc = "docs/FileCabinet - License.md"
+installer_hash_manifest_doc = "docs/FileCabinet - Installer Hash Manifest.md"
 theme_overview = "docs/BlueSlate-Theme-Integration-Overview.md"
 core_docs = [
   "docs/FileCabinet — Vault Lifecycle.md",
+  "docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
+  "docs/FileCabinet - License.md",
+  "docs/FileCabinet - Installer Hash Manifest.md",
   "docs/FileCabinet — Trust and Verification Model.md",
   "docs/FileCabinet — Local-First Artifact Preservation.md",
   "docs/FileCabinet — The Deliberate Retention Tradeoff.md",
@@ -227,27 +239,27 @@ archived_manifests = []
 read_first = ["AGENTS.md", "File Cabinet.manifest.toml", "Project-README.md", "README.md"]
 authoritative_docs = ["File Cabinet.manifest.toml", "Project-README.md", "AGENTS.md"]
 safe_to_modify = true
-notes = "Current release authority is the v0.1.0 local-verified DRS record for the File Cabinet project. The installed product, executable, CLI, AppData catalog path, registry keys, shell verbs, release artifact names, and repository links intentionally retain FileCabinet compatibility naming."
+notes = "Current release authority is the v0.1.1 local-verified DRS record for the File Cabinet project. The installed product, executable, CLI, AppData catalog path, registry keys, shell verbs, release artifact names, and repository links intentionally retain FileCabinet compatibility naming."
 
 [verification]
 level = "local-verified"
 evidence = "dotnet test, existing MSI artifact, SHA-256 hash, Authenticode unsigned check, MSI install, installed shell integration, installed CLI version, installed app launch, installed docs payload, and MSI uninstall"
-reviewed = "2026-08-17"
+reviewed = "2026-08-20"
 build_verified = true
 tests_verified = true
 artifact_verified = true
 release_verified = true
 
 [automation]
-build = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release; installer/build-installer.ps1 -Version 0.1.0.0; Get-FileHash -Algorithm SHA256 artifacts/installer/FileCabinet-0.1.0.0-win-x64.msi"
+build = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-installer.ps1 -Version 0.1.1.0; D:\\CTS\\Release Hasher\\cmd\\release-hasher\\release-hasher.exe --project-name FileCabinet_msi --version 0.1.1.0 --output artifacts\\installer\\FileCabinet_msi-0.1.1.0.hashmanifest.toml --overwrite artifacts\\installer\\FileCabinet-0.1.1.0-win-x64.msi"
 deploy = "Private/local release artifact only unless Herb explicitly requests publication."
 tasks = [
   "Run unit tests",
   "Build self-contained Windows x64 publish output",
   "Build WiX MSI installer",
   "Keep MSI local unless publication is explicitly requested",
-  "Include release notes from docs/FileCabinet v0.1.0 - Stable Vault Release.md",
-  "Record SHA-256 with Get-FileHash",
+  "Include release notes from docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
+  "Record Release Hasher SHA-256, BLAKE3-256, and KT128 output",
   "Document unsigned status"
 ]
 
@@ -285,6 +297,8 @@ current_highlights = [
   "Material Symbols source vocabulary mapped to category-specific artifact list and preview icons",
   "Borderless maximize now respects the Windows taskbar work area",
   "Release verification for v0.1.0 records SHA-256 only with Get-FileHash",
+  "Release Hasher produced artifacts/installer/FileCabinet_msi-0.1.0.0.hashmanifest.toml on 2026-08-20 with SHA-256, BLAKE3-256, and KT128 records for the v0.1.0.0 MSI",
+  "Project licensing is now MIT with the full license in LICENSE and a source docs pointer in docs/FileCabinet - License.md; the installer script includes LICENSE on the next MSI build",
   "docs/ was reduced from the full v1.x release/patch/roadmap history to the curated set that ships with the application; durable decisions from retired release notes were folded into the standing conceptual docs before deletion",
   "FileCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
   "Full MSI lifecycle verification was recorded on 2026-08-17: quiet install, installed docs and shortcuts, shell copy/move registry verbs, installed CLI version, installed WPF launch, and quiet uninstall cleanup",

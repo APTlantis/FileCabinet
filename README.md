@@ -8,16 +8,19 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 ## Current Release
 
-Current version: **FileCabinet v0.1.0**.
+Current version: **FileCabinet v0.1.1**.
 
-The v0.1.0 stable release is the first intentionally governed FileCabinet release under the current DRS process. The historical v1.x installer train is preserved as pre-standard evidence, while the active release line now starts at `0.1.0` with Windows package version `0.1.0.0`.
+The v0.1.1 compliance alignment patch keeps the stable vault workflow from `0.1.0` and brings the release evidence into full adoption and integrity alignment. It publishes the MIT License, records the Release Hasher manifest for the rebuilt MSI, and rebuilds the installer documentation payload from the current canonical docs. The active Windows package version is `0.1.1.0`.
 
 This release keeps the mature vault workflow: Vault Health has its own workspace, default analysis is metadata-first, large-file hash reads stay explicit, and bulk repair selection remains available for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
 
 Release notes:
 
-- `docs/FileCabinet v0.1.0 - Stable Vault Release.md`
+- `docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md`
 - `docs/FileCabinet - Release Checklist.md`
+- `docs/FileCabinet - Installer Hash Manifest.md`
+
+License: MIT. See `LICENSE` and `docs/FileCabinet - License.md`.
 
 ## Who FileCabinet Is For
 
@@ -275,14 +278,17 @@ FileCabinet's preservation model is documented in:
 
 ### Technical Rationale
 
+- [Installer Hash Manifest](docs/FileCabinet%20-%20Installer%20Hash%20Manifest.md)
 - [Why Determinism Matters](docs/FileCabinet%20%E2%80%94%20Why%20Determinism%20Matters.md)
 - [Hash Choices and Compatibility](docs/FileCabinet%20%E2%80%94%20Hash%20Choices%20and%20Compatibility.md)
 - [Why SHA-256 and BLAKE3](docs/FileCabinet%20%E2%80%94%20Why%20SHA-256%20and%20BLAKE3.md)
 - [Why VB.NET and WPF](docs/FileCabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
 - [Blue Slate Theme Integration Overview](docs/BlueSlate-Theme-Integration-Overview.md)
+- [License](docs/FileCabinet%20-%20License.md)
 
 ### Release Notes
 
+- [v0.1.1 - Compliance Alignment Patch](docs/FileCabinet%20v0.1.1%20-%20Compliance%20Alignment%20Patch.md)
 - [v0.1.0 - Stable Vault Release](docs/FileCabinet%20v0.1.0%20-%20Stable%20Vault%20Release.md)
 - [Release Checklist](docs/FileCabinet%20-%20Release%20Checklist.md)
 

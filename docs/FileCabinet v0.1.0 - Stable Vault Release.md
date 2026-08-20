@@ -51,13 +51,28 @@ Expected installer:
 
 * `FileCabinet-0.1.0.0-win-x64.msi`
 
+Hash manifest:
+
+* `artifacts/installer/FileCabinet_msi-0.1.0.0.hashmanifest.toml`
+* `docs/FileCabinet - Installer Hash Manifest.md`
+
 SHA-256:
 
 * `112794C704CBAD0ABF2696E5BA962E0039059EFCC1AFB1CE218D95A0D6A764B7`
 
-The packaged copy of this release note shows an external-hash placeholder because release documentation is bundled inside the installer. The canonical post-build hash is recorded in the source release note, `File Cabinet.manifest.toml`, and `docs/FileCabinet - Release Checklist.md`.
+BLAKE3-256:
+
+* `f482b18f30ea6eb8881b947b8cb2caed0bb54e204d8d6785e7477c648ffaae6e`
+
+KT128:
+
+* `2r3I4PpAdkMPh3D5o6AtzUaZc3yOKhCfVmwC9x5UCX8Nybu1uNXOiw6Yiwgwh9VqrWgIAe+BO7Z+0hLBIeauxKv0CcBRloMFIyqpJJIexd7iNaf/tIEAlAet60nEYhY8s9zjldgATQGix4GuYBK7hDTh72cN6uV5G8CB6Y8RDao=`
+
+The packaged copy of this release note shows an external-hash placeholder because release documentation is bundled inside the installer. The canonical post-build hash is recorded in the source release note, `File Cabinet.manifest.toml`, `docs/FileCabinet - Release Checklist.md`, and `artifacts/installer/FileCabinet_msi-0.1.0.0.hashmanifest.toml`.
 
 Signing status: unsigned; `Get-AuthenticodeSignature` reported `NotSigned` on 2026-08-04.
+
+License: MIT. See `LICENSE` and `docs/FileCabinet - License.md`.
 
 ## MSI Lifecycle Verification
 
