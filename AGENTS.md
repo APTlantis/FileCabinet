@@ -9,4 +9,4 @@ Inherit `D:\DRS\AGENTS.md` and `D:\AGENTS.md`.
 3. `README.md`
 4. [Desktop Application Release Standard](D:/.library/aptlantis_core/DRS/README.md)
 
-Use the actual VB.NET/WPF source, tests, installer script, and built MSI as release evidence. Do not infer current release readiness from the historical manifest alone. Keep version, installer, SHA-256, release notes, and documentation aligned when rebuilding.
+Use the actual VB.NET/WPF source, tests, package artifacts, installer scripts, and hash manifests as release evidence. Public Windows distribution now follows the DRS MSIX -> Microsoft Store path; self-signed MSIX packages are development/sideload evidence only. Keep version, package identity, installer/MSIX artifacts, SHA-256, release notes, and documentation aligned when rebuilding.

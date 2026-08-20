@@ -10,7 +10,15 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 Current version: **FileCabinet v0.1.1**.
 
-The v0.1.1 compliance alignment patch keeps the stable vault workflow from `0.1.0` and brings the release evidence into full adoption and integrity alignment. It publishes the MIT License, records the Release Hasher manifest for the rebuilt MSI, and rebuilds the installer documentation payload from the current canonical docs. The active Windows package version is `0.1.1.0`.
+The v0.1.1 compliance alignment patch keeps the stable vault workflow from `0.1.0` and brings the release evidence into current DRS alignment. It publishes the MIT License, records Release Hasher manifests, and establishes the Windows MSIX -> Microsoft Store path as the forward public distribution route. The active Windows package version is `0.1.1.0`.
+
+Current Windows package evidence:
+
+- Development MSIX: `file-cabinet_0.1.1.0_x64.msix`
+- MSIX hash manifest: `file-cabinet_0.1.1.0_x64.hashmanifest.toml`
+- MSIX signing: self-signed development certificate for sideload testing
+- Public Windows target: Microsoft Store MSIX, signed by Microsoft after Store submission
+- Historical/local MSI evidence: `artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi`
 
 This release keeps the mature vault workflow: Vault Health has its own workspace, default analysis is metadata-first, large-file hash reads stay explicit, and bulk repair selection remains available for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
 
@@ -82,7 +90,7 @@ FileCabinet supports two intake modes:
 
 The active mode is shown directly inside the drop zone as **INTAKE MODE** so you can check it before dropping a batch of files. The mode button under **Ingest Options** toggles between move and copy.
 
-The Windows Explorer context menu also includes **Copy to FileCabinet** and **Move to FileCabinet** after installing the MSI. These commands open FileCabinet and ingest the selected file or folder using that one-time intake mode without changing the app's default drop-zone setting.
+The Windows Explorer context menu also includes **Copy to FileCabinet** and **Move to FileCabinet** after installing the historical MSI package. These commands open FileCabinet and ingest the selected file or folder using that one-time intake mode without changing the app's default drop-zone setting. Equivalent MSIX shell-integration behavior has not been independently verified yet.
 
 When a file is ingested, FileCabinet:
 

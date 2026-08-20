@@ -365,3 +365,6 @@ FodyWeavers.xsd
 /.claude/
 /.idea/
 /.idea/
+
+# Development certificate
+devcert.pfx

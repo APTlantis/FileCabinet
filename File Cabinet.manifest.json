@@ -60,7 +60,9 @@
       "Blake3 2.2.1",
       "StreamHash 1.11.3",
       "System.IO.Hashing 10.0.5",
-      "MSTest"
+      "MSTest",
+      "winapp CLI",
+      "Microsoft Store Developer CLI"
     ]
   },
   "artifacts": {
@@ -84,7 +86,10 @@
       "Vault extracted text indexes",
       "Vault catalog backup exports",
       "Vault repair log JSONL history",
-      "Deterministic vault package exports"
+      "Deterministic vault package exports",
+      "file-cabinet_0.1.1.0_x64.msix",
+      "file-cabinet_0.1.1.0_x64.hashmanifest.toml",
+      "Package.appxmanifest"
     ],
     "consumes": [
       "User-selected files and folders for vault ingestion",
@@ -93,9 +98,9 @@
     ]
   },
   "release": {
-    "status": "local-verified",
+    "status": "msix-sideload-dev",
     "version": "0.1.1",
-    "name": "FileCabinet v0.1.1 - Compliance Alignment Patch",
+    "name": "FileCabinet v0.1.1 - MSIX Development Package",
     "date": "2026-08-20",
     "installer": {
       "path": "artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi",
@@ -105,7 +110,8 @@
       "sha256": "0E0A9448FF3746143D3FD4A01E7FD754C6C24E63D3BD2B0127E5980DA226640D",
       "blake3": "0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003",
       "kangaroo12": "t1jPp9yz7J3UKZ494pBelZvLK26SVv7fFQPkpjBCiNY2roxVjZDtGsoVr1f7ELNOF/mxk7c1hM//TnkoZahTiKxDKb5Ra5QeSSdjdxb1YkZ/T6Er4PKplv9TcQo22qJqxa5QmeR6x8RE5k+TnWAWoJ8scUhXvtvsbb5nbkKuqXY=",
-      "hash_manifest": "artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml"
+      "hash_manifest": "artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml",
+      "status": "historical-local-direct-distribution-evidence"
     },
     "signatures": {
       "pq": {
@@ -128,10 +134,43 @@
       "date": "2026-08-20",
       "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-20",
       "installer_build": "installer/build-installer.ps1 -Version 0.1.1.0 completed on 2026-08-20 after clean restore/publish/package run",
-      "install_check": "not rerun for v0.1.1; prior v0.1.0 MSI lifecycle verification remains historical evidence",
+      "install_check": "not rerun for v0.1.1; prior v0.1.0 MSI lifecycle verification remains historical evidence; v0.1.1 self-signed MSIX install/launch/uninstall has not been independently verified by Codex",
       "data_safety": "v0.1.1 work updates release metadata, documentation payload, and installer artifact; no vault data migration is included",
       "release_hashing": "Release Hasher wrote artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml for artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi with SHA-256 0e0a9448ff3746143d3fd4a01e7fd754c6c24e63d3bd2b0127e5980da226640d, BLAKE3-256 0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003, and KT128",
-      "release_signing": "unsigned; Get-AuthenticodeSignature reported NotSigned on 2026-08-20"
+      "release_signing": "MSIX is self-signed-development and Get-AuthenticodeSignature reported Valid for CN=Aptlantis on 2026-08-20; historical MSI is unsigned / NotSigned",
+      "msix_hashing": "Release Hasher wrote file-cabinet_0.1.1.0_x64.hashmanifest.toml for file-cabinet_0.1.1.0_x64.msix with SHA-256 cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727, BLAKE3-256 1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9, and KT128"
+    },
+    "distribution": {
+      "channel": "msix-sideload-dev",
+      "signing_authority": "self-signed-development",
+      "public_windows_default": "microsoft-store-msix",
+      "public_windows_signing": "microsoft-store-signed",
+      "store_account_type": "Individual",
+      "store_account_status": "Active",
+      "store_seller_id": "95755140",
+      "store_windows_publisher_id": "Aptlantis",
+      "store_windows_phone_publisher_id": "e29375e1-9423-47d4-86e6-bfb21b138216",
+      "store_submission_status": "not-submitted",
+      "notes": "The local MSIX is a development/sideload package signed with a self-signed Aptlantis certificate. Public Windows distribution requires Microsoft Store submission and Store-signed package verification."
+    },
+    "msix_development": {
+      "path": "file-cabinet_0.1.1.0_x64.msix",
+      "runtime": "win-x64",
+      "package_version": "0.1.1.0",
+      "size_bytes": 10623321,
+      "sha256": "cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727",
+      "blake3": "1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9",
+      "kt128": "4eB9o9kw5VUtIB0mE/opsQy2qTjyiETvNRjjYpdkLtBBEMYOr+QwerbtxzDY2h+jyHo9YjK9ozY6h7z3Q1b4CgQ79tla8LbbKVs2q6X81yBhOhJD5/NUrcl9x7Di3gHIJJ7c+if2zMkZR4mSzw18PM8mdXndI81uS5hjdnzziEM=",
+      "hash_manifest": "file-cabinet_0.1.1.0_x64.hashmanifest.toml",
+      "package_manifest": "Package.appxmanifest",
+      "distribution": "MSIX sideload development",
+      "signing": "self-signed-development",
+      "certificate_subject": "CN=Aptlantis",
+      "certificate_thumbprint": "478BEFBC9B81239E0D95C3CC7F6AEECB142C986A",
+      "certificate_not_before": "2026-08-20T05:33:13",
+      "certificate_not_after": "2027-08-20T05:33:13",
+      "authenticode_status": "Valid",
+      "status": "created by winapp pack; not Store-submitted; not independently install/launch/uninstall verified by Codex"
     }
   },
   "datasets": [
@@ -156,6 +195,20 @@
       "language": "PowerShell",
       "role": "Publishes the self-contained Windows x64 build and creates the WiX MSI installer.",
       "status": "active",
+      "version": 1
+    },
+    {
+      "name": "winapp",
+      "language": "CLI",
+      "role": "Refreshes MSIX assets, manages Package.appxmanifest, generates development certificates, and packs self-signed MSIX development packages.",
+      "status": "preferred-msix-development-workflow",
+      "version": 1
+    },
+    {
+      "name": "msstore",
+      "language": "CLI",
+      "role": "Submits Store packages through the Microsoft Store workflow for public Windows GUI distribution.",
+      "status": "public-store-workflow-pending",
       "version": 1
     }
   ],
@@ -196,16 +249,19 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-installer.ps1 -Version 0.1.1.0; D:\\CTS\\Release Hasher\\cmd\\release-hasher\\release-hasher.exe --project-name FileCabinet_msi --version 0.1.1.0 --output artifacts\\installer\\FileCabinet_msi-0.1.1.0.hashmanifest.toml --overwrite artifacts\\installer\\FileCabinet-0.1.1.0-win-x64.msi",
-    "deploy": "Private/local release artifact only unless Herb explicitly requests publication.",
+    "build": "dotnet restore; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; dotnet build --configuration Release; winapp manifest update-assets <logo-source>; winapp cert generate --if-exists skip; winapp pack .\\bin\\Release\\net10.0-windows --manifest .\\Package.appxmanifest --cert .\\devcert.pfx; D:\\CTS\\Release Hasher\\cmd\\release-hasher\\release-hasher.exe --project-name FileCabinet_msix --version 0.1.1.0 --output file-cabinet_0.1.1.0_x64.hashmanifest.toml --overwrite file-cabinet_0.1.1.0_x64.msix",
+    "deploy": "Public Windows GUI deployment requires msstore submission and Microsoft Store signing; local self-signed MSIX is development/sideload only.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
-      "Build WiX MSI installer",
-      "Keep MSI local unless publication is explicitly requested",
+      "Refresh MSIX app assets from a reviewed logo source when assets are missing or stale",
+      "Build self-signed MSIX development package with winapp",
+      "Record Release Hasher SHA-256, BLAKE3-256, and KT128 output for the MSIX",
+      "Submit public Windows package through msstore/Microsoft Store when publication is requested",
+      "Verify Microsoft Store signing before public release claims",
+      "Retain WiX MSI as historical/local direct-distribution evidence unless a documented exception is approved",
       "Include release notes from docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
-      "Record Release Hasher SHA-256, BLAKE3-256, and KT128 output",
-      "Document unsigned status"
+      "Document development signing versus public signing authority"
     ]
   },
   "theme": {

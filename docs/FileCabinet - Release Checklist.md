@@ -2,7 +2,31 @@
 
 ## v0.1.1
 
-Release status: `local-verified`
+Release status: `msix-sideload-dev`
+
+Current DRS status:
+
+- [x] Development MSIX package exists: `file-cabinet_0.1.1.0_x64.msix`.
+- [x] Development MSIX package is signed with a self-signed Aptlantis certificate.
+- [x] ARHS-compatible Release Hasher manifest exists for the MSIX: `file-cabinet_0.1.1.0_x64.hashmanifest.toml`.
+- [x] `Package.appxmanifest` exists with package version `0.1.1.0` and publisher display name `Aptlantis`.
+- [ ] Public Store submission completed with `msstore`.
+- [ ] Microsoft Store-signed public package retrieved or verified.
+- [ ] MSIX install, launch, update, uninstall, and shell-integration behavior independently verified by Codex.
+- [ ] Store release notes, screenshots, privacy/category declarations, and package identity reviewed.
+
+Development MSIX evidence:
+
+* Path: `file-cabinet_0.1.1.0_x64.msix`
+* Hash manifest: `file-cabinet_0.1.1.0_x64.hashmanifest.toml`
+* SHA-256: `cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727`
+* BLAKE3-256: `1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9`
+* Signing authority: `self-signed-development`
+* Certificate subject: `CN=Aptlantis`
+* Certificate thumbprint: `478BEFBC9B81239E0D95C3CC7F6AEECB142C986A`
+* Authenticode status: `Valid`
+
+Historical/local MSI evidence:
 
 - [x] Version number matches project file, CLI project, manifest, and installer package version.
 - [x] MIT license recorded in the project manifest, JSON manifest, top-level `LICENSE`, README, and source docs set.
@@ -22,7 +46,7 @@ Verification evidence:
 * Release Hasher: `artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml`
 * Authenticode: unsigned / `NotSigned`
 
-Final artifact:
+Historical MSI artifact:
 
 * Path: `artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi`
 * Runtime: `win-x64`
