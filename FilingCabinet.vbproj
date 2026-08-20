@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <OptionStrict>On</OptionStrict>
+    <RootNamespace>FilingCabinet</RootNamespace>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\FilingCabinet.ico</ApplicationIcon>
+    <AssemblyTitle>Filing Cabinet</AssemblyTitle>
+    <Product>Filing Cabinet</Product>
+    <Company>Aptlantis</Company>
+    <Description>Local-first desktop vault for digital artifacts you want to keep, find, verify, and recover later.</Description>
+    <Version>0.1.1</Version>
+    <FileVersion>0.1.1.0</FileVersion>
+    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Import Include="System.Windows.Documents" />
+    <Import Include="System.Windows.Input" />
+    <Import Include="System.Windows.Media" />
+    <Import Include="System.Windows.Media.Imaging" />
+    <Import Include="System.Windows.Navigation" />
+    <Import Include="System.Windows.Shapes" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blake3" Version="2.2.1" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
+    <PackageReference Include="StreamHash" Version="1.11.3" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\FilingCabinet.ico" />
+    <Resource Include="Assets\FilingCabinetLogoMark.png" />
+    <Content Include="Assets\MaterialSymbolsIconMap.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="docs\*.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="FilingCabinet.Tests\**\*.vb" />
+    <Compile Remove="FilingCabinet.Cli\**\*.vb" />
+  </ItemGroup>
+
+</Project>
+
