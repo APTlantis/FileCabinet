@@ -10,9 +10,12 @@ Current DRS status:
 - [x] Prior development MSIX package signature recorded as self-signed Aptlantis certificate.
 - [x] ARHS-compatible Release Hasher manifest exists for the MSIX: `file-cabinet_0.1.1.0_x64.hashmanifest.toml`.
 - [x] Microsoft Store product identity reserved as `Filing Cabinet` / `Aptlantis.FilingCabinet`.
-- [ ] Store-aligned `Package.appxmanifest` exists with `Package/Identity/Name = Aptlantis.FilingCabinet`, `Package/Identity/Publisher = CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`, and `PublisherDisplayName = Aptlantis`.
-- [ ] Store candidate MSIX/MSIXUPLOAD rebuilt after identity alignment.
-- [ ] Public Store submission completed through Partner Center website upload.
+- [x] Store-aligned `Package.appxmanifest` exists with `Package/Identity/Name = Aptlantis.FilingCabinet`, `Package/Identity/Publisher = CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`, `DisplayName = Filing Cabinet`, `PublisherDisplayName = Aptlantis`, and `uap:VisualElements DisplayName = Filing Cabinet`.
+- [x] Trial package accepted into Partner Center package/device-family availability after manifest identity/display correction.
+- [ ] Product naming and documentation cleanup completed before final release candidate.
+- [ ] Store candidate MSIX/MSIXUPLOAD rebuilt after cleanup.
+- [ ] Final accepted package hashed with Release Hasher after Partner Center accepts the package.
+- [ ] Public Store certification completed through Partner Center.
 - [ ] Microsoft Store-signed public package retrieved or verified.
 - [ ] MSIX install, launch, update, uninstall, and shell-integration behavior independently verified by Codex.
 - [ ] Store release notes, screenshots, privacy/category declarations, and package identity reviewed.
@@ -38,7 +41,8 @@ Reserved Store identity:
 * Package SID: `S-1-15-2-1860814627-1124911970-2441074946-1662115893-3861747353-1868345528-3456606545`
 * Store ID: `9N29X9KR70R3`
 * First submission method: Partner Center website upload
-* Current blocker: root `.msix` package and `Package.appxmanifest` were absent during the Store-identity follow-up check, so the Store candidate must be rebuilt or restored before upload.
+* First-gate lesson: Partner Center rejected a package where `PublisherDisplayName` was the publisher GUID instead of `Aptlantis`; the package was accepted into device-family availability after identity and display fields were aligned.
+* Current blocker: product naming/documentation cleanup and final Store candidate rebuild are still pending. The root `.msix` package is not currently present on disk, so hash evidence must be regenerated after the final accepted package exists.
 
 Historical/local MSI evidence:
 

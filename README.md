@@ -24,7 +24,7 @@ Current Windows package evidence:
 - Public Windows target: rebuild a Store-identity-aligned MSIX/MSIXUPLOAD, upload through Partner Center, then rely on Microsoft Store signing after certification
 - Historical/local MSI evidence: `artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi`
 
-The root `.msix` package and `Package.appxmanifest` were not present during the Store-identity follow-up check, so they need to be regenerated or restored before the first Partner Center upload.
+`Package.appxmanifest` now follows the accepted first-gate Store identity/display pattern. The root `.msix` package is not currently present on disk, so the final Store candidate needs to be rebuilt after cleanup. Hash the final accepted package, not the earlier trial package.
 
 This release keeps the mature vault workflow: Vault Health has its own workspace, default analysis is metadata-first, large-file hash reads stay explicit, and bulk repair selection remains available for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
 

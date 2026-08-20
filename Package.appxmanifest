@@ -17,8 +17,8 @@
     Version="0.1.1.0" />
 
   <Properties>
-    <DisplayName>Aptlantis.FilingCabinet</DisplayName>
-    <PublisherDisplayName>81D6747D-F84F-4EFF-ACAA-9635D91ACCD0</PublisherDisplayName>
+    <DisplayName>Filing Cabinet</DisplayName>
+    <PublisherDisplayName>Aptlantis</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <uap10:PackageIntegrity>
       <uap10:Content Enforcement="on"/>
@@ -38,7 +38,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Aptlantis.FilingCabinet"
+        DisplayName="Filing Cabinet"
         Description="Filing Cabinet is a local-first desktop vault for digital artifacts you want to keep, find, verify, and recover later."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\MedTile.png"

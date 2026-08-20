@@ -55,6 +55,16 @@ Reserved Store identity:
 
 The Store candidate must be rebuilt with that identity before Partner Center upload.
 
+First-gate Partner Center feedback established the manifest pattern:
+
+* `Package/Identity/Name`: `Aptlantis.FilingCabinet`
+* `Package/Identity/Publisher`: `CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`
+* `Package/Properties/DisplayName`: `Filing Cabinet`
+* `Package/Properties/PublisherDisplayName`: `Aptlantis`
+* `uap:VisualElements DisplayName`: `Filing Cabinet`
+
+The package acceptance/device-family availability gate is not the final release. The final candidate still needs naming/documentation cleanup, rebuild, package acceptance, release hashing, certification, publication, Store signing verification, and install/launch/update/uninstall checks.
+
 Historical/local MSI:
 
 * `FileCabinet-0.1.1.0-win-x64.msi`

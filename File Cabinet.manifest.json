@@ -134,10 +134,10 @@
       "date": "2026-08-20",
       "tests": "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-20",
       "installer_build": "installer/build-installer.ps1 -Version 0.1.1.0 completed on 2026-08-20 after clean restore/publish/package run",
-      "install_check": "not rerun for v0.1.1; prior v0.1.0 MSI lifecycle verification remains historical evidence; Store-aligned v0.1.1 MSIX install/launch/uninstall has not been independently verified by Codex",
+      "install_check": "not rerun for v0.1.1; prior v0.1.0 MSI lifecycle verification remains historical evidence; final Store-aligned v0.1.1 MSIX install/launch/uninstall has not been independently verified by Codex",
       "data_safety": "v0.1.1 work updates release metadata, documentation payload, and installer artifact; no vault data migration is included",
       "release_hashing": "Release Hasher wrote artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml for artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi with SHA-256 0e0a9448ff3746143d3fd4a01e7fd754c6c24e63d3bd2b0127e5980da226640d, BLAKE3-256 0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003, and KT128",
-      "release_signing": "MSIX is prior self-signed-development evidence for CN=Aptlantis; Store candidate must be rebuilt with Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0; historical MSI is unsigned / NotSigned",
+      "release_signing": "MSIX is prior self-signed-development evidence; Store candidate manifest is aligned to Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0 and PublisherDisplayName Aptlantis; historical MSI is unsigned / NotSigned",
       "msix_hashing": "Release Hasher wrote file-cabinet_0.1.1.0_x64.hashmanifest.toml for file-cabinet_0.1.1.0_x64.msix with SHA-256 cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727, BLAKE3-256 1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9, and KT128"
     },
     "distribution": {
@@ -150,8 +150,8 @@
       "store_seller_id": "95755140",
       "store_windows_publisher_id": "Aptlantis",
       "store_windows_phone_publisher_id": "e29375e1-9423-47d4-86e6-bfb21b138216",
-      "store_submission_status": "identity-reserved-package-not-submitted",
-      "notes": "The Store product identity is reserved as Filing Cabinet / Aptlantis.FilingCabinet. The Store candidate package must be rebuilt so Package.appxmanifest matches the Store identity exactly before upload. Public Windows distribution requires Microsoft Store submission and Store-signed package verification.",
+      "store_submission_status": "package-acceptance-first-gate-passed",
+      "notes": "The Store product identity is reserved as Filing Cabinet / Aptlantis.FilingCabinet. Package.appxmanifest now matches the accepted first-gate identity/display pattern. Public Windows distribution still requires cleaned release records, rebuilt final Store candidate, Partner Center certification, publication, and Store-signed package verification.",
       "store_product_name": "Filing Cabinet",
       "store_identity_name": "Aptlantis.FilingCabinet",
       "store_identity_publisher": "CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0",
@@ -159,7 +159,9 @@
       "store_package_family_name": "Aptlantis.FilingCabinet_jfrcsngvdwx7g",
       "store_package_sid": "S-1-15-2-1860814627-1124911970-2441074946-1662115893-3861747353-1868345528-3456606545",
       "store_id": "9N29X9KR70R3",
-      "planned_submission_method": "Partner Center website upload for first submission"
+      "planned_submission_method": "Partner Center website upload for first submission",
+      "package_acceptance_status": "A trial MSIX reached Partner Center package acceptance/device-family availability after manifest identity/display alignment. This is not certification, publication, or Microsoft-signed distribution.",
+      "latest_acceptance_package": "FilingCabinet_0.1.1.0_x64.msix"
     },
     "msix_development": {
       "path": "file-cabinet_0.1.1.0_x64.msix",
@@ -178,8 +180,9 @@
       "certificate_not_before": "2026-08-20T05:33:13",
       "certificate_not_after": "2027-08-20T05:33:13",
       "authenticode_status": "Valid on prior local check",
-      "status": "prior winapp development package evidence; root .msix and Package.appxmanifest were absent during the current Store-identity follow-up check; not Store-submitted; not independently install/launch/uninstall verified by Codex",
-      "store_identity_aligned": false
+      "status": "prior winapp development package evidence; Package.appxmanifest is currently aligned to the accepted first-gate Store identity/display pattern; root .msix is not currently present on disk; not certified, published, Store-signed, or independently install/launch/uninstall verified by Codex",
+      "store_identity_aligned": true,
+      "store_acceptance_trial": "accepted into Partner Center package device-family availability after DisplayName, PublisherDisplayName, Identity/Name, and uap:VisualElements DisplayName were aligned"
     }
   },
   "datasets": [
@@ -263,11 +266,12 @@
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
-      "Regenerate or restore Package.appxmanifest with Store identity Aptlantis.FilingCabinet and publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0",
+      "Keep Package.appxmanifest aligned with Store identity Aptlantis.FilingCabinet, publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0, DisplayName Filing Cabinet, PublisherDisplayName Aptlantis, and uap VisualElements DisplayName Filing Cabinet",
       "Refresh MSIX app assets from a reviewed logo source when assets are missing or stale",
+      "Complete product naming and documentation cleanup before final release candidate",
       "Build MSIX/MSIXUPLOAD candidate with winapp",
-      "Record Release Hasher SHA-256, BLAKE3-256, and KT128 output for the Store candidate package",
-      "Submit first public Windows package through Partner Center website upload for Microsoft certification feedback",
+      "Submit package through Partner Center website upload for Microsoft package acceptance/certification feedback",
+      "After Partner Center accepts the final candidate package, record Release Hasher SHA-256, BLAKE3-256, and KT128 output",
       "Automate later submissions through msstore after the website submission shape is known",
       "Verify Microsoft Store signing before public release claims",
       "Retain WiX MSI as historical/local direct-distribution evidence unless a documented exception is approved",
