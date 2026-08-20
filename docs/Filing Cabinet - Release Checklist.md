@@ -2,34 +2,39 @@
 
 ## v0.1.1
 
-Release status: `msix-sideload-dev`
+Release status: `microsoft-store-package-accepted`
 
 Current DRS status:
 
-- [x] Prior development MSIX package evidence recorded for `filing-cabinet_0.1.1.0_x64.msix`.
-- [x] Prior development MSIX package signature recorded as self-signed Aptlantis certificate.
-- [x] ARHS-compatible Release Hasher manifest exists for the MSIX: `filing-cabinet_0.1.1.0_x64.hashmanifest.toml`.
+- [x] Store candidate MSIX exists: `Aptlantis.FilingCabinet_0.1.1.0_x64.msix`.
+- [x] ARHS-compatible Release Hasher manifest exists for the MSIX: `FilingCabinet-0.1.1.0.hashmanifest.toml`.
+- [x] Detached PGP signature exists for the hash manifest: `FilingCabinet-0.1.1.0.hashmanifest.toml.asc`.
+- [x] Detached SLH-DSA signature exists for the hash manifest: `FilingCabinet-0.1.1.0.hashmanifest.toml.sphincs`.
 - [x] Microsoft Store product identity reserved as `Filing Cabinet` / `Aptlantis.FilingCabinet`.
 - [x] Store-aligned `Package.appxmanifest` exists with `Package/Identity/Name = Aptlantis.FilingCabinet`, `Package/Identity/Publisher = CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`, `DisplayName = Filing Cabinet`, `PublisherDisplayName = Aptlantis`, and `uap:VisualElements DisplayName = Filing Cabinet`.
-- [x] Trial package accepted into Partner Center package/device-family availability after manifest identity/display correction.
-- [ ] Product naming and documentation cleanup completed before final release candidate.
-- [ ] Store candidate MSIX/MSIXUPLOAD rebuilt after cleanup.
-- [ ] Final accepted package hashed with Release Hasher after Partner Center accepts the package.
+- [x] Store candidate package accepted by Partner Center package validation.
+- [x] Product naming and documentation cleanup completed before final release candidate.
+- [x] Final accepted package hashed with Release Hasher after Partner Center accepts the package.
 - [ ] Public Store certification completed through Partner Center.
 - [ ] Microsoft Store-signed public package retrieved or verified.
 - [ ] MSIX install, launch, update, uninstall, and shell-integration behavior independently verified by Codex.
 - [ ] Store release notes, screenshots, privacy/category declarations, and package identity reviewed.
 
-Development MSIX evidence:
+Store candidate MSIX evidence:
 
-* Path: `filing-cabinet_0.1.1.0_x64.msix`
-* Hash manifest: `filing-cabinet_0.1.1.0_x64.hashmanifest.toml`
-* SHA-256: `cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727`
-* BLAKE3-256: `1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9`
-* Signing authority: `self-signed-development`
-* Certificate subject: `CN=Aptlantis`
-* Certificate thumbprint: `478BEFBC9B81239E0D95C3CC7F6AEECB142C986A`
-* Authenticode status: `Valid`
+* Path: `Aptlantis.FilingCabinet_0.1.1.0_x64.msix`
+* Package version: `0.1.1.0`
+* Architecture: X64
+* Device family: Windows.Desktop min version `10.0.18362.0`
+* Language: `en-us`
+* Capabilities: `runFullTrust`, `Microsoft.storeFilter.core.notSupported_8wekyb3d8bbwe`
+* Local size: `9900554` bytes
+* Store-reported size: `9.4 MB`
+* Hash manifest: `FilingCabinet-0.1.1.0.hashmanifest.toml`
+* SHA-256: `0ec8e3bdfbd391da466945f3acc09836989fe43ff9f31852f33b73568c592694`
+* BLAKE3-256: `adb67602c9b0faa0566bbf5ddeb84de3ddb409bdaf981290a6bdeb4dbdc33b1d`
+* Signing authority: Microsoft Store signs the distributed package after certification/publication.
+* Detached manifest signatures: `FilingCabinet-0.1.1.0.hashmanifest.toml.asc`, `FilingCabinet-0.1.1.0.hashmanifest.toml.sphincs`
 
 Reserved Store identity:
 
@@ -41,8 +46,8 @@ Reserved Store identity:
 * Package SID: `S-1-15-2-1860814627-1124911970-2441074946-1662115893-3861747353-1868345528-3456606545`
 * Store ID: `9N29X9KR70R3`
 * First submission method: Partner Center website upload
-* First-gate lesson: Partner Center rejected a package where `PublisherDisplayName` was the publisher GUID instead of `Aptlantis`; the package was accepted into device-family availability after identity and display fields were aligned.
-* Current blocker: product naming/documentation cleanup and final Store candidate rebuild are still pending. The root `.msix` package is not currently present on disk, so hash evidence must be regenerated after the final accepted package exists.
+* Package validation result: Partner Center accepted `Aptlantis.FilingCabinet_0.1.1.0_x64.msix`.
+* Current blocker: public release still requires any remaining certification/publication steps, verification of the Microsoft Store-signed distributed package, and install/launch/update/uninstall checks.
 
 Historical/local MSI evidence:
 

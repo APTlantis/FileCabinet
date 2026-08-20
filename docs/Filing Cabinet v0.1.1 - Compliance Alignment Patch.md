@@ -1,6 +1,6 @@
 # Filing Cabinet v0.1.1 - Compliance Alignment Patch
 
-Filing Cabinet v0.1.1 is a small governance and release-evidence patch. It does not introduce a new vault workflow. Its purpose is to make the project easier to adopt, verify, and redistribute under the current DRS process. After the DRS release-policy update, the forward public Windows package path is MSIX submitted through the Microsoft Store; locally self-signed MSIX packages are development/sideload evidence. The first Store product identity is reserved as `Filing Cabinet` with package identity `Aptlantis.FilingCabinet`.
+Filing Cabinet v0.1.1 is a small governance and release-evidence patch. It does not introduce a new vault workflow. Its purpose is to make the project easier to adopt, verify, and redistribute under the current DRS process. After the DRS release-policy update, the forward public Windows package path is MSIX submitted through the Microsoft Store. The first Store product identity is reserved as `Filing Cabinet` with package identity `Aptlantis.FilingCabinet`, and `Aptlantis.FilingCabinet_0.1.1.0_x64.msix` has been accepted by Partner Center package validation.
 
 ---
 
@@ -14,13 +14,13 @@ The installer build script also includes the root `LICENSE` file in the MSI payl
 
 ### Release Hash Manifests Published
 
-The package release records now include Release Hasher TOML manifests. The MSIX development package manifest records the ARHS release hash suite:
+The package release records now include Release Hasher TOML manifests. The Store candidate MSIX manifest records the ARHS release hash suite:
 
 * SHA-256 for broad compatibility.
 * BLAKE3-256 for fast modern integrity checks.
 * KT128 for ARHS release evidence.
 
-The historical/local MSI also keeps its Release Hasher manifest as direct-distribution evidence.
+The accepted Store candidate hash manifest also has detached PGP and SLH-DSA signatures for preservation/provenance evidence. Those signatures do not replace Microsoft Store signing for the public MSIX distribution. The historical/local MSI also keeps its Release Hasher manifest as direct-distribution evidence.
 
 ### Documentation Payload Rebuilt From Canonical Docs
 
@@ -34,15 +34,25 @@ The project manifest, JSON manifest, README, project README, source release note
 
 ## Release Artifact
 
-Development MSIX:
+Store candidate MSIX:
 
-* `filing-cabinet_0.1.1.0_x64.msix`
+* `Aptlantis.FilingCabinet_0.1.1.0_x64.msix`
+* Version `0.1.1.0`, X64
+* Windows.Desktop min version `10.0.18362.0`
+* Language `en-us`
+* Capabilities `runFullTrust`, `Microsoft.storeFilter.core.notSupported_8wekyb3d8bbwe`
+* Store-reported size `9.4 MB`
 
 MSIX hash manifest:
 
-* `filing-cabinet_0.1.1.0_x64.hashmanifest.toml`
+* `FilingCabinet-0.1.1.0.hashmanifest.toml`
 
-Signing status: self-signed development certificate, for sideload/development use only. Public Windows distribution still requires Microsoft Store submission and Store signing.
+Detached hash-manifest signatures:
+
+* `FilingCabinet-0.1.1.0.hashmanifest.toml.asc`
+* `FilingCabinet-0.1.1.0.hashmanifest.toml.sphincs`
+
+Signing status: Microsoft Store signing remains the authority for the public MSIX distribution after certification/publication. The detached PGP and SLH-DSA signatures cover the hash manifest only.
 
 Reserved Store identity:
 
@@ -53,9 +63,7 @@ Reserved Store identity:
 * Package family name: `Aptlantis.FilingCabinet_jfrcsngvdwx7g`
 * Store ID: `9N29X9KR70R3`
 
-The Store candidate must be rebuilt with that identity before Partner Center upload.
-
-First-gate Partner Center feedback established the manifest pattern:
+Partner Center package validation accepted the Store candidate with this manifest pattern:
 
 * `Package/Identity/Name`: `Aptlantis.FilingCabinet`
 * `Package/Identity/Publisher`: `CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`
@@ -63,7 +71,7 @@ First-gate Partner Center feedback established the manifest pattern:
 * `Package/Properties/PublisherDisplayName`: `Aptlantis`
 * `uap:VisualElements DisplayName`: `Filing Cabinet`
 
-The package acceptance/device-family availability gate is not the final release. The final candidate still needs naming/documentation cleanup, rebuild, package acceptance, release hashing, certification, publication, Store signing verification, and install/launch/update/uninstall checks.
+The package acceptance/device-family availability gate is not the final release. The Store candidate still needs any remaining certification/publication steps, Store signing verification for the distributed package, and install/launch/update/uninstall checks.
 
 Historical/local MSI:
 
