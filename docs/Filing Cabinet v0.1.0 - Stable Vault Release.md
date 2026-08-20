@@ -1,6 +1,6 @@
-# FileCabinet v0.1.0 - Stable Vault Release
+# FilingCabinet v0.1.0 - Stable Vault Release
 
-FileCabinet v0.1.0 is the first intentionally governed stable release of the local-first vault application under the current DRS release process. The historical v1.x installer train is preserved as pre-standard evidence, while this release restarts the active version line around the verified vault, catalog, preview, integrity, and repair workflows currently used in Herb's production environment.
+FilingCabinet v0.1.0 is the first intentionally governed stable release of the local-first vault application under the current DRS release process. The historical v1.x installer train is preserved as pre-standard evidence, while this release restarts the active version line around the verified vault, catalog, preview, integrity, and repair workflows currently used in Herb's production environment.
 
 ---
 
@@ -8,7 +8,7 @@ FileCabinet v0.1.0 is the first intentionally governed stable release of the loc
 
 ### Stable Vault Baseline
 
-This release establishes FileCabinet as a maintenance-ready desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts. The app, CLI, installer script, manifest, and release records now use the governed `0.1.0` application version and `0.1.0.0` Windows package version.
+This release establishes FilingCabinet as a maintenance-ready desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts. The app, CLI, installer script, manifest, and release records now use the governed `0.1.0` application version and `0.1.0.0` Windows package version.
 
 ### Vault Health Workspace
 
@@ -26,7 +26,7 @@ The old v1.x installer artifacts have been moved out of the active installer pat
 
 ## Design Boundaries
 
-FileCabinet v0.1.0 intentionally does not:
+FilingCabinet v0.1.0 intentionally does not:
 
 * Claim that the old v1.x installer train is the active governed release line.
 * Automatically restore or delete retained vault files during health analysis.
@@ -49,12 +49,12 @@ FileCabinet v0.1.0 intentionally does not:
 
 Expected installer:
 
-* `FileCabinet-0.1.0.0-win-x64.msi`
+* `FilingCabinet-0.1.0.0-win-x64.msi`
 
 Hash manifest:
 
-* `artifacts/installer/FileCabinet_msi-0.1.0.0.hashmanifest.toml`
-* `docs/FileCabinet - Installer Hash Manifest.md`
+* `artifacts/installer/FilingCabinet_msi-0.1.0.0.hashmanifest.toml`
+* `docs/FilingCabinet - Installer Hash Manifest.md`
 
 SHA-256:
 
@@ -68,11 +68,11 @@ KT128:
 
 * `2r3I4PpAdkMPh3D5o6AtzUaZc3yOKhCfVmwC9x5UCX8Nybu1uNXOiw6Yiwgwh9VqrWgIAe+BO7Z+0hLBIeauxKv0CcBRloMFIyqpJJIexd7iNaf/tIEAlAet60nEYhY8s9zjldgATQGix4GuYBK7hDTh72cN6uV5G8CB6Y8RDao=`
 
-The packaged copy of this release note shows an external-hash placeholder because release documentation is bundled inside the installer. The canonical post-build hash is recorded in the source release note, `File Cabinet.manifest.toml`, `docs/FileCabinet - Release Checklist.md`, and `artifacts/installer/FileCabinet_msi-0.1.0.0.hashmanifest.toml`.
+The packaged copy of this release note shows an external-hash placeholder because release documentation is bundled inside the installer. The canonical post-build hash is recorded in the source release note, `Filing Cabinet.manifest.toml`, `docs/FilingCabinet - Release Checklist.md`, and `artifacts/installer/FilingCabinet_msi-0.1.0.0.hashmanifest.toml`.
 
 Signing status: unsigned; `Get-AuthenticodeSignature` reported `NotSigned` on 2026-08-04.
 
-License: MIT. See `LICENSE` and `docs/FileCabinet - License.md`.
+License: MIT. See `LICENSE` and `docs/FilingCabinet - License.md`.
 
 ## MSI Lifecycle Verification
 
@@ -80,15 +80,16 @@ The built MSI was lifecycle-verified on 2026-08-17 with quiet install and uninst
 
 Verified installed state:
 
-* Installed payload and bundled docs were present under `C:\Program Files (x86)\FileCabinet`.
-* `FileCabinet.Cli.exe --version` returned `FileCabinet.Cli 0.1.0`.
-* Windows Explorer shell verbs `Copy to FileCabinet` and `Move to FileCabinet` were present and pointed to the installed executable.
+* Installed payload and bundled docs were present under `C:\Program Files (x86)\FilingCabinet`.
+* `FilingCabinet.Cli.exe --version` returned `FilingCabinet.Cli 0.1.0`.
+* Windows Explorer shell verbs `Copy to FilingCabinet` and `Move to FilingCabinet` were present and pointed to the installed executable.
 * Start Menu and public desktop shortcuts were present.
-* Installed `FileCabinet.exe` launched with window title `FileCabinet - Personal Vault & Artifact Manager`.
+* Installed `FilingCabinet.exe` launched with window title `FilingCabinet - Personal Vault & Artifact Manager`.
 
 Verified uninstall state:
 
 * MSI removal completed successfully.
 * Install folder, Start Menu shortcut folder, public desktop shortcut, shell verb registry keys, and uninstall registry entry were absent after uninstall.
 
-Packaging note: the MSI currently installs the win-x64 single-file payload under `C:\Program Files (x86)\FileCabinet` and registers the uninstall entry in the WOW6432 registry view. That behavior is verified for v0.1.0 compatibility, but it should be reviewed before a future public distribution pass.
+Packaging note: the MSI currently installs the win-x64 single-file payload under `C:\Program Files (x86)\FilingCabinet` and registers the uninstall entry in the WOW6432 registry view. That behavior is verified for v0.1.0 compatibility, but it should be reviewed before a future public distribution pass.
+

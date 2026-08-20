@@ -1,12 +1,12 @@
-# FileCabinet — Trust and Verification Model
+# FilingCabinet — Trust and Verification Model
 
-FileCabinet earns trust by making vault state inspectable.
+FilingCabinet earns trust by making vault state inspectable.
 
 The vault does not ask the operator to trust an opaque index. It keeps retained files on disk, records structured catalog metadata, and exposes health findings that explain when the catalog and filesystem disagree.
 
 ## Trust Anchors
 
-FileCabinet relies on a few plain trust anchors:
+FilingCabinet relies on a few plain trust anchors:
 
 - retained files live in the local vault filesystem
 - catalog state is stored as JSON
@@ -54,9 +54,10 @@ The repair log is part of the trust model. It records what changed, when it chan
 The CLI exposes the same verification model for scripts:
 
 ```powershell
-FileCabinet.Cli.exe verify --fail-on medium
-FileCabinet.Cli.exe report --format json --output K:\FileCabinet\exports\health.json
+FilingCabinet.Cli.exe verify --fail-on medium
+FilingCabinet.Cli.exe report --format json --output K:\FilingCabinet\exports\health.json
 ```
 
 Exit code `2` means verification found threshold-level issues. That allows scheduled checks to fail visibly without mutating the vault.
+
 

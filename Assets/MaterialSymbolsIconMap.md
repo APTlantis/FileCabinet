@@ -1,13 +1,13 @@
-# FileCabinet Material Symbols Icon Map
+# FilingCabinet Material Symbols Icon Map
 
-FileCabinet v1.7.0 uses Material Symbols as the source vocabulary for file and category iconography, with WPF-safe Segoe MDL2 glyph fallbacks in the current desktop UI.
+FilingCabinet v1.7.0 uses Material Symbols as the source vocabulary for file and category iconography, with WPF-safe Segoe MDL2 glyph fallbacks in the current desktop UI.
 
 Source:
 
 - Google Material Symbols / Material Icons: https://github.com/google/material-design-icons
 - License: Apache 2.0
 
-| FileCabinet category | Material Symbol source name | WPF fallback role |
+| FilingCabinet category | Material Symbol source name | WPF fallback role |
 | --- | --- | --- |
 | Images | `image` | image preview/file |
 | Documents | `description` | document |
@@ -25,4 +25,5 @@ Source:
 | Quarantine | `dangerous` | quarantined item |
 | Unknown | `draft` | generic file |
 
-The full Material Symbols repository is intentionally not vendored into FileCabinet. This curated map keeps the app source small while preserving the selected icon vocabulary and license trail.
+The full Material Symbols repository is intentionally not vendored into FilingCabinet. This curated map keeps the app source small while preserving the selected icon vocabulary and license trail.
+

@@ -56,7 +56,7 @@ Class MainWindow
     Private Sub DropZone_MouseLeftButtonUp(sender As Object, e As MouseButtonEventArgs)
         Dim dialog As New OpenFileDialog With {
             .Multiselect = True,
-            .Title = "Select files to ingest into FileCabinet"
+            .Title = "Select files to ingest into FilingCabinet"
         }
 
         If dialog.ShowDialog(Me) = True Then
@@ -72,7 +72,7 @@ Class MainWindow
         End If
 
         Dim dialog As New OpenFolderDialog With {
-            .Title = "Choose FileCabinet vault folder",
+            .Title = "Choose FilingCabinet vault folder",
             .Multiselect = False,
             .InitialDirectory = viewModel.VaultRootPath
         }
@@ -166,3 +166,4 @@ Class MainWindow
         Await viewModel.IngestPathsAsync(paths)
     End Sub
 End Class
+

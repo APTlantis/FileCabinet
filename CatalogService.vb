@@ -15,7 +15,7 @@ Public Class CatalogService
         If String.IsNullOrWhiteSpace(catalogPathOverride) Then
             CatalogPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "FileCabinet",
+                "FilingCabinet",
                 "catalog.json")
         Else
             CatalogPath = catalogPathOverride
@@ -24,7 +24,7 @@ Public Class CatalogService
         If String.IsNullOrWhiteSpace(defaultVaultRootPathOverride) Then
             DefaultVaultRootPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "FileCabinetVault")
+                "FilingCabinetVault")
         Else
             DefaultVaultRootPath = defaultVaultRootPathOverride
         End If
@@ -226,3 +226,4 @@ Public Class CatalogService
     End Function
 
 End Class
+

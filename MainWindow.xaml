@@ -1,13 +1,13 @@
 <Window x:Class="MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:FileCabinet"
+        xmlns:local="clr-namespace:FilingCabinet"
         Title="Filing Cabinet - Personal Vault &amp; Artifact Manager"
         Width="1680"
         Height="1040"
         MinWidth="1180"
         MinHeight="720"
-        Icon="Assets/FileCabinet.ico"
+        Icon="Assets/FilingCabinet.ico"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanResize"
@@ -440,7 +440,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
-                    <Image Source="Assets/FileCabinetLogoMark.png"
+                    <Image Source="Assets/FilingCabinetLogoMark.png"
                            Width="18"
                            Height="18"
                            Stretch="Uniform"
@@ -1766,4 +1766,5 @@
         </Grid>
     </Border>
 </Window>
+
 

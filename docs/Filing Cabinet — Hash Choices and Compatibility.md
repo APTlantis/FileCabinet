@@ -1,8 +1,8 @@
-# FileCabinet - Hash Choices and Compatibility
+# FilingCabinet - Hash Choices and Compatibility
 
-FileCabinet starts new catalogs with SHA-256 only. That keeps first-run behavior familiar and avoids spending time on extra fingerprints until the operator asks for them.
+FilingCabinet starts new catalogs with SHA-256 only. That keeps first-run behavior familiar and avoids spending time on extra fingerprints until the operator asks for them.
 
-Additional hashes are still useful. They help verify older downloads, release notes, vendor manifests, archives, firmware packages, and files from projects that published a non-SHA-256 digest. Enabling a hash means FileCabinet will compute it during ingest, health repair, and explicit hash checks.
+Additional hashes are still useful. They help verify older downloads, release notes, vendor manifests, archives, firmware packages, and files from projects that published a non-SHA-256 digest. Enabling a hash means FilingCabinet will compute it during ingest, health repair, and explicit hash checks.
 
 Settings enforce that at least one active hash must always remain enabled — there is no state where hash computation is fully off. The active hash set is the single source of truth for runtime hashing; if a hash is later disabled, its historical values already stored on an artifact are preserved in the catalog for audit continuity, but they are never treated as missing findings or silently recomputed.
 
@@ -12,7 +12,7 @@ Settings enforce that at least one active hash must always remain enabled — th
 
 Best use: general integrity verification and broad interoperability.
 
-SHA-256 is part of the SHA-2 family standardized by NIST in FIPS 180-4. It is the safest default for normal FileCabinet use because many vendors, package managers, operating systems, and release workflows publish SHA-256 digests.
+SHA-256 is part of the SHA-2 family standardized by NIST in FIPS 180-4. It is the safest default for normal FilingCabinet use because many vendors, package managers, operating systems, and release workflows publish SHA-256 digests.
 
 Reference: [NIST FIPS 180-4, Secure Hash Standard](https://csrc.nist.gov/pubs/fips/180-4/upd1/final)
 
@@ -30,7 +30,7 @@ Reference: [BLAKE3 specifications](https://github.com/BLAKE3-team/BLAKE3-specs)
 
 Best use: ARHS-style release verification and Keccak-family evidence.
 
-KangarooTwelve is a Keccak-team extendable-output function. FileCabinet records a 32-byte digest for catalog compatibility. It is useful when matching ARHS release records or other K12-based workflows.
+KangarooTwelve is a Keccak-team extendable-output function. FilingCabinet records a 32-byte digest for catalog compatibility. It is useful when matching ARHS release records or other K12-based workflows.
 
 Reference: [Keccak Team KangarooTwelve](https://keccak.team/kangarootwelve.html)
 
@@ -46,7 +46,7 @@ Reference: [NIST FIPS 202, SHA-3 Standard](https://csrc.nist.gov/pubs/fips/202/f
 
 Best use: matching existing Skein digests.
 
-Skein was a SHA-3 competition finalist. FileCabinet includes it for compatibility with older manifests or projects that published Skein values.
+Skein was a SHA-3 competition finalist. FilingCabinet includes it for compatibility with older manifests or projects that published Skein values.
 
 Reference: [Skein hash function site](https://www.schneier.com/academic/skein/)
 
@@ -99,3 +99,4 @@ These are fast general-purpose hashes, not security checks. Enable them only whe
 - `xxHash64`
 
 Reference: [IETF draft for FNV hash](https://datatracker.ietf.org/doc/html/draft-eastlake-fnv-25) and [xxHash project](https://xxhash.com/)
+

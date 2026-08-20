@@ -1,4 +1,4 @@
-# FileCabinet — Why Determinism Matters
+# FilingCabinet — Why Determinism Matters
 
 Determinism matters because preservation is a long-term promise.
 
@@ -6,7 +6,7 @@ When an artifact is retained for future operators, the system should be able to 
 
 ## Deterministic Retention
 
-FileCabinet uses deterministic retention to keep decisions inspectable:
+FilingCabinet uses deterministic retention to keep decisions inspectable:
 
 - retained paths are organized under the vault
 - catalog entries record source and storage context
@@ -29,13 +29,13 @@ A file can be searchable and still be untrusted:
 - duplicate copies may be indistinguishable
 - generated metadata may hide uncertainty
 
-FileCabinet treats search as one part of recall, not as the foundation of trust.
+FilingCabinet treats search as one part of recall, not as the foundation of trust.
 
 ## Why Not Automatic Inference
 
 Automatic inference can be useful, but it should not become the source of truth for retained artifacts.
 
-FileCabinet favors operator-authored context because the operator often knows why a file matters:
+FilingCabinet favors operator-authored context because the operator often knows why a file matters:
 
 - the driver that fixed a device
 - the contract version actually signed
@@ -60,4 +60,5 @@ An operator should be able to open the vault later and answer:
 - How can it be exported or restored?
 
 When those answers are available without guesswork, the vault is doing its job.
+
 

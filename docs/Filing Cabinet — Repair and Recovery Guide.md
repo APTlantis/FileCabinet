@@ -1,6 +1,6 @@
-# FileCabinet — Repair and Recovery Guide
+# FilingCabinet — Repair and Recovery Guide
 
-FileCabinet repair is designed around review before mutation.
+FilingCabinet repair is designed around review before mutation.
 
 Health analysis tells the operator what appears wrong. Repair and recovery tools then provide explicit paths to make the vault more trustworthy without hiding risk.
 
@@ -9,12 +9,12 @@ Health analysis tells the operator what appears wrong. Repair and recovery tools
 Start with Analyze or the CLI verify command:
 
 ```powershell
-FileCabinet.Cli.exe verify --fail-on medium
+FilingCabinet.Cli.exe verify --fail-on medium
 ```
 
 Review findings before applying changes. Pay special attention to high-risk findings such as missing retained files, hash mismatches, files outside the vault, and unexpected duplicates.
 
-Default analysis is metadata-first: FileCabinet does not automatically compute or verify retained-file hashes just to produce a health report. "Verify small hashes" only checks retained files up to 1 GB; hash mismatch verification for files larger than 16 GB is deferred and reported as deferred rather than read end-to-end. Explicit hash checks remain available whenever the operator wants full verification.
+Default analysis is metadata-first: FilingCabinet does not automatically compute or verify retained-file hashes just to produce a health report. "Verify small hashes" only checks retained files up to 1 GB; hash mismatch verification for files larger than 16 GB is deferred and reported as deferred rather than read end-to-end. Explicit hash checks remain available whenever the operator wants full verification.
 
 ## Common Findings
 
@@ -84,17 +84,17 @@ Long-running vault maintenance runs asynchronously so the UI remains responsive 
 The CLI provides scriptable operations:
 
 ```powershell
-FileCabinet.Cli.exe repair-preview --json
-FileCabinet.Cli.exe repair --apply --yes
-FileCabinet.Cli.exe rescan --apply --yes
-FileCabinet.Cli.exe rebuild-thumbnails --apply --yes
+FilingCabinet.Cli.exe repair-preview --json
+FilingCabinet.Cli.exe repair --apply --yes
+FilingCabinet.Cli.exe rescan --apply --yes
+FilingCabinet.Cli.exe rebuild-thumbnails --apply --yes
 ```
 
 Mutating commands require both `--apply` and `--yes`.
 
 ## Integrity Matrix
 
-FileCabinet validates, explains, and recovers vault health without relying on automatic inference. Every recovery path should be deterministic, inspectable, and safe for an operator to approve.
+FilingCabinet validates, explains, and recovers vault health without relying on automatic inference. Every recovery path should be deterministic, inspectable, and safe for an operator to approve.
 
 | Scenario | Detection | Expected Report | Safe Repair Action | Risk Level |
 |---|---|---|---|---|
@@ -114,11 +114,12 @@ FileCabinet validates, explains, and recovers vault health without relying on au
 | Catalog backup roundtrip | Exported catalog cannot load or differs after deserialize/serialize | Backup validation failure | Refuse restore and keep current catalog | High |
 | Vault portability roundtrip | Vault moved to another root and catalog can resolve retained files through relative paths | Rebind candidate count | Rebind catalog paths through Apply Selected; avoid destructive edits | High |
 
-> FileCabinet should make vault state understandable before it makes vault state different.
+> FilingCabinet should make vault state understandable before it makes vault state different.
 
 ## Recovery Principle
 
 When there is doubt, preserve evidence first.
 
 Use reports, exports, packages, and quarantine before destructive cleanup. The vault should help an operator understand what happened, not rush to make the warning disappear.
+
 
