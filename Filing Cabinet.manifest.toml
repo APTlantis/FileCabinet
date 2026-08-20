@@ -134,7 +134,7 @@ consumes = [
 [release]
 status = "msix-sideload-dev"
 version = "0.1.1"
-name = "FilingCabinet v0.1.1 - MSIX Development Package"
+name = "Filing Cabinet v0.1.1 - MSIX Development Package"
 date = "2026-08-20"
 
 [release.distribution]
@@ -157,7 +157,7 @@ store_windows_phone_publisher_id = "e29375e1-9423-47d4-86e6-bfb21b138216"
 store_submission_status = "package-acceptance-first-gate-passed"
 planned_submission_method = "Partner Center website upload for first submission"
 package_acceptance_status = "A trial MSIX reached Partner Center package acceptance/device-family availability after manifest identity/display alignment. This is not certification, publication, or Microsoft-signed distribution."
-latest_acceptance_package = "FilingCabinet_0.1.1.0_x64.msix"
+latest_acceptance_package = "filing-cabinet_0.1.1.0_x64.msix"
 notes = "The Store product identity is reserved as Filing Cabinet / Aptlantis.FilingCabinet. Package.appxmanifest now matches the accepted first-gate identity/display pattern. Public Windows distribution still requires cleaned release records, rebuilt final Store candidate, Partner Center certification, publication, and Store-signed package verification."
 
 [release.msix_development]
@@ -219,14 +219,14 @@ msix_hashing = "Release Hasher wrote filing-cabinet_0.1.1.0_x64.hashmanifest.tom
 release_signing = "MSIX is self-signed-development and Get-AuthenticodeSignature reported Valid for CN=Aptlantis on 2026-08-20; historical MSI is unsigned / NotSigned"
 
 [[datasets]]
-name = "FilingCabinet catalog"
+name = "Filing Cabinet catalog"
 description = "Local JSON catalog containing vault metadata, artifact records, tags, categories, hashes, extracted text paths, thumbnail paths, activities, and UI preferences."
 format = "JSON"
 size = "User-dependent"
-location = "%APPDATA%/FilingCabinet/catalog.json"
+location = "%APPDATA%/Filing Cabinet/catalog.json"
 
 [[datasets]]
-name = "FilingCabinet vault"
+name = "Filing Cabinet vault"
 description = "Portable retained artifact storage containing items, thumbnails, extracted text, quarantine, and exports."
 format = "Filesystem directory tree"
 size = "User-dependent"
@@ -296,7 +296,7 @@ known_gaps = [
   "The Store product identity has been reserved as Filing Cabinet / Aptlantis.FilingCabinet, Store ID 9N29X9KR70R3, and a trial package reached Partner Center package acceptance/device-family availability after manifest identity/display alignment.",
   "Package.appxmanifest is present and aligned to the accepted Store first-gate pattern; the root .msix package is not currently present on disk and must be rebuilt for the final release candidate.",
   "The v0.1.1 MSIX install, launch, update, uninstall, and shell-integration behavior has not been independently verified by Codex.",
-  "The MSI currently installs the win-x64 single-file payload under C:\\Program Files (x86)\\FilingCabinet and registers the uninstall record in the WOW6432 registry view; this was verified during the 2026-08-17 lifecycle pass and remains historical/local direct-distribution evidence.",
+  "The renamed Windows GUI line should install user-facing application data and documentation under Filing Cabinet names; earlier MSI lifecycle evidence predates the full product rename and remains historical/local direct-distribution evidence.",
   "The historical v1.x installer train is preserved as pre-standard evidence and is not the active governed release line."
 ]
 
@@ -307,7 +307,7 @@ archived_manifests = []
 read_first = ["AGENTS.md", "Filing Cabinet.manifest.toml", "Project-README.md", "README.md"]
 authoritative_docs = ["Filing Cabinet.manifest.toml", "Project-README.md", "AGENTS.md"]
 safe_to_modify = true
-notes = "Current Windows distribution authority is the reserved Microsoft Store identity Filing Cabinet / Aptlantis.FilingCabinet plus the accepted first-gate Package.appxmanifest pattern. Prior self-signed MSIX evidence remains development-only; the final Store candidate must be rebuilt, accepted, certified, published, and Store-signed before release. The installed product, executable, CLI, AppData catalog path, registry keys, shell verbs, historical MSI artifact names, and repository links intentionally retain FilingCabinet compatibility naming until a deliberate product rename pass changes them."
+notes = "Current Windows distribution authority is the reserved Microsoft Store identity Filing Cabinet / Aptlantis.FilingCabinet plus the accepted first-gate Package.appxmanifest pattern. Filing Cabinet is now the canonical product/governance/display name. Compact FilingCabinet identifiers remain only where required or conventional for .NET namespaces, executables, package identity, repository slugs, and artifact filenames. Prior self-signed MSIX evidence remains development-only; the final Store candidate must be rebuilt, accepted, certified, published, and Store-signed before release."
 
 [verification]
 level = "msix-development-package-created"
@@ -372,7 +372,7 @@ current_highlights = [
   "Release verification for v0.1.0 records SHA-256 only with Get-FileHash",
   "Release Hasher produced artifacts/installer/FilingCabinet_msi-0.1.0.0.hashmanifest.toml on 2026-08-20 with SHA-256, BLAKE3-256, and KT128 records for the v0.1.0.0 MSI",
   "Project licensing is now MIT with the full license in LICENSE and a source docs pointer in docs/Filing Cabinet - License.md; the installer script includes LICENSE on the next MSI build",
-  "FilingCabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
+  "Filing Cabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
   "FilingCabinet-0.1.1.0-win-x64.msi was rebuilt and hashed on 2026-08-20 with Release Hasher output in artifacts/installer/FilingCabinet_msi-0.1.1.0.hashmanifest.toml",
   "filing-cabinet_0.1.1.0_x64.msix was built with winapp on 2026-08-20, signed with a self-signed Aptlantis development certificate, and hashed with Release Hasher output in filing-cabinet_0.1.1.0_x64.hashmanifest.toml",
   "Microsoft Partner Center reserved the Store product identity Filing Cabinet with Package/Identity/Name Aptlantis.FilingCabinet, Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0, PFN Aptlantis.FilingCabinet_jfrcsngvdwx7g, and Store ID 9N29X9KR70R3",
@@ -382,7 +382,7 @@ current_highlights = [
   "docs/ was reduced from the full v1.x release/patch/roadmap history to the curated set that ships with the application; durable decisions from retired release notes were folded into the standing conceptual docs before deletion",
   "FilingCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
   "Full MSI lifecycle verification was recorded on 2026-08-17: quiet install, installed docs and shortcuts, shell copy/move registry verbs, installed CLI version, installed WPF launch, and quiet uninstall cleanup",
-  "Project governance identity was reconciled to the current directory name Filing Cabinet while retaining FilingCabinet product, executable, registry, AppData, installer, and repository compatibility names",
+  "Project governance, user-facing product, documentation, and Store display identity were reconciled to the canonical name Filing Cabinet; compact FilingCabinet identifiers remain only for technical identifiers that should not contain spaces",
   "Vault Health is now a dedicated main workspace with Overview, Repairs, Findings, and History sections",
   "Default Vault Health analysis is metadata-first and does not automatically compute or verify retained-file hashes",
   "Verify small hashes is limited to retained files up to 1 GB",

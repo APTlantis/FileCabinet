@@ -100,7 +100,7 @@
   "release": {
     "status": "msix-sideload-dev",
     "version": "0.1.1",
-    "name": "FilingCabinet v0.1.1 - MSIX Development Package",
+    "name": "Filing Cabinet v0.1.1 - MSIX Development Package",
     "date": "2026-08-20",
     "installer": {
       "path": "artifacts/installer/FilingCabinet-0.1.1.0-win-x64.msi",
@@ -161,7 +161,7 @@
       "store_id": "9N29X9KR70R3",
       "planned_submission_method": "Partner Center website upload for first submission",
       "package_acceptance_status": "A trial MSIX reached Partner Center package acceptance/device-family availability after manifest identity/display alignment. This is not certification, publication, or Microsoft-signed distribution.",
-      "latest_acceptance_package": "FilingCabinet_0.1.1.0_x64.msix"
+      "latest_acceptance_package": "filing-cabinet_0.1.1.0_x64.msix"
     },
     "msix_development": {
       "path": "filing-cabinet_0.1.1.0_x64.msix",
@@ -187,14 +187,14 @@
   },
   "datasets": [
     {
-      "name": "FilingCabinet catalog",
+      "name": "Filing Cabinet catalog",
       "description": "Local JSON catalog containing vault metadata, artifact records, tags, categories, hashes, extracted text paths, thumbnail paths, activities, and UI preferences.",
       "format": "JSON",
       "size": "User-dependent",
-      "location": "%APPDATA%/FilingCabinet/catalog.json"
+      "location": "%APPDATA%/Filing Cabinet/catalog.json"
     },
     {
-      "name": "FilingCabinet vault",
+      "name": "Filing Cabinet vault",
       "description": "Portable retained artifact storage containing items, thumbnails, extracted text, quarantine, and exports.",
       "format": "Filesystem directory tree",
       "size": "User-dependent",
@@ -315,11 +315,11 @@
       "Release verification for v0.1.0 records SHA-256 only with Get-FileHash",
       "Release Hasher produced artifacts/installer/FilingCabinet_msi-0.1.0.0.hashmanifest.toml on 2026-08-20 with SHA-256, BLAKE3-256, and KT128 records for the v0.1.0.0 MSI",
       "Project licensing is now MIT with the full license in LICENSE and a source docs pointer in docs/Filing Cabinet - License.md; the installer script includes LICENSE on the next MSI build",
-      "FilingCabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
+      "Filing Cabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
       "FilingCabinet-0.1.1.0-win-x64.msi was rebuilt and hashed on 2026-08-20 with Release Hasher output in artifacts/installer/FilingCabinet_msi-0.1.1.0.hashmanifest.toml",
       "FilingCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
       "Full MSI lifecycle verification was recorded on 2026-08-17: quiet install, installed docs and shortcuts, shell copy/move registry verbs, installed CLI version, installed WPF launch, and quiet uninstall cleanup",
-      "Project governance identity was reconciled to the current directory name Filing Cabinet while retaining FilingCabinet product, executable, registry, AppData, installer, and repository compatibility names",
+      "Project governance, user-facing product, documentation, and Store display identity were reconciled to the canonical name Filing Cabinet; compact FilingCabinet identifiers remain only for technical identifiers that should not contain spaces",
       "Vault Health is now a dedicated main workspace with Overview, Repairs, Findings, and History sections",
       "Default Vault Health analysis is metadata-first and does not automatically compute or verify retained-file hashes",
       "Verify small hashes is limited to retained files up to 1 GB",

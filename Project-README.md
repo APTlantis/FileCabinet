@@ -6,7 +6,7 @@ Filing Cabinet is the governed project for Filing Cabinet, a local-first Windows
 
 ## Governance
 
-- [Filing Cabinet.manifest.toml](File%20Cabinet.manifest.toml)
+- [Filing Cabinet.manifest.toml](Filing%20Cabinet.manifest.toml)
 - [AGENTS.md](AGENTS.md)
 - [User and operator README](README.md)
 - [Desktop Application Release Standard](D:/.library/aptlantis_core/DRS/README.md)
