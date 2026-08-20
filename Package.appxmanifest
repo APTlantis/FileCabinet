@@ -34,7 +34,7 @@
   </Resources>
 
   <Applications>
-    <Application Id="aptlantis.FilingCabinet"
+    <Application Id="filingCabinet"
       Executable="$targetnametoken$.exe"
       EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
