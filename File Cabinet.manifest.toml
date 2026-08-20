@@ -136,12 +136,12 @@ date = "2026-08-20"
 path = "artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi"
 runtime = "win-x64"
 package_version = "0.1.1.0"
-size_bytes = 0
-sha256 = ""
-blake3 = ""
-kangaroo12 = ""
+size_bytes = 131022848
+sha256 = "0E0A9448FF3746143D3FD4A01E7FD754C6C24E63D3BD2B0127E5980DA226640D"
+blake3 = "0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003"
+kangaroo12 = "t1jPp9yz7J3UKZ494pBelZvLK26SVv7fFQPkpjBCiNY2roxVjZDtGsoVr1f7ELNOF/mxk7c1hM//TnkoZahTiKxDKb5Ra5QeSSdjdxb1YkZ/T6Er4PKplv9TcQo22qJqxa5QmeR6x8RE5k+TnWAWoJ8scUhXvtvsbb5nbkKuqXY="
 hash_manifest = "artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml"
-signing = "unsigned; signing pass not performed for v0.1.1"
+signing = "unsigned; Get-AuthenticodeSignature reported NotSigned on 2026-08-20"
 
 [release.signatures.pq]
 path = ""
@@ -160,12 +160,12 @@ detail = "v0.1.1 local-verified installer validation has not generated a detache
 
 [release.verified]
 date = "2026-08-20"
-tests = "pending"
-installer_build = "pending"
+tests = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-20"
+installer_build = "installer/build-installer.ps1 -Version 0.1.1.0 completed on 2026-08-20 after clean restore/publish/package run"
 install_check = "not rerun for v0.1.1; prior v0.1.0 MSI lifecycle verification remains historical evidence"
 data_safety = "v0.1.1 work updates release metadata, documentation payload, and installer artifact; no vault data migration is included"
-release_hashing = "pending Release Hasher output"
-release_signing = "unsigned; signing pass not performed"
+release_hashing = "Release Hasher wrote artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml for artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi with SHA-256 0e0a9448ff3746143d3fd4a01e7fd754c6c24e63d3bd2b0127e5980da226640d, BLAKE3-256 0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003, and KT128"
+release_signing = "unsigned; Get-AuthenticodeSignature reported NotSigned on 2026-08-20"
 
 [[datasets]]
 name = "FileCabinet catalog"
@@ -299,6 +299,8 @@ current_highlights = [
   "Release verification for v0.1.0 records SHA-256 only with Get-FileHash",
   "Release Hasher produced artifacts/installer/FileCabinet_msi-0.1.0.0.hashmanifest.toml on 2026-08-20 with SHA-256, BLAKE3-256, and KT128 records for the v0.1.0.0 MSI",
   "Project licensing is now MIT with the full license in LICENSE and a source docs pointer in docs/FileCabinet - License.md; the installer script includes LICENSE on the next MSI build",
+  "FileCabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
+  "FileCabinet-0.1.1.0-win-x64.msi was rebuilt and hashed on 2026-08-20 with Release Hasher output in artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml",
   "docs/ was reduced from the full v1.x release/patch/roadmap history to the curated set that ships with the application; durable decisions from retired release notes were folded into the standing conceptual docs before deletion",
   "FileCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
   "Full MSI lifecycle verification was recorded on 2026-08-17: quiet install, installed docs and shortcuts, shell copy/move registry verbs, installed CLI version, installed WPF launch, and quiet uninstall cleanup",
@@ -325,4 +327,4 @@ design_boundaries = [
   "Inspectable metadata over opaque ranking",
   "Repairable local vault state over cloud dependency"
 ]
-last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-17 after .NET SDK first-run setup; Get-FileHash SHA-256 matched 112794C704CBAD0ABF2696E5BA962E0039059EFCC1AFB1CE218D95A0D6A764B7; Get-AuthenticodeSignature reported NotSigned; msiexec quiet install completed and wrote artifacts/verification/msi-install-0.1.0.0.log; installed payload was present under C:\\Program Files (x86)\\FileCabinet; FileCabinet.Cli.exe --version returned FileCabinet.Cli 0.1.0; shell copy/move verbs and Start Menu/Desktop shortcuts were present; installed FileCabinet.exe launched with the expected window title; quoted-product-code msiexec quiet uninstall completed and wrote artifacts/verification/msi-uninstall-0.1.0.0.log; installed folder, shortcuts, shell verbs, and uninstall entry were absent after uninstall"
+last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-20; installer/build-installer.ps1 -Version 0.1.1.0 completed cleanly after elevated NuGet access; artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi size was 131022848 bytes; Release Hasher wrote artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml with SHA-256 0e0a9448ff3746143d3fd4a01e7fd754c6c24e63d3bd2b0127e5980da226640d, BLAKE3-256 0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003, and KT128; Get-AuthenticodeSignature reported NotSigned; artifacts/publish/win-x64/FileCabinet.Cli.exe --version returned FileCabinet.Cli 0.1.1; WiX source included LICENSE, FileCabinet - License.md, FileCabinet - Installer Hash Manifest.md, and FileCabinet v0.1.1 - Compliance Alignment Patch.md"

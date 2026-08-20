@@ -17,20 +17,20 @@ Release status: `local-verified`
 
 Verification evidence:
 
-* Tests: `TBD`
-* Installer build: `TBD`
-* Release Hasher: `TBD`
-* Authenticode: `TBD`
+* Tests: `dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore`
+* Installer build: `installer/build-installer.ps1 -Version 0.1.1.0`
+* Release Hasher: `artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml`
+* Authenticode: unsigned / `NotSigned`
 
 Final artifact:
 
 * Path: `artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi`
 * Runtime: `win-x64`
 * Package version: `0.1.1.0`
-* Size: `TBD`
-* SHA-256: `TBD`
-* BLAKE3-256: `TBD`
-* KT128: `TBD`
+* Size: recorded in the hash manifest
+* SHA-256: recorded in the hash manifest
+* BLAKE3-256: recorded in the hash manifest
+* KT128: recorded in the hash manifest
 * Hash manifest: `artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml`
 * License: `MIT`
 * Build date: `2026-08-20`
