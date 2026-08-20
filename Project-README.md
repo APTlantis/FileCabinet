@@ -30,7 +30,7 @@ A prior self-signed development MSIX was recorded with ARHS hash evidence in `fi
 
 The v0.1.0 local release was verified on 2026-08-04 with source build, 104 passing tests, WiX MSI packaging, SHA-256 hashing, unsigned Authenticode status, and launch verification from the published executable. The MSI lifecycle was later verified on 2026-08-17 with quiet install, shell integration checks, installed CLI version, installed WPF launch, installed documentation payload, and quiet uninstall cleanup. That MSI record remains historical/local direct-distribution evidence.
 
-The project is licensed under the MIT License. The current MSIX development package has a dedicated hash manifest at `file-cabinet_0.1.1.0_x64.hashmanifest.toml`. The historical MSI artifact has a separate hash manifest at `artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml`, with a source documentation copy at `docs/FileCabinet - Installer Hash Manifest.md`.
+The project is licensed under the MIT License. The current MSIX development package has a dedicated hash manifest at `file-cabinet_0.1.1.0_x64.hashmanifest.toml`. The historical MSI artifact has a separate hash manifest at `artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml`, with a source documentation copy at `docs/Filing Cabinet - Installer Hash Manifest.md`.
 
 Governance records use the current directory name, **File Cabinet**. Product-facing compatibility names remain **FileCabinet** for the executable, CLI, AppData catalog path, MSI product, registry keys, shell verbs, artifact filenames, and repository links.
 
@@ -46,3 +46,4 @@ Governance records use the current directory name, **File Cabinet**. Product-fac
 ## Verification entry points
 
 Follow `README.md`, the Store-aligned `Package.appxmanifest`, and the DRS MSIX workflow. A public release verification pass must cover source build, tests, MSIX/MSIXUPLOAD creation, Store identity alignment, Partner Center package acceptance, certification status, Store signing authority, ARHS hash evidence for the final accepted package, installation or launch verification, data-safety notes, license inclusion, and documentation/manifests aligned to the resulting artifact.
+

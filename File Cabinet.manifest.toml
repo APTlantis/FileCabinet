@@ -110,10 +110,10 @@ produces = [
   "Package.appxmanifest",
   "artifacts/historical/pre-standard-v1x/FileCabinet-1.7.3.0-win-x64.msi",
   "LICENSE",
-  "docs/FileCabinet - License.md",
-  "docs/FileCabinet - Installer Hash Manifest.md",
-  "docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
-  "docs/FileCabinet — Hash Choices and Compatibility.md",
+  "docs/Filing Cabinet - License.md",
+  "docs/Filing Cabinet - Installer Hash Manifest.md",
+  "docs/Filing Cabinet v0.1.1 - Compliance Alignment Patch.md",
+  "docs/Filing Cabinet — Hash Choices and Compatibility.md",
   "Assets/MaterialSymbolsIconMap.md",
   "Assets/FileCabinet.ico",
   "Assets/FileCabinetLogoMark.png",
@@ -257,26 +257,26 @@ version = 1
 writerside_topic = ""
 readme = "README.md"
 project_readme = "Project-README.md"
-release_notes = "docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md"
-release_checklist = "docs/FileCabinet - Release Checklist.md"
+release_notes = "docs/Filing Cabinet v0.1.1 - Compliance Alignment Patch.md"
+release_checklist = "docs/Filing Cabinet - Release Checklist.md"
 license = "LICENSE"
-license_doc = "docs/FileCabinet - License.md"
-installer_hash_manifest_doc = "docs/FileCabinet - Installer Hash Manifest.md"
+license_doc = "docs/Filing Cabinet - License.md"
+installer_hash_manifest_doc = "docs/Filing Cabinet - Installer Hash Manifest.md"
 theme_overview = "docs/BlueSlate-Theme-Integration-Overview.md"
 core_docs = [
-  "docs/FileCabinet — Vault Lifecycle.md",
-  "docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
-  "docs/FileCabinet - License.md",
-  "docs/FileCabinet - Installer Hash Manifest.md",
-  "docs/FileCabinet — Trust and Verification Model.md",
-  "docs/FileCabinet — Local-First Artifact Preservation.md",
-  "docs/FileCabinet — The Deliberate Retention Tradeoff.md",
-  "docs/FileCabinet — Repair and Recovery Guide.md",
-  "docs/FileCabinet — Designing for Context Preservation.md",
-  "docs/FileCabinet — Why Determinism Matters.md",
-  "docs/FileCabinet — Hash Choices and Compatibility.md",
-  "docs/FileCabinet — Why SHA-256 and BLAKE3.md",
-  "docs/FileCabinet — Why VB.NET and WPF.md"
+  "docs/Filing Cabinet — Vault Lifecycle.md",
+  "docs/Filing Cabinet v0.1.1 - Compliance Alignment Patch.md",
+  "docs/Filing Cabinet - License.md",
+  "docs/Filing Cabinet - Installer Hash Manifest.md",
+  "docs/Filing Cabinet — Trust and Verification Model.md",
+  "docs/Filing Cabinet — Local-First Artifact Preservation.md",
+  "docs/Filing Cabinet — The Deliberate Retention Tradeoff.md",
+  "docs/Filing Cabinet — Repair and Recovery Guide.md",
+  "docs/Filing Cabinet — Designing for Context Preservation.md",
+  "docs/Filing Cabinet — Why Determinism Matters.md",
+  "docs/Filing Cabinet — Hash Choices and Compatibility.md",
+  "docs/Filing Cabinet — Why SHA-256 and BLAKE3.md",
+  "docs/Filing Cabinet — Why VB.NET and WPF.md"
 ]
 
 [links]
@@ -332,7 +332,7 @@ tasks = [
   "Automate later submissions through msstore after the website submission shape is known",
   "Verify Microsoft Store signing before public release claims",
   "Retain WiX MSI as historical/local direct-distribution evidence unless a documented exception is approved",
-  "Include release notes from docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
+  "Include release notes from docs/Filing Cabinet v0.1.1 - Compliance Alignment Patch.md",
   "Document development signing versus public signing authority"
 ]
 
@@ -371,7 +371,7 @@ current_highlights = [
   "Borderless maximize now respects the Windows taskbar work area",
   "Release verification for v0.1.0 records SHA-256 only with Get-FileHash",
   "Release Hasher produced artifacts/installer/FileCabinet_msi-0.1.0.0.hashmanifest.toml on 2026-08-20 with SHA-256, BLAKE3-256, and KT128 records for the v0.1.0.0 MSI",
-  "Project licensing is now MIT with the full license in LICENSE and a source docs pointer in docs/FileCabinet - License.md; the installer script includes LICENSE on the next MSI build",
+  "Project licensing is now MIT with the full license in LICENSE and a source docs pointer in docs/Filing Cabinet - License.md; the installer script includes LICENSE on the next MSI build",
   "FileCabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
   "FileCabinet-0.1.1.0-win-x64.msi was rebuilt and hashed on 2026-08-20 with Release Hasher output in artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml",
   "file-cabinet_0.1.1.0_x64.msix was built with winapp on 2026-08-20, signed with a self-signed Aptlantis development certificate, and hashed with Release Hasher output in file-cabinet_0.1.1.0_x64.hashmanifest.toml",
@@ -406,3 +406,4 @@ design_boundaries = [
   "Repairable local vault state over cloud dependency"
 ]
 last_verified = "Microsoft Partner Center reserved Store identity Filing Cabinet / Aptlantis.FilingCabinet / Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0 / Store ID 9N29X9KR70R3 on 2026-08-20 per operator-provided evidence; Partner Center rejected one trial package when PublisherDisplayName was 81D6747D-F84F-4EFF-ACAA-9635D91ACCD0 instead of Aptlantis, then accepted the package into device-family availability after Package.appxmanifest used Identity Name Aptlantis.FilingCabinet, Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0, DisplayName Filing Cabinet, PublisherDisplayName Aptlantis, and uap VisualElements DisplayName Filing Cabinet; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-20; installer/build-installer.ps1 -Version 0.1.1.0 completed cleanly after elevated NuGet access; artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi size was 131022848 bytes; Release Hasher wrote artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml with SHA-256 0e0a9448ff3746143d3fd4a01e7fd754c6c24e63d3bd2b0127e5980da226640d, BLAKE3-256 0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003, and KT128; Get-AuthenticodeSignature reported NotSigned for the MSI; prior file-cabinet_0.1.1.0_x64.msix evidence recorded size 10623321 bytes and Release Hasher output in file-cabinet_0.1.1.0_x64.hashmanifest.toml with SHA-256 cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727, BLAKE3-256 1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9, and KT128; current follow-up check found Package.appxmanifest aligned but no root .msix on disk; artifacts/publish/win-x64/FileCabinet.Cli.exe --version returned FileCabinet.Cli 0.1.1; WiX source included LICENSE, FileCabinet - License.md, FileCabinet - Installer Hash Manifest.md, and FileCabinet v0.1.1 - Compliance Alignment Patch.md"
+

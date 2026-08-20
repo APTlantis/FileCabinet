@@ -30,11 +30,11 @@ This release keeps the mature vault workflow: Vault Health has its own workspace
 
 Release notes:
 
-- `docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md`
-- `docs/FileCabinet - Release Checklist.md`
-- `docs/FileCabinet - Installer Hash Manifest.md`
+- `docs/Filing Cabinet v0.1.1 - Compliance Alignment Patch.md`
+- `docs/Filing Cabinet - Release Checklist.md`
+- `docs/Filing Cabinet - Installer Hash Manifest.md`
 
-License: MIT. See `LICENSE` and `docs/FileCabinet - License.md`.
+License: MIT. See `LICENSE` and `docs/Filing Cabinet - License.md`.
 
 ## Who FileCabinet Is For
 
@@ -344,3 +344,4 @@ If the app is currently running, Windows may lock `bin\Debug\net10.0-windows\Fil
 ```powershell
 dotnet build FileCabinet.vbproj --no-restore -p:OutputPath=.verify-build\ -p:UseAppHost=false
 ```
+

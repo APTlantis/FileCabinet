@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:FileCabinet"
-        Title="FileCabinet - Personal Vault &amp; Artifact Manager"
+        Title="Filing Cabinet - Personal Vault &amp; Artifact Manager"
         Width="1680"
         Height="1040"
         MinWidth="1180"
@@ -445,7 +445,7 @@
                            Height="18"
                            Stretch="Uniform"
                            VerticalAlignment="Center" />
-                    <TextBlock Text="FileCabinet - Personal Vault &amp; Artifact Manager"
+                    <TextBlock Text="Filing Cabinet - Personal Vault &amp; Artifact Manager"
                                Margin="9,0,0,0"
                                Foreground="{StaticResource PrimaryTextBrush}"
                                FontSize="13"
@@ -454,17 +454,17 @@
                           Foreground="{StaticResource SecondaryTextBrush}"
                           Margin="18,0,0,0"
                           VerticalAlignment="Center">
-                        <MenuItem Header="Settings" Command="{Binding ShowSettingsCommand}" ToolTip="Choose which hashes FileCabinet records and verifies." />
+                        <MenuItem Header="Settings" Command="{Binding ShowSettingsCommand}" ToolTip="Choose which hashes Filing Cabinet records and verifies." />
                         <MenuItem Header="Help">
-                            <MenuItem Header="User Guide" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" ToolTip="Open the main FileCabinet user guide." />
-                            <MenuItem Header="Retention Choices" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — The Deliberate Retention Tradeoff.md" ToolTip="Explain why FileCabinet keeps retained files deliberately instead of cleaning them up automatically." />
-                            <MenuItem Header="Trust and Verification" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Trust and Verification Model.md" ToolTip="Explain how FileCabinet uses hashes, paths, and catalog data to verify artifacts." />
-                            <MenuItem Header="Hash Choices" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Hash Choices and Compatibility.md" ToolTip="Explain integrity hashes and compatibility checksums." />
-                            <MenuItem Header="Repair and Recovery" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Repair and Recovery Guide.md" ToolTip="Explain health findings, safe repairs, and review-only issues." />
-                            <MenuItem Header="Roadmap" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\FileCabinet — Deterministic Vault Roadmap.md" ToolTip="Open planned reliability and preservation improvements." />
+                            <MenuItem Header="User Guide" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="README.md" ToolTip="Open the main Filing Cabinet user guide." />
+                            <MenuItem Header="Retention Choices" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\Filing Cabinet — The Deliberate Retention Tradeoff.md" ToolTip="Explain why Filing Cabinet keeps retained files deliberately instead of cleaning them up automatically." />
+                            <MenuItem Header="Trust and Verification" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\Filing Cabinet — Trust and Verification Model.md" ToolTip="Explain how Filing Cabinet uses hashes, paths, and catalog data to verify artifacts." />
+                            <MenuItem Header="Hash Choices" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\Filing Cabinet — Hash Choices and Compatibility.md" ToolTip="Explain integrity hashes and compatibility checksums." />
+                            <MenuItem Header="Repair and Recovery" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\Filing Cabinet — Repair and Recovery Guide.md" ToolTip="Explain health findings, safe repairs, and review-only issues." />
+                            <MenuItem Header="Why Determinism Matters" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenHelpDocumentCommand}" CommandParameter="docs\Filing Cabinet — Why Determinism Matters.md" ToolTip="Open the determinism and preservation rationale." />
                             <Separator />
                             <MenuItem Header="Open Docs Folder" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding OpenDocsFolderCommand}" />
-                            <MenuItem Header="About FileCabinet" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding ShowAboutCommand}" />
+                            <MenuItem Header="About Filing Cabinet" Foreground="{StaticResource Atl.Brush.TextInverse}" Command="{Binding ShowAboutCommand}" />
                         </MenuItem>
                     </Menu>
                 </StackPanel>
@@ -1583,7 +1583,7 @@
                                 </Grid>
 
                                 <WrapPanel Grid.Row="2">
-                                    <Button Content="Choose Vault" Click="ChooseVaultButton_Click" ToolTip="Select the vault folder FileCabinet should use." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
+                                    <Button Content="Choose Vault" Click="ChooseVaultButton_Click" ToolTip="Select the vault folder Filing Cabinet should use." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="{Binding IngestModeText}" Command="{Binding ToggleIngestModeCommand}" ToolTip="Switch between moving files into the vault and copying files into the vault." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="Backup Catalog" Command="{Binding BackupCatalogCommand}" ToolTip="Create and validate a catalog backup." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
                                     <Button Content="Analyze Health" Command="{Binding RepairCatalogCommand}" ToolTip="Check vault health without changing retained files." Style="{StaticResource ToolButton}" Height="30" Margin="0,0,6,0" />
@@ -1766,3 +1766,4 @@
         </Grid>
     </Border>
 </Window>
+

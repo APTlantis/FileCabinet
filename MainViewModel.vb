@@ -1918,9 +1918,9 @@ Public Class MainViewModel
 
     Private Sub ShowAbout()
         Dim version = GetType(MainViewModel).Assembly.GetName().Version
-        _settingsText = $"FileCabinet {version}{vbCrLf}Personal vault and artifact manager{vbCrLf}{vbCrLf}Local-first, deterministic, inspectable, repairable, and operator-focused."
+        _settingsText = $"Filing Cabinet {version}{vbCrLf}Personal vault and artifact manager{vbCrLf}{vbCrLf}Local-first, deterministic, inspectable, repairable, and operator-focused."
         OnPropertyChanged(NameOf(SettingsText))
-        ActionStatus = "About FileCabinet"
+        ActionStatus = "About Filing Cabinet"
     End Sub
 
     Private Sub OpenDocumentationPath(relativePath As String)
@@ -2234,13 +2234,13 @@ Public Class MainViewModel
     Private Shared Function DefaultHelpDocuments() As List(Of HelpDocumentModel)
         Return New List(Of HelpDocumentModel) From {
             New HelpDocumentModel With {.Title = "User Guide", .RelativePath = "README.md"},
-            New HelpDocumentModel With {.Title = "Deliberate Retention Tradeoff", .RelativePath = "docs\FileCabinet — The Deliberate Retention Tradeoff.md"},
-            New HelpDocumentModel With {.Title = "Trust and Verification Model", .RelativePath = "docs\FileCabinet — Trust and Verification Model.md"},
-            New HelpDocumentModel With {.Title = "Hash Choices and Compatibility", .RelativePath = "docs\FileCabinet — Hash Choices and Compatibility.md"},
-            New HelpDocumentModel With {.Title = "Why SHA-256 and BLAKE3", .RelativePath = "docs\FileCabinet — Why SHA-256 and BLAKE3.md"},
-            New HelpDocumentModel With {.Title = "v1.7.1 Hash Compatibility Patch", .RelativePath = "docs\FileCabinet v1.7.1 — Hash Compatibility Patch.md"},
-            New HelpDocumentModel With {.Title = "Repair and Recovery Guide", .RelativePath = "docs\FileCabinet — Repair and Recovery Guide.md"},
-            New HelpDocumentModel With {.Title = "Roadmaps", .RelativePath = "docs\FileCabinet — Deterministic Vault Roadmap.md"}
+            New HelpDocumentModel With {.Title = "Deliberate Retention Tradeoff", .RelativePath = "docs\Filing Cabinet — The Deliberate Retention Tradeoff.md"},
+            New HelpDocumentModel With {.Title = "Trust and Verification Model", .RelativePath = "docs\Filing Cabinet — Trust and Verification Model.md"},
+            New HelpDocumentModel With {.Title = "Hash Choices and Compatibility", .RelativePath = "docs\Filing Cabinet — Hash Choices and Compatibility.md"},
+            New HelpDocumentModel With {.Title = "Why SHA-256 and BLAKE3", .RelativePath = "docs\Filing Cabinet — Why SHA-256 and BLAKE3.md"},
+            New HelpDocumentModel With {.Title = "Repair and Recovery Guide", .RelativePath = "docs\Filing Cabinet — Repair and Recovery Guide.md"},
+            New HelpDocumentModel With {.Title = "Why Determinism Matters", .RelativePath = "docs\Filing Cabinet — Why Determinism Matters.md"},
+            New HelpDocumentModel With {.Title = "Why VB.NET and WPF", .RelativePath = "docs\Filing Cabinet — Why VB.NET and WPF.md"}
         }
     End Function
 
@@ -4343,7 +4343,7 @@ Public Class MainViewModel
             .FindingType = "Hash verification deferred",
             .Subject = artifact.Name,
             .Detail = $"Retained file is {FormatSize(fileSize)}, above the automatic verification limit of {FormatSize(hashVerificationLimitBytes)}.",
-            .ProposedAction = "Use Verify small hashes or selected hash repair when you want FileCabinet to read and verify retained file bytes.",
+            .ProposedAction = "Use Verify small hashes or selected hash repair when you want Filing Cabinet to read and verify retained file bytes.",
             .RiskLevel = "Low",
             .MutatesCatalog = False,
             .TouchesRetainedFiles = False
@@ -4738,3 +4738,4 @@ Public Class MainViewModel
         RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(propertyName))
     End Sub
 End Class
+
