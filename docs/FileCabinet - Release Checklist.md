@@ -6,11 +6,13 @@ Release status: `msix-sideload-dev`
 
 Current DRS status:
 
-- [x] Development MSIX package exists: `file-cabinet_0.1.1.0_x64.msix`.
-- [x] Development MSIX package is signed with a self-signed Aptlantis certificate.
+- [x] Prior development MSIX package evidence recorded for `file-cabinet_0.1.1.0_x64.msix`.
+- [x] Prior development MSIX package signature recorded as self-signed Aptlantis certificate.
 - [x] ARHS-compatible Release Hasher manifest exists for the MSIX: `file-cabinet_0.1.1.0_x64.hashmanifest.toml`.
-- [x] `Package.appxmanifest` exists with package version `0.1.1.0` and publisher display name `Aptlantis`.
-- [ ] Public Store submission completed with `msstore`.
+- [x] Microsoft Store product identity reserved as `Filing Cabinet` / `Aptlantis.FilingCabinet`.
+- [ ] Store-aligned `Package.appxmanifest` exists with `Package/Identity/Name = Aptlantis.FilingCabinet`, `Package/Identity/Publisher = CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`, and `PublisherDisplayName = Aptlantis`.
+- [ ] Store candidate MSIX/MSIXUPLOAD rebuilt after identity alignment.
+- [ ] Public Store submission completed through Partner Center website upload.
 - [ ] Microsoft Store-signed public package retrieved or verified.
 - [ ] MSIX install, launch, update, uninstall, and shell-integration behavior independently verified by Codex.
 - [ ] Store release notes, screenshots, privacy/category declarations, and package identity reviewed.
@@ -25,6 +27,18 @@ Development MSIX evidence:
 * Certificate subject: `CN=Aptlantis`
 * Certificate thumbprint: `478BEFBC9B81239E0D95C3CC7F6AEECB142C986A`
 * Authenticode status: `Valid`
+
+Reserved Store identity:
+
+* Product name: `Filing Cabinet`
+* Package identity name: `Aptlantis.FilingCabinet`
+* Publisher: `CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`
+* Publisher display name: `Aptlantis`
+* Package family name: `Aptlantis.FilingCabinet_jfrcsngvdwx7g`
+* Package SID: `S-1-15-2-1860814627-1124911970-2441074946-1662115893-3861747353-1868345528-3456606545`
+* Store ID: `9N29X9KR70R3`
+* First submission method: Partner Center website upload
+* Current blocker: root `.msix` package and `Package.appxmanifest` were absent during the Store-identity follow-up check, so the Store candidate must be rebuilt or restored before upload.
 
 Historical/local MSI evidence:
 

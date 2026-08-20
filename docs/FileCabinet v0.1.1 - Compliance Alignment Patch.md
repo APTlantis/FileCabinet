@@ -1,6 +1,6 @@
 # FileCabinet v0.1.1 - Compliance Alignment Patch
 
-FileCabinet v0.1.1 is a small governance and release-evidence patch. It does not introduce a new vault workflow. Its purpose is to make the project easier to adopt, verify, and redistribute under the current DRS process. After the DRS release-policy update, the forward public Windows package path is MSIX submitted through the Microsoft Store; locally self-signed MSIX packages are development/sideload evidence.
+FileCabinet v0.1.1 is a small governance and release-evidence patch. It does not introduce a new vault workflow. Its purpose is to make the project easier to adopt, verify, and redistribute under the current DRS process. After the DRS release-policy update, the forward public Windows package path is MSIX submitted through the Microsoft Store; locally self-signed MSIX packages are development/sideload evidence. The first Store product identity is reserved as `Filing Cabinet` with package identity `Aptlantis.FilingCabinet`.
 
 ---
 
@@ -43,6 +43,17 @@ MSIX hash manifest:
 * `file-cabinet_0.1.1.0_x64.hashmanifest.toml`
 
 Signing status: self-signed development certificate, for sideload/development use only. Public Windows distribution still requires Microsoft Store submission and Store signing.
+
+Reserved Store identity:
+
+* Product name: `Filing Cabinet`
+* Package identity name: `Aptlantis.FilingCabinet`
+* Publisher: `CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`
+* Publisher display name: `Aptlantis`
+* Package family name: `Aptlantis.FilingCabinet_jfrcsngvdwx7g`
+* Store ID: `9N29X9KR70R3`
+
+The Store candidate must be rebuilt with that identity before Partner Center upload.
 
 Historical/local MSI:
 

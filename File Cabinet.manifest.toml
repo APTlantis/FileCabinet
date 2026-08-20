@@ -142,13 +142,21 @@ channel = "msix-sideload-dev"
 signing_authority = "self-signed-development"
 public_windows_default = "microsoft-store-msix"
 public_windows_signing = "microsoft-store-signed"
+store_product_name = "Filing Cabinet"
+store_identity_name = "Aptlantis.FilingCabinet"
+store_identity_publisher = "CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0"
+store_publisher_display_name = "Aptlantis"
+store_package_family_name = "Aptlantis.FilingCabinet_jfrcsngvdwx7g"
+store_package_sid = "S-1-15-2-1860814627-1124911970-2441074946-1662115893-3861747353-1868345528-3456606545"
+store_id = "9N29X9KR70R3"
 store_account_type = "Individual"
 store_account_status = "Active"
 store_seller_id = "95755140"
 store_windows_publisher_id = "Aptlantis"
 store_windows_phone_publisher_id = "e29375e1-9423-47d4-86e6-bfb21b138216"
-store_submission_status = "not-submitted"
-notes = "The local MSIX is a development/sideload package signed with a self-signed Aptlantis certificate. Public Windows distribution requires Microsoft Store submission and Store-signed package verification."
+store_submission_status = "identity-reserved-package-not-submitted"
+planned_submission_method = "Partner Center website upload for first submission"
+notes = "The Store product identity is reserved as Filing Cabinet / Aptlantis.FilingCabinet. The Store candidate package must be rebuilt so Package.appxmanifest matches the Store identity exactly before upload. Public Windows distribution requires Microsoft Store submission and Store-signed package verification."
 
 [release.msix_development]
 path = "file-cabinet_0.1.1.0_x64.msix"
@@ -162,12 +170,13 @@ hash_manifest = "file-cabinet_0.1.1.0_x64.hashmanifest.toml"
 package_manifest = "Package.appxmanifest"
 distribution = "MSIX sideload development"
 signing = "self-signed-development"
+store_identity_aligned = false
 certificate_subject = "CN=Aptlantis"
 certificate_thumbprint = "478BEFBC9B81239E0D95C3CC7F6AEECB142C986A"
 certificate_not_before = "2026-08-20T05:33:13"
 certificate_not_after = "2027-08-20T05:33:13"
-authenticode_status = "Valid"
-status = "created by winapp pack; not Store-submitted; not independently install/launch/uninstall verified by Codex"
+authenticode_status = "Valid on prior local check"
+status = "prior winapp development package evidence; root .msix and Package.appxmanifest were absent during the current Store-identity follow-up check; not Store-submitted; not independently install/launch/uninstall verified by Codex"
 
 [release.installer]
 status = "historical-local-direct-distribution-evidence"
@@ -281,7 +290,8 @@ data_path = "User-selected vault root"
 stability = "stable"
 active_development = false
 known_gaps = [
-  "The local v0.1.1 MSIX is self-signed development evidence only; it has not been submitted through Microsoft Store and no Microsoft-signed public package has been verified.",
+  "The Store product identity has been reserved as Filing Cabinet / Aptlantis.FilingCabinet, Store ID 9N29X9KR70R3, but the Store-aligned MSIX/MSIXUPLOAD has not been rebuilt or submitted.",
+  "The prior v0.1.1 MSIX hash manifest remains at the project root, but the root .msix package and Package.appxmanifest were absent during the current Store-identity follow-up check.",
   "The v0.1.1 MSIX install, launch, update, uninstall, and shell-integration behavior has not been independently verified by Codex.",
   "The MSI currently installs the win-x64 single-file payload under C:\\Program Files (x86)\\FileCabinet and registers the uninstall record in the WOW6432 registry view; this was verified during the 2026-08-17 lifecycle pass and remains historical/local direct-distribution evidence.",
   "The historical v1.x installer train is preserved as pre-standard evidence and is not the active governed release line."
@@ -294,11 +304,11 @@ archived_manifests = []
 read_first = ["AGENTS.md", "File Cabinet.manifest.toml", "Project-README.md", "README.md"]
 authoritative_docs = ["File Cabinet.manifest.toml", "Project-README.md", "AGENTS.md"]
 safe_to_modify = true
-notes = "Current Windows distribution authority is the v0.1.1 self-signed MSIX development package plus DRS Store-submission target. The installed product, executable, CLI, AppData catalog path, registry keys, shell verbs, historical MSI artifact names, and repository links intentionally retain FileCabinet compatibility naming."
+notes = "Current Windows distribution authority is the reserved Microsoft Store identity Filing Cabinet / Aptlantis.FilingCabinet plus the DRS Store-submission target. Prior self-signed MSIX evidence remains development-only and must be rebuilt/aligned before Store upload. The installed product, executable, CLI, AppData catalog path, registry keys, shell verbs, historical MSI artifact names, and repository links intentionally retain FileCabinet compatibility naming."
 
 [verification]
 level = "msix-development-package-created"
-evidence = "dotnet test, rebuilt v0.1.1 MSI artifact, local v0.1.1 self-signed MSIX package, Release Hasher SHA-256/BLAKE3-256/KT128 manifests for MSI and MSIX, Authenticode valid check for the development MSIX, Authenticode unsigned check for historical MSI, CLI version check, and installer documentation payload inspection"
+evidence = "Reserved Store product identity for Filing Cabinet / Aptlantis.FilingCabinet, prior dotnet test evidence, rebuilt v0.1.1 MSI artifact, prior local v0.1.1 self-signed MSIX package evidence, Release Hasher SHA-256/BLAKE3-256/KT128 manifests for MSI and MSIX, prior Authenticode valid check for the development MSIX, Authenticode unsigned check for historical MSI, CLI version check, and installer documentation payload inspection"
 reviewed = "2026-08-20"
 build_verified = true
 tests_verified = true
@@ -306,15 +316,17 @@ artifact_verified = true
 release_verified = false
 
 [automation]
-build = "dotnet restore; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; dotnet build --configuration Release; winapp manifest update-assets <logo-source>; winapp cert generate --if-exists skip; winapp pack .\\bin\\Release\\net10.0-windows --manifest .\\Package.appxmanifest --cert .\\devcert.pfx; D:\\CTS\\Release Hasher\\cmd\\release-hasher\\release-hasher.exe --project-name FileCabinet_msix --version 0.1.1.0 --output file-cabinet_0.1.1.0_x64.hashmanifest.toml --overwrite file-cabinet_0.1.1.0_x64.msix"
-deploy = "Public Windows GUI deployment requires msstore submission and Microsoft Store signing; local self-signed MSIX is development/sideload only."
+build = "dotnet restore; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore; dotnet build --configuration Release; winapp manifest update-assets <logo-source>; ensure Package.appxmanifest matches Store identity Aptlantis.FilingCabinet / CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0 / Aptlantis; winapp pack .\\bin\\Release\\net10.0-windows --manifest .\\Package.appxmanifest; D:\\CTS\\Release Hasher\\cmd\\release-hasher\\release-hasher.exe --project-name FilingCabinet_msix --version 0.1.1.0 --output filing-cabinet_0.1.1.0_x64.hashmanifest.toml --overwrite <store-candidate-msix-or-msixupload>"
+deploy = "First public Windows GUI submission is planned through Partner Center website upload for Store ID 9N29X9KR70R3; public release requires Microsoft certification and Store signing."
 tasks = [
   "Run unit tests",
   "Build self-contained Windows x64 publish output",
+  "Regenerate or restore Package.appxmanifest with Store identity Aptlantis.FilingCabinet and publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0",
   "Refresh MSIX app assets from a reviewed logo source when assets are missing or stale",
-  "Build self-signed MSIX development package with winapp",
-  "Record Release Hasher SHA-256, BLAKE3-256, and KT128 output for the MSIX",
-  "Submit public Windows package through msstore/Microsoft Store when publication is requested",
+  "Build MSIX/MSIXUPLOAD candidate with winapp",
+  "Record Release Hasher SHA-256, BLAKE3-256, and KT128 output for the Store candidate package",
+  "Submit first public Windows package through Partner Center website upload for Microsoft certification feedback",
+  "Automate later submissions through msstore after the website submission shape is known",
   "Verify Microsoft Store signing before public release claims",
   "Retain WiX MSI as historical/local direct-distribution evidence unless a documented exception is approved",
   "Include release notes from docs/FileCabinet v0.1.1 - Compliance Alignment Patch.md",
@@ -360,6 +372,8 @@ current_highlights = [
   "FileCabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
   "FileCabinet-0.1.1.0-win-x64.msi was rebuilt and hashed on 2026-08-20 with Release Hasher output in artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml",
   "file-cabinet_0.1.1.0_x64.msix was built with winapp on 2026-08-20, signed with a self-signed Aptlantis development certificate, and hashed with Release Hasher output in file-cabinet_0.1.1.0_x64.hashmanifest.toml",
+  "Microsoft Partner Center reserved the Store product identity Filing Cabinet with Package/Identity/Name Aptlantis.FilingCabinet, Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0, PFN Aptlantis.FilingCabinet_jfrcsngvdwx7g, and Store ID 9N29X9KR70R3",
+  "The Store candidate package must be rebuilt with the reserved Store identity before Partner Center upload; the prior development package identity is not Store-aligned",
   "Public Windows GUI distribution now targets Microsoft Store MSIX with Microsoft signing; the local self-signed MSIX is not a public release artifact",
   "docs/ was reduced from the full v1.x release/patch/roadmap history to the curated set that ships with the application; durable decisions from retired release notes were folded into the standing conceptual docs before deletion",
   "FileCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
@@ -387,4 +401,4 @@ design_boundaries = [
   "Inspectable metadata over opaque ranking",
   "Repairable local vault state over cloud dependency"
 ]
-last_verified = "dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-20; installer/build-installer.ps1 -Version 0.1.1.0 completed cleanly after elevated NuGet access; artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi size was 131022848 bytes; Release Hasher wrote artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml with SHA-256 0e0a9448ff3746143d3fd4a01e7fd754c6c24e63d3bd2b0127e5980da226640d, BLAKE3-256 0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003, and KT128; Get-AuthenticodeSignature reported NotSigned for the MSI; file-cabinet_0.1.1.0_x64.msix size was 10623321 bytes; Release Hasher wrote file-cabinet_0.1.1.0_x64.hashmanifest.toml with SHA-256 cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727, BLAKE3-256 1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9, and KT128; Get-AuthenticodeSignature reported Valid for the self-signed development certificate CN=Aptlantis thumbprint 478BEFBC9B81239E0D95C3CC7F6AEECB142C986A; artifacts/publish/win-x64/FileCabinet.Cli.exe --version returned FileCabinet.Cli 0.1.1; WiX source included LICENSE, FileCabinet - License.md, FileCabinet - Installer Hash Manifest.md, and FileCabinet v0.1.1 - Compliance Alignment Patch.md"
+last_verified = "Microsoft Partner Center reserved Store identity Filing Cabinet / Aptlantis.FilingCabinet / Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0 / Store ID 9N29X9KR70R3 on 2026-08-20 per operator-provided evidence; dotnet test FileCabinet.Tests/FileCabinet.Tests.vbproj --configuration Release --no-restore exited 0 on 2026-08-20; installer/build-installer.ps1 -Version 0.1.1.0 completed cleanly after elevated NuGet access; artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi size was 131022848 bytes; Release Hasher wrote artifacts/installer/FileCabinet_msi-0.1.1.0.hashmanifest.toml with SHA-256 0e0a9448ff3746143d3fd4a01e7fd754c6c24e63d3bd2b0127e5980da226640d, BLAKE3-256 0ea3ca698909bb293b4d6c9cd2229120913fabe140916beddbb725fcaf18b003, and KT128; Get-AuthenticodeSignature reported NotSigned for the MSI; prior file-cabinet_0.1.1.0_x64.msix evidence recorded size 10623321 bytes and Release Hasher output in file-cabinet_0.1.1.0_x64.hashmanifest.toml with SHA-256 cfbaf1b290540ef1a472fb9f934d3096707a51ee4fab289055559d1894b36727, BLAKE3-256 1588327aa71aa1e2f0fa8f95831457a75ffc578f8921f606250f6d2067309ad9, and KT128; current follow-up check did not find the root .msix or Package.appxmanifest on disk; artifacts/publish/win-x64/FileCabinet.Cli.exe --version returned FileCabinet.Cli 0.1.1; WiX source included LICENSE, FileCabinet - License.md, FileCabinet - Installer Hash Manifest.md, and FileCabinet v0.1.1 - Compliance Alignment Patch.md"

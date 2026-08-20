@@ -16,7 +16,15 @@ File Cabinet is the governed project for FileCabinet, a local-first Windows desk
 
 Version `0.1.1` is the active governed stable release line. The prior v1.x installer train is retained as pre-standard historical evidence and no longer acts as current release authority.
 
-The forward public Windows release path is MSIX submitted through the Microsoft Store, where the Store signs the public package. A local self-signed development MSIX exists at `file-cabinet_0.1.1.0_x64.msix`, with ARHS hash evidence in `file-cabinet_0.1.1.0_x64.hashmanifest.toml`; that package is sideload/development evidence, not a public Store release.
+The forward public Windows release path is MSIX submitted through the Microsoft Store, where the Store signs the public package. The first Store product identity is reserved as **Filing Cabinet**:
+
+- Package identity name: `Aptlantis.FilingCabinet`
+- Publisher: `CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`
+- Publisher display name: `Aptlantis`
+- Package family name: `Aptlantis.FilingCabinet_jfrcsngvdwx7g`
+- Store ID: `9N29X9KR70R3`
+
+A prior self-signed development MSIX was recorded with ARHS hash evidence in `file-cabinet_0.1.1.0_x64.hashmanifest.toml`; that package is sideload/development evidence, not a public Store release. During the Store-identity follow-up check, the root `.msix` and `Package.appxmanifest` were absent on disk, so the Store candidate must be rebuilt with the reserved identity before Partner Center upload.
 
 The v0.1.0 local release was verified on 2026-08-04 with source build, 104 passing tests, WiX MSI packaging, SHA-256 hashing, unsigned Authenticode status, and launch verification from the published executable. The MSI lifecycle was later verified on 2026-08-17 with quiet install, shell integration checks, installed CLI version, installed WPF launch, installed documentation payload, and quiet uninstall cleanup. That MSI record remains historical/local direct-distribution evidence.
 
@@ -35,4 +43,4 @@ Governance records use the current directory name, **File Cabinet**. Product-fac
 
 ## Verification entry points
 
-Follow `README.md`, `Package.appxmanifest`, and the DRS MSIX workflow. A public release verification pass must cover source build, tests, MSIX creation, Store submission status, Store signing authority, ARHS hash evidence, installation or launch verification, data-safety notes, license inclusion, and documentation/manifests aligned to the resulting artifact.
+Follow `README.md`, the Store-aligned `Package.appxmanifest`, and the DRS MSIX workflow. A public release verification pass must cover source build, tests, MSIX/MSIXUPLOAD creation, Store identity alignment, Store submission status, Store signing authority, ARHS hash evidence, installation or launch verification, data-safety notes, license inclusion, and documentation/manifests aligned to the resulting artifact.

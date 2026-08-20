@@ -14,11 +14,17 @@ The v0.1.1 compliance alignment patch keeps the stable vault workflow from `0.1.
 
 Current Windows package evidence:
 
-- Development MSIX: `file-cabinet_0.1.1.0_x64.msix`
+- Reserved Store product name: `Filing Cabinet`
+- Store identity: `Aptlantis.FilingCabinet`
+- Store publisher: `CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`
+- Store ID: `9N29X9KR70R3`
+- Development MSIX: prior local evidence for `file-cabinet_0.1.1.0_x64.msix`
 - MSIX hash manifest: `file-cabinet_0.1.1.0_x64.hashmanifest.toml`
 - MSIX signing: self-signed development certificate for sideload testing
-- Public Windows target: Microsoft Store MSIX, signed by Microsoft after Store submission
+- Public Windows target: rebuild a Store-identity-aligned MSIX/MSIXUPLOAD, upload through Partner Center, then rely on Microsoft Store signing after certification
 - Historical/local MSI evidence: `artifacts/installer/FileCabinet-0.1.1.0-win-x64.msi`
+
+The root `.msix` package and `Package.appxmanifest` were not present during the Store-identity follow-up check, so they need to be regenerated or restored before the first Partner Center upload.
 
 This release keeps the mature vault workflow: Vault Health has its own workspace, default analysis is metadata-first, large-file hash reads stay explicit, and bulk repair selection remains available for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
 
