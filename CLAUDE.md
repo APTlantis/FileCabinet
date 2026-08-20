@@ -13,7 +13,7 @@ Before working on any release-related task, read in this order:
 
 File Cabinet is the governed project for FileCabinet, a local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts. It targets `.NET 10.0-windows` and is written entirely in VB.NET with WPF.
 
-Current version: **0.1.0**. Lifecycle state: **maintenance**. The v0.1.0 MSI artifact is locally verified, including the full install, shell integration, installed launch, and uninstall lifecycle recorded on 2026-08-17.
+Current version: **0.1.1**. Lifecycle state: **maintenance**. The v0.1.1 MSI artifact is locally verified for tests, rebuild, documentation payload alignment, Release Hasher output, CLI version, and unsigned Authenticode status. The v0.1.0 MSI artifact retains the most recent full install, shell integration, installed launch, and uninstall lifecycle evidence from 2026-08-17.
 
 ## Solution structure
 
@@ -52,10 +52,10 @@ dotnet test FileCabinet.Tests\FileCabinet.Tests.vbproj --configuration Release -
 dotnet test FileCabinet.Tests\FileCabinet.Tests.vbproj --no-restore --filter "ClassName=FileCabinet.Tests.HashServiceTests"
 
 # Build the MSI installer (publishes self-contained win-x64 first, then creates the MSI)
-.\installer\build-installer.ps1 -Version 0.1.0.0
+.\installer\build-installer.ps1 -Version 0.1.1.0
 
 # Hash the built MSI
-Get-FileHash -Algorithm SHA256 artifacts\installer\FileCabinet-0.1.0.0-win-x64.msi
+D:\CTS\Release Hasher\cmd\release-hasher\release-hasher.exe --project-name FileCabinet_msi --version 0.1.1.0 --output artifacts\installer\FileCabinet_msi-0.1.1.0.hashmanifest.toml --overwrite artifacts\installer\FileCabinet-0.1.1.0-win-x64.msi
 ```
 
 ## Architecture
@@ -134,7 +134,7 @@ A release is only complete when all of these pass:
 1. `dotnet build FileCabinet.slnx --configuration Release --no-restore --no-incremental`
 2. `dotnet test FileCabinet.Tests\FileCabinet.Tests.vbproj --configuration Release --no-restore` (all tests pass)
 3. `.\installer\build-installer.ps1 -Version <version>` completes
-4. `Get-FileHash -Algorithm SHA256 artifacts\installer\FileCabinet-<version>-win-x64.msi` recorded
+4. Release Hasher records SHA-256, BLAKE3-256, and KT128 for `artifacts\installer\FileCabinet-<version>-win-x64.msi`
 5. README, `File Cabinet.manifest.toml`, project file version, and release notes all agree
 6. MSI install creates the installed payload, docs, shortcuts, and shell verbs
 7. Installed CLI reports the expected version

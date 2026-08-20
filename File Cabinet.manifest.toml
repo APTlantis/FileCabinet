@@ -243,7 +243,7 @@ notes = "Current release authority is the v0.1.1 local-verified DRS record for t
 
 [verification]
 level = "local-verified"
-evidence = "dotnet test, existing MSI artifact, SHA-256 hash, Authenticode unsigned check, MSI install, installed shell integration, installed CLI version, installed app launch, installed docs payload, and MSI uninstall"
+evidence = "dotnet test, rebuilt v0.1.1 MSI artifact, Release Hasher SHA-256/BLAKE3-256/KT128 manifest, Authenticode unsigned check, CLI version check, and installer documentation payload inspection"
 reviewed = "2026-08-20"
 build_verified = true
 tests_verified = true
