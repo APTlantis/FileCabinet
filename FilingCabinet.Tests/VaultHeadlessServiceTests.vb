@@ -115,7 +115,7 @@ Namespace FilingCabinet.Tests
                 Dim jsonResult = service.GenerateReport(jsonPath, "json")
 
                 Assert.IsTrue(File.Exists(textResult.OutputPath))
-                StringAssert.Contains(File.ReadAllText(textPath), "FilingCabinet Vault Health Report")
+                StringAssert.Contains(File.ReadAllText(textPath), "Filing Cabinet Vault Health Report")
                 Assert.IsTrue(File.Exists(jsonResult.OutputPath))
                 StringAssert.Contains(File.ReadAllText(jsonPath), "summary")
             Finally

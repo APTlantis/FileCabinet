@@ -1,13 +1,13 @@
-# FilingCabinet Material Symbols Icon Map
+# Filing Cabinet Material Symbols Icon Map
 
-FilingCabinet v1.7.0 uses Material Symbols as the source vocabulary for file and category iconography, with WPF-safe Segoe MDL2 glyph fallbacks in the current desktop UI.
+Filing Cabinet v1.7.0 uses Material Symbols as the source vocabulary for file and category iconography, with WPF-safe Segoe MDL2 glyph fallbacks in the current desktop UI.
 
 Source:
 
 - Google Material Symbols / Material Icons: https://github.com/google/material-design-icons
 - License: Apache 2.0
 
-| FilingCabinet category | Material Symbol source name | WPF fallback role |
+| Filing Cabinet category | Material Symbol source name | WPF fallback role |
 | --- | --- | --- |
 | Images | `image` | image preview/file |
 | Documents | `description` | document |
@@ -25,5 +25,6 @@ Source:
 | Quarantine | `dangerous` | quarantined item |
 | Unknown | `draft` | generic file |
 
-The full Material Symbols repository is intentionally not vendored into FilingCabinet. This curated map keeps the app source small while preserving the selected icon vocabulary and license trail.
+The full Material Symbols repository is intentionally not vendored into Filing Cabinet. This curated map keeps the app source small while preserving the selected icon vocabulary and license trail.
+
 

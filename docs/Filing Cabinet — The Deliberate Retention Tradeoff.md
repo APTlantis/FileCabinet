@@ -1,6 +1,6 @@
-# FilingCabinet — The Deliberate Retention Tradeoff
+# Filing Cabinet — The Deliberate Retention Tradeoff
 
-FilingCabinet is built around a simple tradeoff.
+Filing Cabinet is built around a simple tradeoff.
 
 You do a little more work when an artifact enters the vault so you can get much more value from it later. That work might be choosing copy or move mode, checking the generated category, adding tags, writing a retention reason, recording provenance, or marking the trust state. None of that is as effortless as dropping a file into Downloads and walking away.
 
@@ -21,7 +21,7 @@ At the moment you save an installer, manifest, recovery key, dataset, image, arc
 
 Six months later, that context is weaker. Years later, it may be gone.
 
-FilingCabinet asks for enough structure to preserve that context before it decays.
+Filing Cabinet asks for enough structure to preserve that context before it decays.
 
 ## Effort Scales The Payoff
 
@@ -31,7 +31,7 @@ Even a lightly reviewed artifact with a generated category, a few basic tags, st
 
 But the richer the record, the stronger the future payoff.
 
-When you use the fields FilingCabinet already provides, the artifact becomes much harder to lose:
+When you use the fields Filing Cabinet already provides, the artifact becomes much harder to lose:
 
 - retention reason explains why it was kept
 - why this matters preserves significance
@@ -44,13 +44,13 @@ When you use the fields FilingCabinet already provides, the artifact becomes muc
 
 Future roadmap work should keep expanding that ladder of context while making it easier to climb. Starter values, intake profiles, bulk tools, review queues, and better prompts can reduce friction, but the principle stays the same: the more useful context you put in while the artifact is fresh, the richer and more resilient the vault becomes later.
 
-FilingCabinet can still reward a quick pass. It rewards a careful pass much more.
+Filing Cabinet can still reward a quick pass. It rewards a careful pass much more.
 
 ## Not Every File Belongs Here
 
-FilingCabinet is not trying to replace the normal filesystem.
+Filing Cabinet is not trying to replace the normal filesystem.
 
-Downloads, project folders, scratch directories, and ordinary document folders are still useful. They are fast, loose, and appropriate for daily work. FilingCabinet is for the smaller set of files where future trust matters more than immediate convenience.
+Downloads, project folders, scratch directories, and ordinary document folders are still useful. They are fast, loose, and appropriate for daily work. Filing Cabinet is for the smaller set of files where future trust matters more than immediate convenience.
 
 Good candidates are high-signal artifacts:
 
@@ -68,7 +68,7 @@ The vault is not a junk drawer. It is a deliberate retention space.
 
 The goal is not to make operators suffer through forms.
 
-FilingCabinet should keep reducing friction:
+Filing Cabinet should keep reducing friction:
 
 - starter tags
 - inferred categories
@@ -82,13 +82,13 @@ FilingCabinet should keep reducing friction:
 
 Those features make the up-front work lighter and more repeatable. They should guide the operator through good preservation habits without pretending the operator's judgment is unnecessary.
 
-The best version of FilingCabinet does not remove the human from preservation. It helps the human spend attention where it matters.
+The best version of Filing Cabinet does not remove the human from preservation. It helps the human spend attention where it matters.
 
 ## The Payoff
 
 The reward comes later.
 
-When a retained artifact is needed again, FilingCabinet should help answer:
+When a retained artifact is needed again, Filing Cabinet should help answer:
 
 - What is this?
 - Where did it come from?
@@ -101,4 +101,5 @@ When a retained artifact is needed again, FilingCabinet should help answer:
 That is the value of doing a little work up front. The vault turns a file from something you merely saved into something you can understand, verify, and use again. The more context you preserve at intake and review time, the less likely the artifact is to become anonymous, mistrusted, or effectively lost later.
 
 For the right person and the right artifacts, that tradeoff is worth it.
+
 

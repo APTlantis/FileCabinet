@@ -1,6 +1,7 @@
-# FilingCabinet - License
+# Filing Cabinet - License
 
-FilingCabinet is licensed under the MIT License.
+Filing Cabinet is licensed under the MIT License.
 
 See the repository root `LICENSE` file for the full license text.
+
 

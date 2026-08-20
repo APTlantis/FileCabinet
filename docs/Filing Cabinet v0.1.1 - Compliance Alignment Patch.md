@@ -1,6 +1,6 @@
-# FilingCabinet v0.1.1 - Compliance Alignment Patch
+# Filing Cabinet v0.1.1 - Compliance Alignment Patch
 
-FilingCabinet v0.1.1 is a small governance and release-evidence patch. It does not introduce a new vault workflow. Its purpose is to make the project easier to adopt, verify, and redistribute under the current DRS process. After the DRS release-policy update, the forward public Windows package path is MSIX submitted through the Microsoft Store; locally self-signed MSIX packages are development/sideload evidence. The first Store product identity is reserved as `Filing Cabinet` with package identity `Aptlantis.FilingCabinet`.
+Filing Cabinet v0.1.1 is a small governance and release-evidence patch. It does not introduce a new vault workflow. Its purpose is to make the project easier to adopt, verify, and redistribute under the current DRS process. After the DRS release-policy update, the forward public Windows package path is MSIX submitted through the Microsoft Store; locally self-signed MSIX packages are development/sideload evidence. The first Store product identity is reserved as `Filing Cabinet` with package identity `Aptlantis.FilingCabinet`.
 
 ---
 
@@ -72,7 +72,7 @@ Historical/local MSI:
 MSI hash manifest:
 
 * `artifacts/installer/FilingCabinet_msi-0.1.1.0.hashmanifest.toml`
-* `docs/FilingCabinet - Installer Hash Manifest.md`
+* `docs/Filing Cabinet - Installer Hash Manifest.md`
 
 SHA-256:
 
@@ -88,7 +88,7 @@ KT128:
 
 MSI signing status: unsigned unless a separate signing pass is performed.
 
-License: MIT. See `LICENSE` and `docs/FilingCabinet - License.md`.
+License: MIT. See `LICENSE` and `docs/Filing Cabinet - License.md`.
 
 ---
 
@@ -104,4 +104,5 @@ This patch should be verified with:
 * Manifest, release note, checklist, packaged docs, and installer hash synchronization.
 
 This patch does not replace a full public distribution certification pass. Installer lifecycle verification remains a separate gate when a fresh install/uninstall certification is required.
+
 

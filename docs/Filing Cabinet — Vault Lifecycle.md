@@ -1,6 +1,6 @@
-# FilingCabinet — Vault Lifecycle
+# Filing Cabinet — Vault Lifecycle
 
-FilingCabinet treats a retained file as an artifact with a lifecycle, not as a loose item in a folder.
+Filing Cabinet treats a retained file as an artifact with a lifecycle, not as a loose item in a folder.
 
 The lifecycle is deliberately conservative: every transition should preserve bytes, context, and operator intent. The vault should be easy to inspect years later, even if the original project folder, download page, vendor portal, or working context is gone.
 
@@ -8,7 +8,7 @@ The lifecycle is deliberately conservative: every transition should preserve byt
 
 Capture begins when an operator chooses to retain a file or folder.
 
-FilingCabinet supports both copy and move intake:
+Filing Cabinet supports both copy and move intake:
 
 - Copy intake retains an independent vault copy while leaving the source in place.
 - Move intake transfers ownership to the vault after the retained copy is assembled.
@@ -17,7 +17,7 @@ The important distinction is intent. A file is not merely indexed. It is selecte
 
 ## 2. Classification
 
-After capture, FilingCabinet records deterministic metadata:
+After capture, Filing Cabinet records deterministic metadata:
 
 - original name and source path
 - retained vault path
@@ -31,7 +31,7 @@ Automatic classification is intentionally modest. Operator-authored context rema
 
 ## 3. Enrichment
 
-FilingCabinet enriches artifacts with local generated assets when appropriate:
+Filing Cabinet enriches artifacts with local generated assets when appropriate:
 
 - thumbnails for previewable image files
 - fallback preview cards for retained binary families
@@ -67,7 +67,7 @@ Recovery paths are intentionally explicit:
 - Rescan adoption brings orphan retained files back under catalog management.
 - Delete Forever is the explicit irreversible removal path.
 
-FilingCabinet should make the vault state understandable before it changes the vault state.
+Filing Cabinet should make the vault state understandable before it changes the vault state.
 
 ## 6. Packaging
 
@@ -82,5 +82,6 @@ For cold storage or migration, the CLI can produce a deterministic vault package
 - vault health report
 
 The package is meant to preserve both the files and the operational context needed to trust them later.
+
 
 

@@ -316,7 +316,7 @@ Public Class VaultHeadlessService
         Directory.CreateDirectory(Path.Combine(workingRoot, "repair-logs"))
 
         File.WriteAllText(Path.Combine(workingRoot, "manifest.json"), JsonSerializer.Serialize(New With {
-            .format = "FilingCabinet deterministic vault package",
+            .format = "Filing Cabinet deterministic vault package",
             .version = 1,
             .createdAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             .vaultRoot = catalog.VaultRootPath,
@@ -549,7 +549,7 @@ Public Class VaultHeadlessService
 
     Private Shared Function BuildTextReport(vaultRootPath As String, healthReport As VaultHealthReport, repairReport As VaultRepairReport) As String
         Dim builder As New StringBuilder()
-        builder.AppendLine("FilingCabinet Vault Health Report")
+        builder.AppendLine("Filing Cabinet Vault Health Report")
         builder.AppendLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
         builder.AppendLine($"Vault: {vaultRootPath}")
         builder.AppendLine(healthReport.Summary)

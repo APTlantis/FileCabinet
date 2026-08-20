@@ -1,4 +1,4 @@
-# FilingCabinet - Release Checklist
+# Filing Cabinet - Release Checklist
 
 ## v0.1.1
 
@@ -48,7 +48,7 @@ Historical/local MSI evidence:
 
 - [x] Version number matches project file, CLI project, manifest, and installer package version.
 - [x] MIT license recorded in the project manifest, JSON manifest, top-level `LICENSE`, README, and source docs set.
-- [x] Source release note written: `docs/FilingCabinet v0.1.1 - Compliance Alignment Patch.md`.
+- [x] Source release note written: `docs/Filing Cabinet v0.1.1 - Compliance Alignment Patch.md`.
 - [x] Installer documentation payload rebuilt from the current canonical `docs/` directory.
 - [x] Source build completed through `installer/build-installer.ps1 -Version 0.1.1.0`.
 - [x] Tests passed: `dotnet test FilingCabinet.Tests/FilingCabinet.Tests.vbproj --configuration Release --no-restore`.
@@ -88,22 +88,22 @@ Release status: `local-verified`
 - [x] Tests passed: `dotnet test FilingCabinet.Tests/FilingCabinet.Tests.vbproj --configuration Release` passed 104 tests.
 - [x] Installer build completed: `installer/build-installer.ps1 -Version 0.1.0.0`.
 - [x] CLI version verified from publish output as `FilingCabinet.Cli 0.1.0`.
-- [x] Launch verified from publish output with window title `FilingCabinet - Personal Vault & Artifact Manager`.
+- [x] Launch verified from publish output with window title `Filing Cabinet - Personal Vault & Artifact Manager`.
 - [x] SHA-256 recorded for final installer artifact.
 - [x] Release Hasher manifest recorded SHA-256, BLAKE3-256, and KT128 for the final installer artifact.
 - [x] MIT license recorded in the project manifest, top-level `LICENSE`, README, and source docs set.
 - [x] Signing status recorded as unsigned / `NotSigned`.
 - [x] Full MSI install/uninstall lifecycle verified on 2026-08-17 using the built MSI artifact.
-- [x] Installed shell integration verified: `Copy to FilingCabinet` and `Move to FilingCabinet` verbs pointed to the installed executable.
+- [x] Installed shell integration verified: `Copy to Filing Cabinet` and `Move to Filing Cabinet` verbs pointed to the installed executable.
 - [x] Installed CLI verified as `FilingCabinet.Cli 0.1.0`.
-- [x] Installed app launch verified with window title `FilingCabinet - Personal Vault & Artifact Manager`.
+- [x] Installed app launch verified with window title `Filing Cabinet - Personal Vault & Artifact Manager`.
 - [x] MSI uninstall removed the install folder, Start Menu shortcut folder, public desktop shortcut, shell verb registry keys, and uninstall registry entry.
 
 MSI lifecycle evidence:
 
 * Install log: `artifacts/verification/msi-install-0.1.0.0.log`
 * Uninstall log: `artifacts/verification/msi-uninstall-0.1.0.0.log`
-* Observed install path: `C:\Program Files (x86)\FilingCabinet`
+* Observed install path: `C:\Program Files (x86)\Filing Cabinet`
 * Observed uninstall registry view before cleanup: `HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{4BDF2858-B4B0-47CD-A40C-336EDFA472FE}`
 
 Final artifact:
@@ -118,4 +118,5 @@ Final artifact:
 * Hash manifest: `artifacts/installer/FilingCabinet_msi-0.1.0.0.hashmanifest.toml`
 * License: `MIT`
 * Build date: `2026-08-04`
+
 

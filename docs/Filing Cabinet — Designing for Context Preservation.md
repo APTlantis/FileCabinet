@@ -1,8 +1,8 @@
-# FilingCabinet — Designing for Context Preservation
+# Filing Cabinet — Designing for Context Preservation
 
-FilingCabinet exists because important files often outlive the context that made them important.
+Filing Cabinet exists because important files often outlive the context that made them important.
 
-A retained artifact is not only bytes. It is also source, purpose, risk, verification state, and recovery history. FilingCabinet's design should preserve that surrounding context as carefully as it preserves the file.
+A retained artifact is not only bytes. It is also source, purpose, risk, verification state, and recovery history. Filing Cabinet's design should preserve that surrounding context as carefully as it preserves the file.
 
 ## Context Worth Preserving
 
@@ -21,7 +21,7 @@ This context helps future operators decide whether the artifact is still trustwo
 
 ## Operator Authorship
 
-FilingCabinet should make it easy for operators to add meaningful context:
+Filing Cabinet should make it easy for operators to add meaningful context:
 
 - notes
 - tags
@@ -59,7 +59,7 @@ This allows scheduled verification, cold-storage packaging, and scripted searche
 
 ## Boundary Clarity
 
-FilingCabinet becomes stronger when it remains clear about what it is not:
+Filing Cabinet becomes stronger when it remains clear about what it is not:
 
 - not cloud storage
 - not an enterprise document management system
@@ -69,8 +69,9 @@ FilingCabinet becomes stronger when it remains clear about what it is not:
 
 The positioning is intentionally narrow:
 
-> FilingCabinet is a deterministic local-first vault for preserving high-signal technical artifacts and the operational context surrounding them.
+> Filing Cabinet is a deterministic local-first vault for preserving high-signal technical artifacts and the operational context surrounding them.
 
-FilingCabinet deliberately does not perform PDF page rendering, image-text/OCR extraction, or Windows shell thumbnail extraction. Preview and thumbnail generation stay local and deterministic instead of depending on those heavier, less predictable pipelines.
+Filing Cabinet deliberately does not perform PDF page rendering, image-text/OCR extraction, or Windows shell thumbnail extraction. Preview and thumbnail generation stay local and deterministic instead of depending on those heavier, less predictable pipelines.
+
 
 

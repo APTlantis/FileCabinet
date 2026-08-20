@@ -1,14 +1,14 @@
-# FilingCabinet User Guide
+# Filing Cabinet User Guide
 
 ![.NET Version](https://img.shields.io/badge/.NET-10.0-blue.svg)
 
-FilingCabinet is a local-first desktop vault for digital artifacts you want to keep, find, verify, and recover later. It is not meant to replace your normal folders. Think of it as a deliberate retention space for files that deserve more structure than "somewhere in Downloads" but do not fit neatly into one project folder.
+Filing Cabinet is a local-first desktop vault for digital artifacts you want to keep, find, verify, and recover later. It is not meant to replace your normal folders. Think of it as a deliberate retention space for files that deserve more structure than "somewhere in Downloads" but do not fit neatly into one project folder.
 
 Good candidates include installers, disk images, manifests, configuration files, keys, screenshots, datasets, archives, torrents, generated assets, recovery documents, and research artifacts.
 
 ## Current Release
 
-Current version: **FilingCabinet v0.1.1**.
+Current version: **Filing Cabinet v0.1.1**.
 
 The v0.1.1 compliance alignment patch keeps the stable vault workflow from `0.1.0` and brings the release evidence into current DRS alignment. It publishes the MIT License, records Release Hasher manifests, and establishes the Windows MSIX -> Microsoft Store path as the forward public distribution route. The active Windows package version is `0.1.1.0`.
 
@@ -36,26 +36,26 @@ Release notes:
 
 License: MIT. See `LICENSE` and `docs/Filing Cabinet - License.md`.
 
-## Who FilingCabinet Is For
+## Who Filing Cabinet Is For
 
-FilingCabinet is for people who are willing to do a little more work up front so important files are easier to trust, find, and recover later.
+Filing Cabinet is for people who are willing to do a little more work up front so important files are easier to trust, find, and recover later.
 
-It will usually take more intention than leaving a file in Downloads. You may choose an intake mode, review metadata, add a reason, adjust tags, or mark trust and retention priority. FilingCabinet should keep making that process easier, faster, and more guided, but the basic tradeoff is intentional: the vault asks for a small amount of context while the artifact is still fresh so your future self is not left guessing.
+It will usually take more intention than leaving a file in Downloads. You may choose an intake mode, review metadata, add a reason, adjust tags, or mark trust and retention priority. Filing Cabinet should keep making that process easier, faster, and more guided, but the basic tradeoff is intentional: the vault asks for a small amount of context while the artifact is still fresh so your future self is not left guessing.
 
-The effort scales. Even rudimentary metadata gives you more long-term context than the filesystem provides by itself. The more of FilingCabinet's fields and workflows you use, the richer the future result becomes, and the harder it is for important artifacts to become anonymous or lost over time.
+The effort scales. Even rudimentary metadata gives you more long-term context than the filesystem provides by itself. The more of Filing Cabinet's fields and workflows you use, the richer the future result becomes, and the harder it is for important artifacts to become anonymous or lost over time.
 
-That makes FilingCabinet a better fit for high-signal artifacts than for every casual file. The reward is a vault that can explain what something is, where it came from, why it mattered, whether it changed, and how to recover it when the original context is gone.
+That makes Filing Cabinet a better fit for high-signal artifacts than for every casual file. The reward is a vault that can explain what something is, where it came from, why it mattered, whether it changed, and how to recover it when the original context is gone.
 
 ## The Core Idea
 
-FilingCabinet stores important files inside a selected vault folder and keeps a catalog of what each file is, where it came from, how it was classified, what hashes identify it, and what searchable text was extracted from it.
+Filing Cabinet stores important files inside a selected vault folder and keeps a catalog of what each file is, where it came from, how it was classified, what hashes identify it, and what searchable text was extracted from it.
 
 The app is local-first. Vault files live on your machine, under the vault path you choose. The lightweight application catalog lives in AppData, and the vault itself contains portable subfolders for retained items, exports, quarantine, thumbnails, and extracted text.
 
 Typical vault layout:
 
 ```text
-K:\FilingCabinet\
+K:\Filing Cabinet\
   items\
   catalog\
   quarantine\
@@ -66,7 +66,7 @@ K:\FilingCabinet\
 
 ## Interface And Theme
 
-FilingCabinet uses the **Blue Slate** dark theme. The theme is intentionally semantic rather than decorative:
+Filing Cabinet uses the **Blue Slate** dark theme. The theme is intentionally semantic rather than decorative:
 
 - deep blue-black surfaces carry the shell, sidebars, tables, and inspectors
 - cyan and teal identify focus, primary actions, active navigation, and technical data surfaces
@@ -79,9 +79,9 @@ The goal is fast scanning in dense vault views: bright color should tell you wha
 
 ## Vaults
 
-The vault list in the left sidebar shows the available vault entries. A vault entry points to a folder such as `K:\` or `K:\FilingCabinet`.
+The vault list in the left sidebar shows the available vault entries. A vault entry points to a folder such as `K:\` or `K:\Filing Cabinet`.
 
-Use the folder button beside **VAULTS** to set the selected vault folder. If a stale vault points to a drive you do not have anymore, select it and use the remove button beside the folder button. Removing a vault entry removes it from FilingCabinet's list; it does not delete files from disk.
+Use the folder button beside **VAULTS** to set the selected vault folder. If a stale vault points to a drive you do not have anymore, select it and use the remove button beside the folder button. Removing a vault entry removes it from Filing Cabinet's list; it does not delete files from disk.
 
 The current vault title appears at the top of the main area. Storage and item counts are derived from the catalog and vault state.
 
@@ -89,16 +89,16 @@ The current vault title appears at the top of the main area. Storage and item co
 
 The drop zone is the main intake path. You can drag files or folders onto it, or click it to browse for files.
 
-FilingCabinet supports two intake modes:
+Filing Cabinet supports two intake modes:
 
-- **Move into vault** removes the original after the file is safely copied into the vault. This makes FilingCabinet the owner of that retained artifact.
+- **Move into vault** removes the original after the file is safely copied into the vault. This makes Filing Cabinet the owner of that retained artifact.
 - **Copy into vault** keeps the original where it is and stores a retained copy in the vault.
 
 The active mode is shown directly inside the drop zone as **INTAKE MODE** so you can check it before dropping a batch of files. The mode button under **Ingest Options** toggles between move and copy.
 
-The Windows Explorer context menu also includes **Copy to FilingCabinet** and **Move to FilingCabinet** after installing the historical MSI package. These commands open FilingCabinet and ingest the selected file or folder using that one-time intake mode without changing the app's default drop-zone setting. Equivalent MSIX shell-integration behavior has not been independently verified yet.
+The Windows Explorer context menu also includes **Copy to Filing Cabinet** and **Move to Filing Cabinet** after installing the historical MSI package. These commands open Filing Cabinet and ingest the selected file or folder using that one-time intake mode without changing the app's default drop-zone setting. Equivalent MSIX shell-integration behavior has not been independently verified yet.
 
-When a file is ingested, FilingCabinet:
+When a file is ingested, Filing Cabinet:
 
 - places it under `items\yyyy\MM\`
 - avoids filename collisions by renaming safely
@@ -142,7 +142,7 @@ The density toggle is only a display preference. It does not change catalog data
 
 The right panel shows the selected artifact.
 
-For images, FilingCabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card with a category-aware Blue Slate accent.
+For images, Filing Cabinet generates a cached thumbnail under the vault's `thumbnails` folder and uses it for preview. For text-like files, it renders a text preview. For unsupported binary formats such as archives, installers, disk images, and other retained files, it keeps the file as a first-class artifact and shows a format-aware fallback card with a category-aware Blue Slate accent.
 
 The **Preview & Relations** tab pairs the preview box with the top related-artifact matches. Relations are capped to a compact top-five list in the panel and show inspectable reasons such as shared tags, same category, same source folder, shared extension family, release markers, source provenance, and nearby hash evidence.
 
@@ -215,7 +215,7 @@ The action grid in the right panel contains the operational file actions.
 
 **Add Tags** adds a starter `review` tag to the edit box. Save the metadata to persist it.
 
-**Hash Check** recomputes hashes for the stored file and updates the hash status. If a stored hash does not match, FilingCabinet reports the mismatch.
+**Hash Check** recomputes hashes for the stored file and updates the hash status. If a stored hash does not match, Filing Cabinet reports the mismatch.
 
 **Quarantine** moves the stored file into the vault's `quarantine` folder and updates the artifact category. This is safer than deleting when you are unsure.
 
@@ -223,7 +223,7 @@ The action grid in the right panel contains the operational file actions.
 
 ## Text Extraction
 
-FilingCabinet extracts text from text-like files during ingest and rescan adoption. Extracted text is stored under `extracted-text\yyyy\MM\` and linked from the artifact record.
+Filing Cabinet extracts text from text-like files during ingest and rescan adoption. Extracted text is stored under `extracted-text\yyyy\MM\` and linked from the artifact record.
 
 This makes retained config files, manifests, scripts, markdown, JSON, TOML, YAML, XML, logs, CSV files, and similar artifacts searchable by content.
 
@@ -231,7 +231,7 @@ Binary files are marked **Not extractable**. Failed extraction is recorded as **
 
 ## Thumbnail Generation
 
-FilingCabinet generates deterministic local thumbnails for image files during ingest and rescan adoption. Thumbnail files are stored under `thumbnails\yyyy\MM\` inside the vault and referenced by the catalog.
+Filing Cabinet generates deterministic local thumbnails for image files during ingest and rescan adoption. Thumbnail files are stored under `thumbnails\yyyy\MM\` inside the vault and referenced by the catalog.
 
 Non-renderable retained artifacts such as installers, archives, torrents, and disk images use format-aware fallback cards instead of shell thumbnails. Repair checks report missing generated thumbnails and attempt to regenerate them when the original vault file is present.
 
@@ -241,7 +241,7 @@ The **Relations** section in the right panel shows the top related artifacts dir
 
 ## Repair, Rescan, And Backups
 
-FilingCabinet includes a few recovery-oriented tools.
+Filing Cabinet includes a few recovery-oriented tools.
 
 **Analyze** checks vault health without mutating retained files. It reports missing stored files, duplicate hash groups, missing hashes, hash mismatches, missing thumbnails, orphan thumbnails, missing extracted-text indexes, stale extracted-text indexes, path rebind candidates, files outside the active vault, and incomplete metadata.
 
@@ -257,20 +257,20 @@ The bottom status strip summarizes vault storage, cataloged size, free space, ac
 
 ## CLI And Headless Operations
 
-FilingCabinet also includes a separate console executable for scripting and scheduled operations:
+Filing Cabinet also includes a separate console executable for scripting and scheduled operations:
 
 ```powershell
 FilingCabinet.Cli.exe --help
-FilingCabinet.Cli.exe ingest --copy --vault K:\FilingCabinet C:\Downloads\artifact.zip
+FilingCabinet.Cli.exe ingest --copy --vault K:\Filing Cabinet C:\Downloads\artifact.zip
 FilingCabinet.Cli.exe verify --fail-on medium --json
 FilingCabinet.Cli.exe search "firmware manifest" --scope all
-FilingCabinet.Cli.exe export --output K:\FilingCabinet\exports
-FilingCabinet.Cli.exe report --format json --output K:\FilingCabinet\exports\health.json
+FilingCabinet.Cli.exe export --output K:\Filing Cabinet\exports
+FilingCabinet.Cli.exe report --format json --output K:\Filing Cabinet\exports\health.json
 FilingCabinet.Cli.exe repair-preview --json
 FilingCabinet.Cli.exe repair --apply --yes
 FilingCabinet.Cli.exe rescan --apply --yes
 FilingCabinet.Cli.exe rebuild-thumbnails --apply --yes
-FilingCabinet.Cli.exe package --output K:\FilingCabinet\exports\FilingCabinetPackage --zip
+FilingCabinet.Cli.exe package --output K:\Filing Cabinet\exports\FilingCabinetPackage --zip
 ```
 
 The CLI writes real stdout/stderr and returns script-friendly exit codes: `0` for success, `1` for command/runtime failure, `2` when verification findings meet the requested threshold, and `3` for partial ingest or partial repair/rebuild. Mutating repair, rescan, and thumbnail rebuild commands require both `--apply` and `--yes`; without `--apply`, they report what would happen.
@@ -279,36 +279,36 @@ The `package` command writes a deterministic vault export containing catalog JSO
 
 ## Preservation Docs
 
-FilingCabinet's preservation model is documented in:
+Filing Cabinet's preservation model is documented in:
 
 ### Preservation Model
 
-- [Vault Lifecycle](docs/FilingCabinet%20%E2%80%94%20Vault%20Lifecycle.md)
-- [Trust and Verification Model](docs/FilingCabinet%20%E2%80%94%20Trust%20and%20Verification%20Model.md)
-- [Local-First Artifact Preservation](docs/FilingCabinet%20%E2%80%94%20Local-First%20Artifact%20Preservation.md)
-- [The Deliberate Retention Tradeoff](docs/FilingCabinet%20%E2%80%94%20The%20Deliberate%20Retention%20Tradeoff.md)
-- [Repair and Recovery Guide](docs/FilingCabinet%20%E2%80%94%20Repair%20and%20Recovery%20Guide.md)
-- [Designing for Context Preservation](docs/FilingCabinet%20%E2%80%94%20Designing%20for%20Context%20Preservation.md)
+- [Vault Lifecycle](docs/Filing Cabinet%20%E2%80%94%20Vault%20Lifecycle.md)
+- [Trust and Verification Model](docs/Filing Cabinet%20%E2%80%94%20Trust%20and%20Verification%20Model.md)
+- [Local-First Artifact Preservation](docs/Filing Cabinet%20%E2%80%94%20Local-First%20Artifact%20Preservation.md)
+- [The Deliberate Retention Tradeoff](docs/Filing Cabinet%20%E2%80%94%20The%20Deliberate%20Retention%20Tradeoff.md)
+- [Repair and Recovery Guide](docs/Filing Cabinet%20%E2%80%94%20Repair%20and%20Recovery%20Guide.md)
+- [Designing for Context Preservation](docs/Filing Cabinet%20%E2%80%94%20Designing%20for%20Context%20Preservation.md)
 
 ### Technical Rationale
 
-- [Installer Hash Manifest](docs/FilingCabinet%20-%20Installer%20Hash%20Manifest.md)
-- [Why Determinism Matters](docs/FilingCabinet%20%E2%80%94%20Why%20Determinism%20Matters.md)
-- [Hash Choices and Compatibility](docs/FilingCabinet%20%E2%80%94%20Hash%20Choices%20and%20Compatibility.md)
-- [Why SHA-256 and BLAKE3](docs/FilingCabinet%20%E2%80%94%20Why%20SHA-256%20and%20BLAKE3.md)
-- [Why VB.NET and WPF](docs/FilingCabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
+- [Installer Hash Manifest](docs/Filing Cabinet%20-%20Installer%20Hash%20Manifest.md)
+- [Why Determinism Matters](docs/Filing Cabinet%20%E2%80%94%20Why%20Determinism%20Matters.md)
+- [Hash Choices and Compatibility](docs/Filing Cabinet%20%E2%80%94%20Hash%20Choices%20and%20Compatibility.md)
+- [Why SHA-256 and BLAKE3](docs/Filing Cabinet%20%E2%80%94%20Why%20SHA-256%20and%20BLAKE3.md)
+- [Why VB.NET and WPF](docs/Filing Cabinet%20%E2%80%94%20Why%20VB.NET%20and%20WPF.md)
 - [Blue Slate Theme Integration Overview](docs/BlueSlate-Theme-Integration-Overview.md)
-- [License](docs/FilingCabinet%20-%20License.md)
+- [License](docs/Filing Cabinet%20-%20License.md)
 
 ### Release Notes
 
-- [v0.1.1 - Compliance Alignment Patch](docs/FilingCabinet%20v0.1.1%20-%20Compliance%20Alignment%20Patch.md)
-- [v0.1.0 - Stable Vault Release](docs/FilingCabinet%20v0.1.0%20-%20Stable%20Vault%20Release.md)
-- [Release Checklist](docs/FilingCabinet%20-%20Release%20Checklist.md)
+- [v0.1.1 - Compliance Alignment Patch](docs/Filing Cabinet%20v0.1.1%20-%20Compliance%20Alignment%20Patch.md)
+- [v0.1.0 - Stable Vault Release](docs/Filing Cabinet%20v0.1.0%20-%20Stable%20Vault%20Release.md)
+- [Release Checklist](docs/Filing Cabinet%20-%20Release%20Checklist.md)
 
 ## Design Boundaries
 
-FilingCabinet is intentionally focused on deliberate curation rather than automatic inference.
+Filing Cabinet is intentionally focused on deliberate curation rather than automatic inference.
 
 Text extraction currently handles text-like files, not image text or scanned PDFs.
 
@@ -318,7 +318,7 @@ Windows shell thumbnails are not used yet. Preview generation is intentionally l
 
 ## Operational Notes
 
-FilingCabinet is designed around cautious ownership:
+Filing Cabinet is designed around cautious ownership:
 
 - Move mode is for files you want the vault to own.
 - Copy mode is for files you want retained without disturbing the original.
@@ -344,5 +344,6 @@ If the app is currently running, Windows may lock `bin\Debug\net10.0-windows\Fil
 ```powershell
 dotnet build FilingCabinet.vbproj --no-restore -p:OutputPath=.verify-build\ -p:UseAppHost=false
 ```
+
 
 
