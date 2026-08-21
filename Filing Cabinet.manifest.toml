@@ -92,6 +92,7 @@ used_by_projects = []
 external_dependencies = [
   ".NET 10",
   "WPF",
+  "Visual Studio Build Tools with Desktop development with C++",
   "WiX Toolset 6.0.2",
   "winapp CLI",
   "Microsoft Store Developer CLI",
@@ -110,6 +111,8 @@ produces = [
   "FilingCabinet-0.1.1.0.hashmanifest.toml.asc",
   "FilingCabinet-0.1.1.0.hashmanifest.toml.sphincs",
   "Package.appxmanifest",
+  "FilingCabinet.ShellExtension/FilingCabinetShellExtension.cpp",
+  "artifacts/shell-extension/x64/Release/FilingCabinetShellExtension.dll",
   "artifacts/historical/pre-standard-v1x/FilingCabinet-1.7.3.0-win-x64.msi",
   "LICENSE",
   "docs/Filing Cabinet - License.md",
@@ -241,6 +244,13 @@ status = "active"
 version = 1
 
 [[scripts]]
+name = "installer/build-msix.ps1"
+language = "PowerShell"
+role = "Builds the packaged Explorer context-menu DLL, builds the WPF app, and packs the MSIX from Package.appxmanifest."
+status = "preferred-msix-development-workflow"
+version = 1
+
+[[scripts]]
 name = "winapp"
 language = "CLI"
 role = "Refreshes MSIX assets, manages Package.appxmanifest, generates development certificates, and packs self-signed MSIX development packages."
@@ -296,6 +306,7 @@ active_development = false
 known_gaps = [
   "The Store product identity has been reserved as Filing Cabinet / Aptlantis.FilingCabinet, Store ID 9N29X9KR70R3, and Aptlantis.FilingCabinet_0.1.1.0_x64.msix has been accepted by Partner Center package validation.",
   "The v0.1.1 Store candidate package is not yet recorded here as certified, published, Microsoft-signed distributed output, or independently install/launch/uninstall verified by Codex.",
+  "The source and Package.appxmanifest now include packaged Explorer context-menu integration; the already accepted MSIX candidate predates that fix and must be rebuilt, reaccepted, and rehashed before release records can claim it.",
   "The renamed Windows GUI line should install user-facing application data and documentation under Filing Cabinet names; earlier MSI lifecycle evidence predates the full product rename and remains historical/local direct-distribution evidence.",
   "The historical v1.x installer train is preserved as pre-standard evidence and is not the active governed release line."
 ]
@@ -319,12 +330,13 @@ artifact_verified = true
 release_verified = false
 
 [automation]
-build = "dotnet restore; dotnet test FilingCabinet.Tests/FilingCabinet.Tests.vbproj --configuration Release --no-restore; dotnet build --configuration Release; winapp manifest update-assets <logo-source>; ensure Package.appxmanifest matches Store identity Aptlantis.FilingCabinet / CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0 / Aptlantis; winapp pack .\\bin\\Release\\net10.0-windows --manifest .\\Package.appxmanifest; D:\\CTS\\Release Hasher\\cmd\\release-hasher\\release-hasher.exe --project-name FilingCabinet --version 0.1.1.0 --output FilingCabinet-0.1.1.0.hashmanifest.toml --overwrite Aptlantis.FilingCabinet_0.1.1.0_x64.msix"
+build = "dotnet restore; dotnet test FilingCabinet.Tests/FilingCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-msix.ps1; D:\\CTS\\Release Hasher\\cmd\\release-hasher\\release-hasher.exe --project-name FilingCabinet --version 0.1.1.0 --output FilingCabinet-0.1.1.0.hashmanifest.toml --overwrite Aptlantis.FilingCabinet_0.1.1.0_x64.msix"
 deploy = "First public Windows GUI package has been uploaded through Partner Center website flow for Store ID 9N29X9KR70R3 and accepted by package validation; public release still requires any remaining certification/publication steps and verification of Microsoft Store signing on the distributed package."
 tasks = [
   "Run unit tests",
   "Build self-contained Windows x64 publish output",
   "Keep Package.appxmanifest aligned with Store identity Aptlantis.FilingCabinet, publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0, DisplayName Filing Cabinet, PublisherDisplayName Aptlantis, and uap VisualElements DisplayName Filing Cabinet",
+  "Build FilingCabinetShellExtension.dll before packing the MSIX so the packaged Explorer context-menu commands are included",
   "Refresh MSIX app assets from a reviewed logo source when assets are missing or stale",
   "Build MSIX/MSIXUPLOAD candidate with winapp",
   "Record Release Hasher SHA-256, BLAKE3-256, and KT128 output for the Store candidate package",
@@ -379,6 +391,7 @@ current_highlights = [
   "FilingCabinet-0.1.1.0.hashmanifest.toml has detached PGP and SLH-DSA signatures for AAMHS/archive-preservation evidence",
   "Microsoft Partner Center reserved the Store product identity Filing Cabinet with Package/Identity/Name Aptlantis.FilingCabinet, Publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0, PFN Aptlantis.FilingCabinet_jfrcsngvdwx7g, and Store ID 9N29X9KR70R3",
   "Partner Center accepted Aptlantis.FilingCabinet_0.1.1.0_x64.msix as version 0.1.1.0, X64, Windows.Desktop min version 10.0.18362.0, language en-us, capabilities runFullTrust and Microsoft.storeFilter.core.notSupported_8wekyb3d8bbwe, file size 9.4 MB",
+  "Package.appxmanifest now registers packaged File Explorer context-menu commands backed by FilingCabinetShellExtension.dll; the accepted 2026-08-20 MSIX must be rebuilt and rehashed before that shell integration is release evidence",
   "The Store candidate package still needs any remaining certification/publication steps and verification of the Microsoft-signed distributed Store package before public release claims",
   "Public Windows GUI distribution now targets Microsoft Store MSIX with Microsoft signing; the local self-signed MSIX is not a public release artifact",
   "docs/ was reduced from the full v1.x release/patch/roadmap history to the curated set that ships with the application; durable decisions from retired release notes were folded into the standing conceptual docs before deletion",

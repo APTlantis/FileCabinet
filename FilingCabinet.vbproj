@@ -40,6 +40,10 @@
   <ItemGroup>
     <Content Include="README.md" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="docs\*.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="artifacts\shell-extension\x64\Release\FilingCabinetShellExtension.dll"
+             Link="FilingCabinetShellExtension.dll"
+             CopyToOutputDirectory="PreserveNewest"
+             Condition="Exists('artifacts\shell-extension\x64\Release\FilingCabinetShellExtension.dll')" />
   </ItemGroup>
 
   <ItemGroup>

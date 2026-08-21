@@ -12,6 +12,7 @@ Current DRS status:
 - [x] Detached SLH-DSA signature exists for the hash manifest: `FilingCabinet-0.1.1.0.hashmanifest.toml.sphincs`.
 - [x] Microsoft Store product identity reserved as `Filing Cabinet` / `Aptlantis.FilingCabinet`.
 - [x] Store-aligned `Package.appxmanifest` exists with `Package/Identity/Name = Aptlantis.FilingCabinet`, `Package/Identity/Publisher = CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`, `DisplayName = Filing Cabinet`, `PublisherDisplayName = Aptlantis`, and `uap:VisualElements DisplayName = Filing Cabinet`.
+- [ ] Rebuild and rehash the Store MSIX after the packaged Explorer context-menu extension is included.
 - [x] Store candidate package accepted by Partner Center package validation.
 - [x] Product naming and documentation cleanup completed before final release candidate.
 - [x] Final accepted package hashed with Release Hasher after Partner Center accepts the package.

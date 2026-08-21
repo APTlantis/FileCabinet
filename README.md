@@ -101,7 +101,7 @@ Filing Cabinet supports two intake modes:
 
 The active mode is shown directly inside the drop zone as **INTAKE MODE** so you can check it before dropping a batch of files. The mode button under **Ingest Options** toggles between move and copy.
 
-The Windows Explorer context menu also includes **Copy to Filing Cabinet** and **Move to Filing Cabinet** after installing the historical MSI package. These commands open Filing Cabinet and ingest the selected file or folder using that one-time intake mode without changing the app's default drop-zone setting. Equivalent MSIX shell-integration behavior has not been independently verified yet.
+The Windows Explorer context menu includes **Copy to Filing Cabinet** and **Move to Filing Cabinet**. The historical MSI registers classic registry verbs. The MSIX package manifest registers packaged File Explorer commands backed by `FilingCabinetShellExtension.dll`, which opens Filing Cabinet and ingests the selected files, folders, or drives using that one-time intake mode without changing the app's default drop-zone setting.
 
 When a file is ingested, Filing Cabinet:
 
@@ -342,6 +342,12 @@ Useful commands:
 ```powershell
 dotnet build FilingCabinet.vbproj --no-restore
 dotnet test FilingCabinet.Tests\FilingCabinet.Tests.vbproj --no-restore
+```
+
+MSIX packages that include Explorer context-menu integration must build the native shell-extension DLL before packing:
+
+```powershell
+installer\build-msix.ps1
 ```
 
 If the app is currently running, Windows may lock `bin\Debug\net10.0-windows\FilingCabinet.exe`. For verification while the app is open, build without an app host into a temporary output path:

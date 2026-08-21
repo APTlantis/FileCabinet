@@ -56,6 +56,7 @@
     "external_dependencies": [
       ".NET 10",
       "WPF",
+      "Visual Studio Build Tools with Desktop development with C++",
       "WiX Toolset 6.0.2",
       "Blake3 2.2.1",
       "StreamHash 1.11.3",
@@ -75,6 +76,8 @@
       "FilingCabinet-0.1.1.0.hashmanifest.toml.asc",
       "FilingCabinet-0.1.1.0.hashmanifest.toml.sphincs",
       "Package.appxmanifest",
+      "FilingCabinet.ShellExtension/FilingCabinetShellExtension.cpp",
+      "artifacts/shell-extension/x64/Release/FilingCabinetShellExtension.dll",
       "LICENSE",
       "docs/Filing Cabinet - License.md",
       "docs/Filing Cabinet - Installer Hash Manifest.md",
@@ -217,6 +220,13 @@
       "version": 1
     },
     {
+      "name": "installer/build-msix.ps1",
+      "language": "PowerShell",
+      "role": "Builds the packaged Explorer context-menu DLL, builds the WPF app, and packs the MSIX from Package.appxmanifest.",
+      "status": "preferred-msix-development-workflow",
+      "version": 1
+    },
+    {
       "name": "winapp",
       "language": "CLI",
       "role": "Refreshes MSIX assets, manages Package.appxmanifest, generates development certificates, and packs self-signed MSIX development packages.",
@@ -268,12 +278,13 @@
     "data_path": "User-selected vault root"
   },
   "automation": {
-    "build": "dotnet restore; dotnet test FilingCabinet.Tests/FilingCabinet.Tests.vbproj --configuration Release --no-restore; dotnet build --configuration Release; winapp manifest update-assets <logo-source>; ensure Package.appxmanifest matches Store identity Aptlantis.FilingCabinet / CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0 / Aptlantis; winapp pack .\\\\bin\\\\Release\\\\net10.0-windows --manifest .\\\\Package.appxmanifest; D:\\\\CTS\\\\Release Hasher\\\\cmd\\\\release-hasher\\\\release-hasher.exe --project-name FilingCabinet --version 0.1.1.0 --output FilingCabinet-0.1.1.0.hashmanifest.toml --overwrite Aptlantis.FilingCabinet_0.1.1.0_x64.msix",
+    "build": "dotnet restore; dotnet test FilingCabinet.Tests/FilingCabinet.Tests.vbproj --configuration Release --no-restore; installer/build-msix.ps1; D:\\\\CTS\\\\Release Hasher\\\\cmd\\\\release-hasher\\\\release-hasher.exe --project-name FilingCabinet --version 0.1.1.0 --output FilingCabinet-0.1.1.0.hashmanifest.toml --overwrite Aptlantis.FilingCabinet_0.1.1.0_x64.msix",
     "deploy": "First public Windows GUI package has been uploaded through Partner Center website flow for Store ID 9N29X9KR70R3 and accepted by package validation; public release still requires any remaining certification/publication steps and verification of Microsoft Store signing on the distributed package.",
     "tasks": [
       "Run unit tests",
       "Build self-contained Windows x64 publish output",
       "Keep Package.appxmanifest aligned with Store identity Aptlantis.FilingCabinet, publisher CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0, DisplayName Filing Cabinet, PublisherDisplayName Aptlantis, and uap VisualElements DisplayName Filing Cabinet",
+      "Build FilingCabinetShellExtension.dll before packing the MSIX so the packaged Explorer context-menu commands are included",
       "Refresh MSIX app assets from a reviewed logo source when assets are missing or stale",
       "Complete product naming and documentation cleanup before final release candidate",
       "Build MSIX/MSIXUPLOAD candidate with winapp",
@@ -324,6 +335,7 @@
       "Project licensing is now MIT with the full license in LICENSE and a source docs pointer in docs/Filing Cabinet - License.md; the installer script includes LICENSE on the next MSI build",
       "Filing Cabinet v0.1.1 is a compliance alignment patch that synchronizes MIT licensing, Release Hasher output, canonical documentation payload, release note, checklist, manifests, and installer identity",
       "FilingCabinet-0.1.1.0-win-x64.msi was rebuilt and hashed on 2026-08-20 with Release Hasher output in artifacts/installer/FilingCabinet_msi-0.1.1.0.hashmanifest.toml",
+      "Package.appxmanifest now registers packaged File Explorer context-menu commands backed by FilingCabinetShellExtension.dll; the accepted 2026-08-20 MSIX must be rebuilt and rehashed before that shell integration is release evidence",
       "FilingCabinet-0.1.0.0-win-x64.msi was rebuilt and SHA-256 hashed on 2026-08-04 after the documentation reset",
       "Full MSI lifecycle verification was recorded on 2026-08-17: quiet install, installed docs and shortcuts, shell copy/move registry verbs, installed CLI version, installed WPF launch, and quiet uninstall cleanup",
       "Project governance, user-facing product, documentation, and Store display identity were reconciled to the canonical name Filing Cabinet; compact FilingCabinet identifiers remain only for technical identifiers that should not contain spaces",

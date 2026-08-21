@@ -47,6 +47,7 @@ Governance and product-facing records use **Filing Cabinet**. Compact `FilingCab
 - Separate CLI and MSTest projects.
 - Local JSON catalog and user-selected portable vault storage.
 - Deterministic ingest, preview, relation, health, repair, export, and integrity workflows.
+- Native `IExplorerCommand` shell-extension DLL for packaged MSIX **Copy to Filing Cabinet** and **Move to Filing Cabinet** Explorer commands.
 - `winapp` MSIX workflow using `Package.appxmanifest` and generated assets under `Assets`.
 - PowerShell/WiX installer pipeline under `installer` retained as local/direct-distribution evidence.
 
