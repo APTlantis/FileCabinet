@@ -10,7 +10,7 @@ Good candidates include installers, disk images, manifests, configuration files,
 
 Current version: **Filing Cabinet v0.1.1**.
 
-The v0.1.1 compliance alignment patch keeps the stable vault workflow from `0.1.0` and brings the release evidence into current DRS alignment. It publishes the MIT License, records Release Hasher manifests, and establishes the Windows MSIX -> Microsoft Store path as the forward public distribution route. The active Windows package version is `0.1.1.0`.
+The v0.1.1 compliance alignment patch keeps the stable vault workflow from `0.1.0` and brings the release evidence into current DRS alignment. It publishes the MIT License, records Release Hasher manifests, and establishes the Windows MSIX -> Microsoft Store path as the forward public distribution route. The active Windows package version is `0.1.2.0`.
 
 Current Windows package evidence:
 
@@ -18,18 +18,18 @@ Current Windows package evidence:
 - Store identity: `Aptlantis.FilingCabinet`
 - Store publisher: `CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0`
 - Store ID: `9N29X9KR70R3`
-- Store-accepted MSIX candidate: `Aptlantis.FilingCabinet_0.1.1.0_x64.msix`
-- Package version and architecture: `0.1.1.0`, X64
+- Store-accepted MSIX candidate: `Aptlantis.FilingCabinet_0.1.2.0_x64.msix`
+- Package version and architecture: `0.1.2.0`, X64
 - Device family: Windows.Desktop, min version `10.0.18362.0`
 - Language: `en-us`
 - Capabilities: `runFullTrust`, `Microsoft.storeFilter.core.notSupported_8wekyb3d8bbwe`
 - Store-reported file size: `9.4 MB`
-- ARHS hash manifest: `FilingCabinet-0.1.1.0.hashmanifest.toml`
-- Detached manifest signatures: `FilingCabinet-0.1.1.0.hashmanifest.toml.asc` and `FilingCabinet-0.1.1.0.hashmanifest.toml.sphincs`
+- ARHS hash manifest: `FilingCabinet-0.1.2.0.hashmanifest.toml`
+- Detached manifest signatures: `FilingCabinet-0.1.2.0.hashmanifest.toml.asc` and `FilingCabinet-0.1.2.0.hashmanifest.toml.sphincs`
 - Public Windows signing authority: Microsoft Store signs the distributed package after certification/publication
-- Historical/local MSI evidence: `artifacts/installer/FilingCabinet-0.1.1.0-win-x64.msi`
+- Historical/local MSI evidence: `artifacts/installer/FilingCabinet-0.1.2.0-win-x64.msi`
 
-`Package.appxmanifest` follows the accepted Store identity/display pattern, and `Aptlantis.FilingCabinet_0.1.1.0_x64.msix` has been accepted by Partner Center package validation. The detached PGP and SLH-DSA files sign the ARHS hash manifest for preservation/provenance evidence; they do not replace Microsoft Store signing for the public MSIX distribution.
+`Package.appxmanifest` follows the accepted Store identity/display pattern, and `Aptlantis.FilingCabinet_0.1.2.0_x64.msix` has been accepted by Partner Center package validation. The detached PGP and SLH-DSA files sign the ARHS hash manifest for preservation/provenance evidence; they do not replace Microsoft Store signing for the public MSIX distribution.
 
 This release keeps the mature vault workflow: Vault Health has its own workspace, default analysis is metadata-first, large-file hash reads stay explicit, and bulk repair selection remains available for large repair lists. Current builds also combine Preview and Relations in the right panel, group hash settings by purpose, and start new catalogs with SHA-256 only unless the operator opts into additional hashes.
 

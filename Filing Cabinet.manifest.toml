@@ -21,7 +21,7 @@ title = "Filing Cabinet"
 description = "Local-first Windows desktop vault for retaining, cataloging, previewing, verifying, and recovering high-signal technical artifacts."
 type = "tool"
 stage = "production"
-version = "0.1.1"
+version = "0.1.2"
 portfolio_class = "project"
 tags = [
   "local-first",

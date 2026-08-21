@@ -17,7 +17,7 @@
   <Identity
     Name="Aptlantis.FilingCabinet"
     Publisher="CN=81D6747D-F84F-4EFF-ACAA-9635D91ACCD0"
-    Version="0.1.1.0" />
+    Version="0.1.2.0" />
 
   <Properties>
     <DisplayName>Filing Cabinet</DisplayName>
@@ -79,14 +79,6 @@
                 Clsid="8266646F-93D6-4D83-B068-BB0D6858BF83" />
               <desktop5:Verb
                 Id="MoveDirectoryToFilingCabinet"
-                Clsid="B61E36E1-BB0B-46A5-950B-56789246198B" />
-            </desktop5:ItemType>
-            <desktop5:ItemType Type="Drive">
-              <desktop5:Verb
-                Id="CopyDriveToFilingCabinet"
-                Clsid="8266646F-93D6-4D83-B068-BB0D6858BF83" />
-              <desktop5:Verb
-                Id="MoveDriveToFilingCabinet"
                 Clsid="B61E36E1-BB0B-46A5-950B-56789246198B" />
             </desktop5:ItemType>
           </desktop4:FileExplorerContextMenus>
